@@ -1,0 +1,12 @@
+# anything generated here
+/Debug*
+
+#	python compiled files
+*pyc
+
+#	our test executable(w)
+
+EndToEnd_Test
+Unit_Test
+
+
