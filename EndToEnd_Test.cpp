@@ -117,7 +117,8 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
-	std::string command_line{"the_program --index-dir /tmp --begin-date 2013-Oct-14 --form-dir /tmp/forms"};
+	std::string command_line{"the_program --index-dir /tmp --begin-date 2013-Oct-14 --form-dir /tmp/forms"
+		" --login aaa@bbb.com"};
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);		
 
@@ -126,7 +127,7 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
 
-		const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 		myApp.Run();
@@ -154,6 +155,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp --begin-date 2013-Oct-14 --form-dir /tmp/forms "
+		"--login aaa@bbb.com "
 		"--index-only"};
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);		
@@ -163,7 +165,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
 		
-		const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 		myApp.Run();
@@ -188,6 +190,7 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index1 --form-dir /tmp/forms1 "
+		"--login aaa@bbb.com "
 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17"};
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);		
@@ -197,7 +200,7 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
 
-		const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 		myApp.Run();
@@ -225,6 +228,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index1 --form-dir /tmp/forms1 "
+		"--login aaa@bbb.com "
 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 --index-only"};
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);		
@@ -234,7 +238,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
 
-		const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 		myApp.Run();
@@ -259,6 +263,7 @@ TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingIndexFilesWhenReplaceNotSpeci
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms1 "
+		"--login aaa@bbb.com "
 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 --index-only"};
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);		
@@ -266,16 +271,16 @@ TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingIndexFilesWhenReplaceNotSpeci
 	CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 	myApp.StartUp();
 
-	const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 	myApp.Run();
-	auto x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
+	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
 
 	std::this_thread::sleep_for(std::chrono::seconds{1});
 
 	myApp.Run();
-	auto x2 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
+	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
 
 	myApp.Quit();
 	
@@ -288,6 +293,7 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingIndexFilesWhenReplaceIsSpecifed
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms1 "
+		"--login aaa@bbb.com "
 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "
 		"--replace-index-files --index-only"};
 	//std::string command_line{"the_program --index-dir /tmp"};
@@ -296,16 +302,16 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingIndexFilesWhenReplaceIsSpecifed
 	CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 	myApp.StartUp();
 
-	const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 	myApp.Run();
-	auto x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
+	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
 
 	std::this_thread::sleep_for(std::chrono::seconds{1});
 
 	myApp.Run();
-	auto x2 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
+	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
 
 	myApp.Quit();
 	
@@ -318,6 +324,7 @@ TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingFormFilesWhenReplaceNotSpecif
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms2 "
+		"--login aaa@bbb.com "
 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "};
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);		
@@ -325,16 +332,16 @@ TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingFormFilesWhenReplaceNotSpecif
 	CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 	myApp.StartUp();
 
-	const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 	myApp.Run();
-	auto x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
+	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
 
 	std::this_thread::sleep_for(std::chrono::seconds{1});
 
 	myApp.Run();
-	auto x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
+	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
 
 	myApp.Quit();
 	
@@ -347,6 +354,7 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms2 "
+		"--login aaa@bbb.com "
 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "
 		"--replace-form-files"};
 	//std::string command_line{"the_program --index-dir /tmp"};
@@ -355,16 +363,16 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
 	CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 	myApp.StartUp();
 
-	const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 	myApp.Run();
-	auto x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
+	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
 
 	std::this_thread::sleep_for(std::chrono::seconds{1});
 
 	myApp.Run();
-	auto x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
+	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
 
 	myApp.Quit();
 	
@@ -382,6 +390,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index3 "
+		"--login aaa@bbb.com "
 		"--begin-date 2000-Jan-01 "
 		"--index-only --mode quarterly"};
 	//std::string command_line{"the_program --index-dir /tmp"};
@@ -390,7 +399,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 	CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 	myApp.StartUp();
 
-	const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 	myApp.Run();
@@ -405,6 +414,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFilesForDateRan
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index4 "
+		"--login aaa@bbb.com "
 		"--begin-date 2009-Sep-01 --end-date 2010-Oct-01 "
 		"--index-only --mode quarterly"};
 	//std::string command_line{"the_program --index-dir /tmp"};
@@ -413,7 +423,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFilesForDateRan
 	CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 	myApp.StartUp();
 
-	const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 	myApp.Run();
@@ -428,6 +438,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForQuarter)
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index4 --form-dir /tmp/forms4 "
+		"--login aaa@bbb.com "
 		"--begin-date 2009-Sep-01  "
 		" --mode quarterly"};
 	//std::string command_line{"the_program --index-dir /tmp"};
@@ -436,7 +447,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForQuarter)
 	CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 	myApp.StartUp();
 
-	const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 	myApp.Run();
@@ -451,6 +462,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index5 --form-dir /tmp/forms5 "
+		"--login aaa@bbb.com "
 		"--begin-date 2009-Sep-01 --end-date 2010-Oct-04 "
 		" --mode quarterly"};
 	//std::string command_line{"the_program --index-dir /tmp"};
@@ -461,7 +473,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
 
-		const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 		myApp.Run();
@@ -490,6 +502,7 @@ TEST(TickerEndToEndTest, VerifyWritesToLogFile)
 	//	the test program.
 
 	std::string command_line{"the_program  "
+		"--login aaa@bbb.com "
 		" --mode ticker-only --ticker AAPL "
 		" --log-path /tmp/the_log"};
 	//std::string command_line{"the_program --index-dir /tmp"};
@@ -500,7 +513,7 @@ TEST(TickerEndToEndTest, VerifyWritesToLogFile)
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
 
-		const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 		myApp.Run();
@@ -524,6 +537,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 	//	the test program.
 
 	std::string command_line{"the_program  "
+		"--login aaa@bbb.com "
 		" --mode ticker-only --ticker AAPL "
 		" --log-path /tmp/the_log --ticker-cache /tmp/ticker_to_CIK"};
 	//std::string command_line{"the_program --index-dir /tmp"};
@@ -534,7 +548,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
 
-		const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 		myApp.Run();
@@ -558,6 +572,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupForFileOfTickers)
 	//	the test program.
 
 	std::string command_line{"the_program  "
+		"--login aaa@bbb.com "
 		" --mode ticker-only --ticker-file ./test_tickers_file "
 		" --log-path /tmp/the_log --ticker-cache /tmp/tickers_to_CIK"};
 	//std::string command_line{"the_program --index-dir /tmp"};
@@ -568,7 +583,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupForFileOfTickers)
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
 
-		const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 		myApp.Run();
@@ -592,6 +607,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesFor
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index5 --form-dir /tmp/forms6 "
+		"--login aaa@bbb.com "
 		"--begin-date 2009-Sep-01 "
 		" --mode quarterly "
 		" --log-path /tmp/the_log "
@@ -604,7 +620,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesFor
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
 
-		const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 		myApp.Run();
@@ -628,6 +644,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesFor
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index5 --form-dir /tmp/forms7 "
+		"--login aaa@bbb.com "
 		"--begin-date 2009-Sep-01 "
 		" --end-date 2010-Oct-21 "
 		" --mode quarterly "
@@ -641,7 +658,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesFor
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
 
-		const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 		myApp.Run();
@@ -670,6 +687,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForSingl
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp --form-dir /tmp/forms8 "
+		"--login aaa@bbb.com "
 		" --begin-date 2013-Oct-17 "
 		" --ticker AAPL"
 		" --form 4" };
@@ -681,7 +699,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForSingl
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
 
-		const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 		myApp.Run();
@@ -706,6 +724,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp --form-dir /tmp/forms9 "
+		"--login aaa@bbb.com "
 		" --end-date 2013-Oct-17 "
 		" --begin-date 2013-Oct-09 "
 		" --ticker AAPL"
@@ -718,7 +737,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
 
-		const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 		myApp.Run();
@@ -748,6 +767,7 @@ TEST(DailyEndToEndTestWithMultipleFormTypes, VerifyDownloadMultipleTypesOfFormFi
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp --form-dir /tmp/forms10 "
+		"--login aaa@bbb.com "
 		" --begin-date 2013-Oct-17 "
 		" --log-path /tmp/the_log "
 		" --form 10-K,10-Q,4" };
@@ -759,7 +779,7 @@ TEST(DailyEndToEndTestWithMultipleFormTypes, VerifyDownloadMultipleTypesOfFormFi
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
 
-		const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 		myApp.Run();
@@ -786,6 +806,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForSingl
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp --form-dir /tmp/forms11 "
+		"--login aaa@bbb.com "
 		" --begin-date 2013-Oct-17 "
 		" --ticker AAPL,DHS,GOOG"
 		" --form 4" };
@@ -797,7 +818,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForSingl
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
 
-		const auto* const test_info = UnitTest::GetInstance()->current_test_info();
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
 		
 		myApp.Run();
