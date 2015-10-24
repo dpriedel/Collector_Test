@@ -61,7 +61,8 @@ ifeq "$(CFG)" "Debug"
 OUTDIR := Debug_unit
 
 CFG_LIB := -liberty -lpthread -L$(BOOSTDIR)/lib -lboost_system-d -lboost_filesystem-d  \
-		-lboost_date_time-d -lboost_regex-d -L/usr/local/lib -lgtest -lgmock -lgtest_main -lgmock_main -L/usr/lib/Poco -lPocoNet -lPocoFoundation -lPocoZip
+		-lboost_date_time-d -lboost_regex-d -L/usr/local/lib -lgtest -lgmock -lgtest_main -lgmock_main \
+		-L/usr/lib -lPocoNet -lPocoFoundation -lPocoUtil -lPocoZip
 
 OBJS1=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS1)))))
 OBJS2=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS2)))))
