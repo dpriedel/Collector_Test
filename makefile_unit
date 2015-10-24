@@ -32,7 +32,7 @@ endif
 
 OUTFILE := Unit_Test
 
-CFG_INC := -I/home/dpriedel/projects/workspace/app_framework/include/ -I/home/dpriedel/projects/workspace/CollectEDGARData/src \
+CFG_INC := -I/home/dpriedel/projects/github/app_framework/include/ -I/home/dpriedel/projects/github/CollectEDGARData/src \
 		-I$(GCCDIR)/include/libiberty -idirafter $(BOOSTDIR)
 
 RPATH_LIB := -Xlinker -rpath -Xlinker $(GCCDIR)/lib64 -Xlinker -rpath -Xlinker $(BOOSTDIR)/lib
