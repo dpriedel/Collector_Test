@@ -71,6 +71,11 @@ using Poco::Util::AbstractConfiguration;
 using Poco::Util::OptionCallback;
 using Poco::AutoPtr;
 
+//	need these to feed into testing framework.
+
+int G_ARGC = 0;
+char** G_ARGV = nullptr;
+
 
 class EDGAR_UnitTest: public Application
 	/// This sample demonstrates some of the features of the Util::Application class,
@@ -196,8 +201,9 @@ protected:
 			printProperties("");
 
 			//	run our tests
-			/* testing::InitGoogleMock(&this->argc, this->argv); */
-			/* return RUN_ALL_TESTS(); */
+			 
+			testing::InitGoogleMock(&G_ARGC, G_ARGV);
+			return RUN_ALL_TESTS();
 		}
 		return Application::EXIT_OK;
 	}
@@ -1044,4 +1050,31 @@ private:
 /* } */
 
 
-POCO_APP_MAIN(EDGAR_UnitTest)
+int main(int argc, char** argv)
+{
+	G_ARGC = argc;
+	G_ARGV = argv;
+
+	EDGAR_UnitTest the_app;
+	try
+	{
+		the_app.init(argc, argv);
+	}
+	catch (Poco::Exception& exc)
+	{
+		the_app.logger().log(exc);
+		return Application::EXIT_CONFIG;
+	}
+	return the_app.run();
+	/* AutoPtr<HTTPLoadTest> pApp = new HTTPLoadTest; */
+	/* try */
+	/* { */
+	/* 	pApp->init(argc, argv); */
+	/* } */
+	/* catch (Poco::Exception& exc) */
+	/* { */
+	/* 	pApp->logger().log(exc); */
+	/* 	return Application::EXIT_CONFIG; */
+	/* } */
+	/* return pApp->run(); */
+}
