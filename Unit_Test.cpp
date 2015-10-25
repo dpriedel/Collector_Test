@@ -240,57 +240,57 @@ private:
 };
 
 
-/* MATCHER_P(StringEndsWith, value, std::string(negation ? "doesn't" : "does") + */
-/*                         " end with " + value) */
-/* { */
-/* 	return boost::algorithm::ends_with(arg, value); */
-/* } */
+MATCHER_P(StringEndsWith, value, std::string(negation ? "doesn't" : "does") +
+                        " end with " + value)
+{
+	return boost::algorithm::ends_with(arg, value);
+}
 
-/* int CountFilesInDirectoryTree(const fs::path& directory) */
-/* { */
-/* 	int count = std::count_if(fs::recursive_directory_iterator(directory), fs::recursive_directory_iterator(), */
-/* 			[](const fs::directory_entry& entry) { return entry.status().type() == fs::file_type::regular_file; }); */
-/* 	return count; */
-/* } */
+int CountFilesInDirectoryTree(const fs::path& directory)
+{
+	int count = std::count_if(fs::recursive_directory_iterator(directory), fs::recursive_directory_iterator(),
+			[](const fs::directory_entry& entry) { return entry.status().type() == fs::file_type::regular_file; });
+	return count;
+}
 
-/* std::map<std::string, std::time_t> CollectLastModifiedTimesForFilesInDirectory(const fs::path& directory) */
-/* { */
-/* 	std::map<std::string, std::time_t> results; */
-/* 	for (auto x = fs::directory_iterator(directory); x != fs::directory_iterator(); ++x) */
-/* 	{ */
-/* 		if (x->status().type() == fs::file_type::regular_file) */
-/* 			results[x->path().leaf().string()] = fs::last_write_time(x->path()); */
-/* 	} */
+std::map<std::string, std::time_t> CollectLastModifiedTimesForFilesInDirectory(const fs::path& directory)
+{
+	std::map<std::string, std::time_t> results;
+	for (auto x = fs::directory_iterator(directory); x != fs::directory_iterator(); ++x)
+	{
+		if (x->status().type() == fs::file_type::regular_file)
+			results[x->path().leaf().string()] = fs::last_write_time(x->path());
+	}
 
-/* 	return results; */
-/* } */
+	return results;
+}
 
-/* std::map<std::string, std::time_t> CollectLastModifiedTimesForFilesInDirectoryTree(const fs::path& directory) */
-/* { */
-/* 	std::map<std::string, std::time_t> results; */
-/* 	for (auto x = fs::recursive_directory_iterator(directory); x != fs::recursive_directory_iterator(); ++x) */
-/* 	{ */
-/* 		if (x->status().type() == fs::file_type::regular_file) */
-/* 			results[x->path().leaf().string()] = fs::last_write_time(x->path()); */
-/* 	} */
+std::map<std::string, std::time_t> CollectLastModifiedTimesForFilesInDirectoryTree(const fs::path& directory)
+{
+	std::map<std::string, std::time_t> results;
+	for (auto x = fs::recursive_directory_iterator(directory); x != fs::recursive_directory_iterator(); ++x)
+	{
+		if (x->status().type() == fs::file_type::regular_file)
+			results[x->path().leaf().string()] = fs::last_write_time(x->path());
+	}
 
-/* 	return results; */
-/* } */
+	return results;
+}
 
-/* int CountTotalFormsFilesFound(const FormFileRetriever::FormsList& file_list) */
-/* { */
-/* 	int grand_total{0}; */
-/* 	for (const auto& elem : file_list) */
-/* 		grand_total += elem.second.size(); */
+int CountTotalFormsFilesFound(const FormFileRetriever::FormsList& file_list)
+{
+	int grand_total{0};
+	for (const auto& elem : file_list)
+		grand_total += elem.second.size();
 
-/* 	return grand_total; */
-/* } */
+	return grand_total;
+}
 
-/* class FTP_UnitTest : public Test */
-/* { */
+class FTP_UnitTest : public Test
+{
 
 
-/* }; */
+};
 
 /* TEST_F(RetrieverUnitTest, VerifyRetrievesIndexFileforNearestDate) */
 /* { */
@@ -305,11 +305,11 @@ private:
 
 /* } */
 
-/* TEST_F(FTP_UnitTest, TestExceptionOnFailureToConnectToFTPServer) */
-/* { */
-/* 	FTP_Server a_server{"localxxxx", "anonymous", "aaa@bbb.net"}; */
-/* 	ASSERT_THROW(a_server.OpenFTPConnection(), Poco::Net::NetException); */
-/* } */
+TEST_F(FTP_UnitTest, TestExceptionOnFailureToConnectToFTPServer)
+{
+	FTP_Server a_server{"localxxxx", "anonymous", "aaa@bbb.net"};
+	ASSERT_THROW(a_server.OpenFTPConnection(), Poco::Net::NetException);
+}
 
 /* TEST_F(FTP_UnitTest, TestAbilityToConnectToFTPServer) */
 /* { */
