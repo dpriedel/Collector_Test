@@ -19,7 +19,7 @@
 #
 MAKE=gmake
 
-BOOSTDIR := /extra/boost/boost-1.59_gcc-5
+BOOSTDIR := /extra/boost/boost-1.60_gcc-5
 GCCDIR := /extra/gcc/gcc-5
 CPP := $(GCCDIR)/bin/g++
 
@@ -35,7 +35,7 @@ OUTFILE := Unit_Test
 CFG_INC := -I/home/dpriedel/projects/github/app_framework/include/ -I/home/dpriedel/projects/github/CollectEDGARData/src \
 		-I$(GCCDIR)/include/libiberty -idirafter $(BOOSTDIR)
 
-RPATH_LIB := -Xlinker -rpath -Xlinker $(GCCDIR)/lib64 -Xlinker -rpath -Xlinker $(BOOSTDIR)/lib
+RPATH_LIB := -Wl,-rpath,$(GCCDIR)/lib64 -Wl,-rpath,$(BOOSTDIR)/lib
 
 SDIR1 := .
 SRCS1 := $(SDIR1)/Unit_Test.cpp
