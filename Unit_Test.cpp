@@ -311,58 +311,61 @@ TEST_F(FTP_UnitTest, TestExceptionOnFailureToConnectToFTPServer)
 	ASSERT_THROW(a_server.OpenFTPConnection(), Poco::Net::NetException);
 }
 
-/* TEST_F(FTP_UnitTest, TestAbilityToConnectToFTPServer) */
-/* { */
-/* 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
-/* 	ASSERT_NO_THROW(a_server.OpenFTPConnection()); */
-/* } */
+TEST_F(FTP_UnitTest, TestAbilityToConnectToFTPServer)
+{
+	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
+	ASSERT_NO_THROW(a_server.OpenFTPConnection());
+}
 
-/* TEST_F(FTP_UnitTest, TestAbilityToChangeWorkingDirectory) */
-/* { */
-/* 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
-/* 	a_server.OpenFTPConnection(); */
-/* 	a_server.ChangeWorkingDirectoryTo("edgar/daily-index"); */
-/* 	ASSERT_THAT(a_server.GetWorkingDirectory().size(), Gt(0)); */
+TEST_F(FTP_UnitTest, TestAbilityToChangeWorkingDirectory)
+{
+	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
+	a_server.OpenFTPConnection();
+	a_server.ChangeWorkingDirectoryTo("edgar/daily-index");
+	ASSERT_THAT(a_server.GetWorkingDirectory().size(), Gt(0));
 
-/* } */
+}
 
-/* TEST_F(FTP_UnitTest, TestExceptionOnFailureToChangeWorkingDirectory) */
-/* { */
-/* 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
-/* 	a_server.OpenFTPConnection(); */
-/* 	ASSERT_THROW(a_server.ChangeWorkingDirectoryTo("edgar/xxxxy-index"), Poco::Net::FTPException); */
+TEST_F(FTP_UnitTest, TestExceptionOnFailureToChangeWorkingDirectory)
+{
+	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
+	a_server.OpenFTPConnection();
+	ASSERT_THROW(a_server.ChangeWorkingDirectoryTo("edgar/xxxxy-index"), Poco::Net::FTPException);
 
-/* } */
+}
 
-/* TEST_F(FTP_UnitTest, TestAbilityToListWorkingDirectory) */
-/* { */
-/* 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
-/* 	a_server.OpenFTPConnection(); */
-/* 	a_server.ChangeWorkingDirectoryTo("edgar/daily-index"); */
-/* 	decltype(auto) directory_list = a_server.ListWorkingDirectoryContents(); */
-/* 	ASSERT_THAT(directory_list.size(), Gt(0)); */
+TEST_F(FTP_UnitTest, TestAbilityToListWorkingDirectory)
+{
+	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
+	a_server.OpenFTPConnection();
+	a_server.ChangeWorkingDirectoryTo("edgar/daily-index");
+	decltype(auto) directory_list = a_server.ListWorkingDirectoryContents();
+	ASSERT_THAT(directory_list.size(), Gt(0));
 
-/* } */
+}
 
-/* TEST_F(FTP_UnitTest, VerifyAbilityToDownloadFileWhichExists) */
-/* { */
-/* 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
-/* 	a_server.OpenFTPConnection(); */
-/* 	a_server.ChangeWorkingDirectoryTo("edgar/daily-index"); */
+TEST_F(FTP_UnitTest, VerifyAbilityToDownloadFileWhichExists)
+{
+	if (fs::exists("/tmp/form.20131010.idx"))
+		fs::remove("/tmp/form.20131010.idx");
 
-/* 	a_server.DownloadFile("form.20131010.idx", "/tmp/form.20131010.idx"); */
-/* 	ASSERT_THAT(fs::exists("/tmp/form.20131010.idx"), Eq(true)); */
-/* } */
+	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
+	a_server.OpenFTPConnection();
+	a_server.ChangeWorkingDirectoryTo("edgar/daily-index");
 
-/* TEST_F(FTP_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist) */
-/* { */
-/* 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
-/* 	a_server.OpenFTPConnection(); */
-/* 	a_server.ChangeWorkingDirectoryTo("edgar/daily-index"); */
-/* 	decltype(auto) directory_list = a_server.ListWorkingDirectoryContents(); */
+	a_server.DownloadFile("form.20131010.idx", "/tmp/form.20131010.idx");
+	ASSERT_THAT(fs::exists("/tmp/form.20131010.idx"), Eq(true));
+}
 
-/* 	ASSERT_THROW(a_server.DownloadFile("form.20131010.abc", "/tmp/downloaded/form.20131010.abc"), Poco::Net::FTPException); */
-/* } */
+TEST_F(FTP_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
+{
+	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
+	a_server.OpenFTPConnection();
+	a_server.ChangeWorkingDirectoryTo("edgar/daily-index");
+	decltype(auto) directory_list = a_server.ListWorkingDirectoryContents();
+
+	ASSERT_THROW(a_server.DownloadFile("form.20131010.abc", "/tmp/downloaded/form.20131010.abc"), Poco::Net::FTPException);
+}
 
 /* class RetrieverUnitTest : public Test */
 /* { */
