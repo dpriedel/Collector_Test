@@ -19,8 +19,9 @@
 #
 MAKE=gmake
 
-BOOSTDIR := /extra/boost/boost-1.60_gcc-5
-GCCDIR := /extra/gcc/gcc-5
+BOOSTDIR := /extra/boost/boost-1.61_gcc-6
+GCCDIR := /extra/gcc/gcc-6
+GTESTDIR := /usr/local/include
 CPP := $(GCCDIR)/bin/g++
 
 # If no configuration is specified, "Debug" will be used
@@ -33,9 +34,9 @@ endif
 OUTFILE := Unit_Test
 
 CFG_INC := -I/home/dpriedel/projects/github/app_framework/include/ -I/home/dpriedel/projects/github/CollectEDGARData/src \
-		-I$(GCCDIR)/include/libiberty -idirafter $(BOOSTDIR)
+		-I$(GCCDIR)/include/libiberty -I$(GTESTDIR) -I$(BOOSTDIR)
 
-RPATH_LIB := -Wl,-rpath,$(GCCDIR)/lib64 -Wl,-rpath,$(BOOSTDIR)/lib
+RPATH_LIB := -Wl,-rpath,$(GCCDIR)/lib64 -Wl,-rpath,$(BOOSTDIR)/lib -Wl,-rpath,/usr/local/lib
 
 SDIR1 := .
 SRCS1 := $(SDIR1)/Unit_Test.cpp
@@ -61,8 +62,9 @@ ifeq "$(CFG)" "Debug"
 OUTDIR := Debug_unit
 
 CFG_LIB := -liberty -lpthread -L$(BOOSTDIR)/lib -lboost_system-d -lboost_filesystem-d  \
-		-lboost_date_time-d -lboost_regex-d -L/usr/local/lib -lgtest -lgmock -lgmock_main \
-		-L/usr/lib -lPocoNet -lPocoFoundation -lPocoUtil -lPocoZip
+		-lboost_date_time-d -lboost_regex-d \
+		-L/usr/local/lib -lPocoNet -lPocoFoundation -lPocoUtil -lPocoZip \
+		-L/usr/local/lib -lgmock_main
 
 OBJS1=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS1)))))
 OBJS2=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS2)))))
@@ -79,7 +81,7 @@ endif #	DEBUG configuration
 # Build rules
 all: $(OUTFILE)
 
-$(OUTDIR)/%.o : %.cpp 
+$(OUTDIR)/%.o : %.cpp
 	$(COMPILE)
 
 $(OUTFILE): $(OUTDIR) $(OBJS1) $(OBJS2) $(OBJS3)
@@ -103,5 +105,3 @@ clean:
 
 # Clean this project and all dependencies
 cleanall: clean
-
-
