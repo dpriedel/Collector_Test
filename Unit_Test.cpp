@@ -76,6 +76,7 @@ using Poco::AutoPtr;
 int G_ARGC = 0;
 char** G_ARGV = nullptr;
 
+// using one of the example Poco programs to get going
 
 class EDGAR_UnitTest: public Application
 	/// This sample demonstrates some of the features of the Util::Application class,
@@ -118,6 +119,13 @@ protected:
 				.required(false)
 				.repeatable(false)
 				.callback(OptionCallback<EDGAR_UnitTest>(this, &EDGAR_UnitTest::handleHelp)));
+
+		options.addOption(
+			Option("gtest_filter", "", "select which tests to run.")
+				.required(false)
+				.repeatable(true)
+				.argument("name=value")
+				.callback(OptionCallback<EDGAR_UnitTest>(this, &EDGAR_UnitTest::handleDefine)));
 
 		/* options.addOption( */
 		/* 	Option("define", "D", "define a configuration property") */
@@ -319,14 +327,14 @@ TEST_F(FTP_UnitTest, TestAbilityToConnectToFTPServer)
 	ASSERT_NO_THROW(a_server.OpenFTPConnection());
 }
 
-TEST_F(FTP_UnitTest, TestAbilityToChangeWorkingDirectory)
-{
-	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
-	a_server.OpenFTPConnection();
-	a_server.ChangeWorkingDirectoryTo("edgar/daily-index");
-	ASSERT_THAT(a_server.GetWorkingDirectory().size(), Gt(0));
+/* TEST_F(FTP_UnitTest, TestAbilityToChangeWorkingDirectory) */
+/* { */
+/* 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
+/* 	a_server.OpenFTPConnection(); */
+/* 	a_server.ChangeWorkingDirectoryTo("edgar/daily-index"); */
+/* 	ASSERT_THAT(a_server.GetWorkingDirectory().size(), Gt(0)); */
 
-}
+/* } */
 
 TEST_F(FTP_UnitTest, TestExceptionOnFailureToChangeWorkingDirectory)
 {
@@ -369,42 +377,47 @@ TEST_F(FTP_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 	ASSERT_THROW(a_server.DownloadFile("form.20131010.abc", "/tmp/downloaded/form.20131010.abc"), Poco::Net::FTPException);
 }
 
-/* class RetrieverUnitTest : public Test */
-/* { */
-/* public: */
-/* 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
-/* 	DailyIndexFileRetriever idxFileRet{a_server}; */
-/* }; */
+class RetrieverUnitTest : public Test
+{
+public:
+	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
+	DailyIndexFileRetriever idxFileRet{a_server};
+};
 
-/* TEST_F(RetrieverUnitTest, VerifyRejectsInvalidDates) */
-/* { */
-/* 	ASSERT_THROW(idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-Oxt-13")), std::out_of_range); */
-/* } */
+TEST_F(RetrieverUnitTest, VerifyRejectsInvalidDates)
+{
+	ASSERT_THROW(idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-Oxt-13")), std::out_of_range);
+}
 
-/* TEST_F(RetrieverUnitTest, VerifyRejectsFutureDates) */
-/* { */
-/* 	ASSERT_THROW(idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2014-10-13")), std::range_error); */
-/* } */
+TEST_F(RetrieverUnitTest, VerifyRejectsFutureDates)
+{
+	// let's make a date in the future
+
+	auto today = bg::day_clock::local_day();
+	auto tomorrow = today + bg::date_duration(1);
+
+	ASSERT_THROW(idxFileRet.FindIndexFileNameNearestDate(tomorrow), std::range_error);
+}
 
 
-/* //	Finally, we get to the point */
+//	Finally, we get to the point
 
-/* TEST_F(RetrieverUnitTest, TestFindIndexFileDateNearestWhereDateExists) */
-/* { */
-/* 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-11")); */
-/* 	ASSERT_THAT(idxFileRet.GetActualIndexFileDate() == bg::from_simple_string("2013-10-11"), Eq(true)); */
-/* } */
+TEST_F(RetrieverUnitTest, TestFindIndexFileDateNearestWhereDateExists)
+{
+	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-11"));
+	ASSERT_THAT(idxFileRet.GetActualIndexFileDate() == bg::from_simple_string("2013-10-11"), Eq(true));
+}
 
-/* TEST_F(RetrieverUnitTest, TestFindIndexFileDateNearestWhereDateDoesNotExist) */
-/* { */
-/* 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-14")); */
-/* 	ASSERT_THAT(idxFileRet.GetActualIndexFileDate() == bg::from_simple_string("2013-10-11"), Eq(true)); */
-/* } */
+TEST_F(RetrieverUnitTest, TestFindIndexFileDateNearestWhereDateDoesNotExist)
+{
+	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-14"));
+	ASSERT_THAT(idxFileRet.GetActualIndexFileDate() == bg::from_simple_string("2013-10-11"), Eq(true));
+}
 
-/* TEST_F(RetrieverUnitTest, TestExceptionThrownWhenRemoteIndexFileNameUnknown) */
-/* { */
-/* 	ASSERT_THROW(idxFileRet.RetrieveRemoteIndexFileTo("/tmp"), std::runtime_error); */
-/* } */
+TEST_F(RetrieverUnitTest, TestExceptionThrownWhenRemoteIndexFileNameUnknown)
+{
+	ASSERT_THROW(idxFileRet.RetrieveRemoteIndexFileTo("/tmp"), std::runtime_error);
+}
 
 /* TEST_F(RetrieverUnitTest, TestRetrieveIndexFileWhereDateExists) */
 /* { */
@@ -414,58 +427,58 @@ TEST_F(FTP_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 /* 	ASSERT_THAT(fs::exists(idxFileRet.GetLocalIndexFilePath()), Eq(true)); */
 /* } */
 
-/* TEST_F(RetrieverUnitTest, TestRetrieveIndexFileDoesNotReplaceWhenReplaceNotSpecified) */
-/* { */
-/* 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-11")); */
-/* 	idxFileRet.RetrieveRemoteIndexFileTo("/tmp"); */
-/* 	decltype(auto) d1 = fs::last_write_time(idxFileRet.GetLocalIndexFilePath()); */
+TEST_F(RetrieverUnitTest, TestRetrieveIndexFileDoesNotReplaceWhenReplaceNotSpecified)
+{
+	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-11"));
+	idxFileRet.RetrieveRemoteIndexFileTo("/tmp");
+	decltype(auto) d1 = fs::last_write_time(idxFileRet.GetLocalIndexFilePath());
 
-/* 	std::this_thread::sleep_for(std::chrono::seconds{1}); */
+	std::this_thread::sleep_for(std::chrono::seconds{1});
 
-/* 	//	we will wait 1 second then do it again so we can compare timestamps */
+	//	we will wait 1 second then do it again so we can compare timestamps
 
-/* 	idxFileRet.RetrieveRemoteIndexFileTo("/tmp", false); */
-/* 	decltype(auto) d2 = fs::last_write_time(idxFileRet.GetLocalIndexFilePath()); */
-/* 	ASSERT_THAT(d2 == d1, Eq(true)); */
-/* } */
+	idxFileRet.RetrieveRemoteIndexFileTo("/tmp", false);
+	decltype(auto) d2 = fs::last_write_time(idxFileRet.GetLocalIndexFilePath());
+	ASSERT_THAT(d2 == d1, Eq(true));
+}
 
-/* TEST_F(RetrieverUnitTest, TestRetrieveIndexFileDoesReplaceWhenReplaceIsSpecified) */
-/* { */
-/* 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-11")); */
-/* 	idxFileRet.RetrieveRemoteIndexFileTo("/tmp"); */
-/* 	decltype(auto) d1 = fs::last_write_time(idxFileRet.GetLocalIndexFilePath()); */
+TEST_F(RetrieverUnitTest, TestRetrieveIndexFileDoesReplaceWhenReplaceIsSpecified)
+{
+	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-11"));
+	idxFileRet.RetrieveRemoteIndexFileTo("/tmp");
+	decltype(auto) d1 = fs::last_write_time(idxFileRet.GetLocalIndexFilePath());
 
-/* 	std::this_thread::sleep_for(std::chrono::seconds{1}); */
+	std::this_thread::sleep_for(std::chrono::seconds{1});
 
-/* 	//	we will wait 1 second then do it again so we can compare timestamps */
+	//	we will wait 1 second then do it again so we can compare timestamps
 
-/* 	idxFileRet.RetrieveRemoteIndexFileTo("/tmp", true); */
-/* 	decltype(auto) d2 = fs::last_write_time(idxFileRet.GetLocalIndexFilePath()); */
-/* 	ASSERT_THAT(d2 == d1, Eq(false)); */
-/* } */
+	idxFileRet.RetrieveRemoteIndexFileTo("/tmp", true);
+	decltype(auto) d2 = fs::last_write_time(idxFileRet.GetLocalIndexFilePath());
+	ASSERT_THAT(d2 == d1, Eq(false));
+}
 
-/* class ParserUnitTest : public Test */
-/* { */
-/* public: */
-/* 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
-/* 	//FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
-/* 	DailyIndexFileRetriever idxFileRet{a_server}; */
-/* }; */
+class ParserUnitTest : public Test
+{
+public:
+	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
+	/* FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
+	DailyIndexFileRetriever idxFileRet{a_server};
+};
 
-/* //	The following block of tests relate to working with the Index file located above. */
+//	The following block of tests relate to working with the Index file located above.
 
-/* TEST_F(ParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFile) */
-/* { */
-/* 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-10")); */
-/* 	idxFileRet.RetrieveRemoteIndexFileTo("/tmp"); */
-/* 	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath(); */
+TEST_F(ParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFile)
+{
+	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
+	idxFileRet.RetrieveRemoteIndexFileTo("/tmp");
+	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath();
 
-/* 	FormFileRetriever form_file_getter{a_server}; */
-/* 	std::vector<std::string> forms_list{"10-Q"}; */
-/* 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name); */
-/* 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(25)); */
+	FormFileRetriever form_file_getter{a_server};
+	std::vector<std::string> forms_list{"10-Q"};
+	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
+	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(25));
 
-/* } */
+}
 
 /* TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesListedInIndexFile) */
 /* { */
@@ -609,13 +622,13 @@ TEST_F(FTP_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 /* } */
 
 
-/* class QuarterlyUnitTest : public Test */
-/* { */
-/* public: */
-/* 	//FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
-/* 	FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
-/* 	QuarterlyIndexFileRetriever idxFileRet{a_server}; */
-/* }; */
+class QuarterlyUnitTest : public Test
+{
+public:
+	//FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
+	FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"};
+	QuarterlyIndexFileRetriever idxFileRet{a_server};
+};
 
 /* TEST_F(QuarterlyUnitTest, VerifyRejectsInvalidDates) */
 /* { */
@@ -639,21 +652,21 @@ TEST_F(FTP_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 /* 	ASSERT_THAT(file_name == "2002/QTR2/form.zip", Eq(true)); */
 /* } */
 
-/* TEST_F(QuarterlyUnitTest, TestFindAllQuarterlyIndexFilesForAYear) */
-/* { */
-/* 	decltype(auto) file_names = idxFileRet.FindIndexFileNamesForDateRange(bg::from_simple_string("2002-Jan-01"),\ */
-/* 			bg::from_string("2002-Dec-31")); */
-/* 	ASSERT_THAT(file_names.size(), Eq(4)); */
-/* } */
+TEST_F(QuarterlyUnitTest, TestFindAllQuarterlyIndexFilesForAYear)
+{
+	decltype(auto) file_names = idxFileRet.FindIndexFileNamesForDateRange(bg::from_simple_string("2002-Jan-01"),\
+			bg::from_string("2002-Dec-31"));
+	ASSERT_THAT(file_names.size(), Eq(4));
+}
 
-/* TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFile) */
-/* { */
-/* 	decltype(auto) file_name = idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2000-01-01")); */
-/* 	idxFileRet.RetrieveRemoteIndexFileTo("/tmp"); */
+TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFile)
+{
+	decltype(auto) file_name = idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2000-01-01"));
+	idxFileRet.RetrieveRemoteIndexFileTo("/tmp");
 
-/* 	ASSERT_THAT(fs::exists("/tmp/2000/QTR1/form.idx"), Eq(true)); */
-/* 	//ASSERT_THAT(fs::exists(idxFileRet.GetLocalIndexFilePath()), Eq(true)); */
-/* } */
+	ASSERT_THAT(fs::exists("/tmp/2000/QTR1/form.idx"), Eq(true));
+	//ASSERT_THAT(fs::exists(idxFileRet.GetLocalIndexFilePath()), Eq(true));
+}
 
 /* TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFileThenUnzipIt) */
 /* { */
@@ -706,13 +719,13 @@ TEST_F(FTP_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 
 
 
-/* class QuarterlyRetrieveMultipleFiles : public Test */
-/* { */
-/* public: */
-/* 	//FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
-/* 	FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
-/* 	QuarterlyIndexFileRetriever idxFileRet{a_server}; */
-/* }; */
+class QuarterlyRetrieveMultipleFiles : public Test
+{
+public:
+	//FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
+	FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"};
+	QuarterlyIndexFileRetriever idxFileRet{a_server};
+};
 
 /* TEST_F(QuarterlyRetrieveMultipleFiles, VerifyRejectsFutureDates) */
 /* { */
@@ -720,11 +733,11 @@ TEST_F(FTP_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 /* 			   std::range_error); */
 /* } */
 
-/* TEST_F(QuarterlyRetrieveMultipleFiles, VerifyFindsCorrectNumberOfIndexFilesInRange) */
-/* { */
-/* 	decltype(auto) file_list = idxFileRet.FindIndexFileNamesForDateRange(bg::from_simple_string("2009-Sep-10"), bg::from_simple_string("2010-10-21")); */
-/* 	ASSERT_THAT(file_list.size(), Eq(5)); */
-/* } */
+TEST_F(QuarterlyRetrieveMultipleFiles, VerifyFindsCorrectNumberOfIndexFilesInRange)
+{
+	decltype(auto) file_list = idxFileRet.FindIndexFileNamesForDateRange(bg::from_simple_string("2009-Sep-10"), bg::from_simple_string("2010-10-21"));
+	ASSERT_THAT(file_list.size(), Eq(5));
+}
 
 /* /1* TEST_F(QuarterlyRetrieveMultipleFiles, VerifyThrowsWhenNoIndexFilesInRange) *1/ */
 /* /1* { *1/ */
@@ -838,20 +851,20 @@ TEST_F(FTP_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 /* 	ASSERT_THAT(x1 == x2, Eq(true)); */
 /* } */
 
-/* class TickerLookupUnitTest : public Test */
-/* { */
-/* public: */
+class TickerLookupUnitTest : public Test
+{
+public:
 
-/* }; */
+};
 
-/* TEST_F(TickerLookupUnitTest, VerifyConvertsSingleTickerThatExistsToCIK) */
-/* { */
-/* 	TickerConverter sym; */
-/* 	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL"); */
+TEST_F(TickerLookupUnitTest, VerifyConvertsSingleTickerThatExistsToCIK)
+{
+	TickerConverter sym;
+	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL");
 
-/* 	ASSERT_THAT(CIK == "0000320193", Eq(true)); */
+	ASSERT_THAT(CIK == "0000320193", Eq(true));
 
-/* } */
+}
 
 /* TEST_F(TickerLookupUnitTest, VerifyConvertsFileOfTickersToCIKs) */
 /* { */
@@ -862,14 +875,14 @@ TEST_F(FTP_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 
 /* } */
 
-/* TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistToCIK) */
-/* { */
-/* 	TickerConverter sym; */
-/* 	decltype(auto) CIK = sym.ConvertTickerToCIK("DHS"); */
+TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistToCIK)
+{
+	TickerConverter sym;
+	decltype(auto) CIK = sym.ConvertTickerToCIK("DHS");
 
-/* 	ASSERT_THAT(CIK == "**no_CIK_found**", Eq(true)); */
+	ASSERT_THAT(CIK == "**no_CIK_found**", Eq(true));
 
-/* } */
+}
 
 /* class TickerConverterStub : public TickerConverter */
 /* { */
@@ -926,31 +939,31 @@ TEST_F(FTP_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 /* } */
 
 
-/* class QuarterlyParserFilterTest : public Test */
-/* { */
-/* public: */
-/* 	//FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
-/* 	FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
-/* 	QuarterlyIndexFileRetriever idxFileRet{a_server}; */
-/* }; */
+class QuarterlyParserFilterTest : public Test
+{
+public:
+	//FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
+	FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"};
+	QuarterlyIndexFileRetriever idxFileRet{a_server};
+};
 
-/* TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileForTicker) */
-/* { */
-/* 	decltype(auto) file_name = idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2009-09-10")); */
-/* 	idxFileRet.RetrieveRemoteIndexFileTo("/tmp"); */
-/* 	decltype(auto) local_quarterly_index_file_name = idxFileRet.GetLocalIndexFilePath(); */
+TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileForTicker)
+{
+	decltype(auto) file_name = idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2009-09-10"));
+	idxFileRet.RetrieveRemoteIndexFileTo("/tmp");
+	decltype(auto) local_quarterly_index_file_name = idxFileRet.GetLocalIndexFilePath();
 
-/* 	TickerConverter sym; */
-/* 	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL"); */
-/* 	std::map<std::string, std::string> ticker_map; */
-/* 	ticker_map["AAPL"] = CIK; */
+	TickerConverter sym;
+	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL");
+	std::map<std::string, std::string> ticker_map;
+	ticker_map["AAPL"] = CIK;
 
-/* 	FormFileRetriever form_file_getter{a_server}; */
-/* 	std::vector<std::string> forms_list{"10-Q"}; */
-/* 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_quarterly_index_file_name, ticker_map); */
-/* 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(1)); */
+	FormFileRetriever form_file_getter{a_server};
+	std::vector<std::string> forms_list{"10-Q"};
+	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_quarterly_index_file_name, ticker_map);
+	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(1));
 
-/* } */
+}
 
 /* TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileDateRangeForTicker) */
 /* { */
@@ -970,45 +983,45 @@ TEST_F(FTP_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 
 /* } */
 
-/* class MultipleFormsParserUnitTest : public Test */
-/* { */
-/* public: */
-/* 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
-/* 	//FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
-/* 	DailyIndexFileRetriever idxFileRet{a_server}; */
-/* }; */
+class MultipleFormsParserUnitTest : public Test
+{
+public:
+	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
+	/* FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
+	DailyIndexFileRetriever idxFileRet{a_server};
+};
 
-/* //	The following block of tests relate to working with the Index file located above. */
+//	The following block of tests relate to working with the Index file located above.
 
-/* TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFile) */
-/* { */
-/* 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-10")); */
-/* 	idxFileRet.RetrieveRemoteIndexFileTo("/tmp"); */
-/* 	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath(); */
+TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFile)
+{
+	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
+	idxFileRet.RetrieveRemoteIndexFileTo("/tmp");
+	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath();
 
-/* 	FormFileRetriever form_file_getter{a_server}; */
-/* 	std::vector<std::string> forms_list{"4", "10-K", "10-Q"}; */
+	FormFileRetriever form_file_getter{a_server};
+	std::vector<std::string> forms_list{"4", "10-K", "10-Q"};
 
-/* 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name); */
+	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
 
-/* 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(520)); */
+	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(520));
 
-/* } */
+}
 
-/* TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFileForDateRange) */
-/* { */
-/* 	idxFileRet.FindIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-14"), bg::from_simple_string("2013-10-20")); */
-/* 	idxFileRet.RetrieveIndexFilesForDateRangeTo("/tmp/daily_index1"); */
-/* 	decltype(auto) index_file_list = idxFileRet.GetfRemoteIndexFileNamesForDateRange(); */
+TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFileForDateRange)
+{
+	idxFileRet.FindIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-14"), bg::from_simple_string("2013-10-20"));
+	idxFileRet.RetrieveIndexFilesForDateRangeTo("/tmp/daily_index1");
+	decltype(auto) index_file_list = idxFileRet.GetfRemoteIndexFileNamesForDateRange();
 
-/* 	FormFileRetriever form_file_getter{a_server}; */
-/* 	std::vector<std::string> forms_list{"4", "10-K", "10-Q"}; */
+	FormFileRetriever form_file_getter{a_server};
+	std::vector<std::string> forms_list{"4", "10-K", "10-Q"};
 
-/* 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, "/tmp/daily_index1", index_file_list); */
+	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, "/tmp/daily_index1", index_file_list);
 
-/* 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(4395)); */
+	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(4395));
 
-/* } */
+}
 
 /* TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileForMultipleTickers) */
 /* { */
