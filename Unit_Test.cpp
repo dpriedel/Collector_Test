@@ -247,6 +247,7 @@ private:
 	bool _helpRequested;
 };
 
+//  some utility routines used to check test output.
 
 MATCHER_P(StringEndsWith, value, std::string(negation ? "doesn't" : "does") +
                         " end with " + value)
@@ -295,6 +296,9 @@ int CountTotalFormsFilesFound(const FormFileRetriever::FormsList& file_list)
 
 	return grand_total;
 }
+
+// NOTE: for some of these tests, I run an FTP server on localhost using
+// a directory structure that mimics part of the SEC server.
 
 class FTP_UnitTest : public Test
 {
@@ -429,6 +433,9 @@ TEST_F(RetrieverUnitTest, TestExceptionThrownWhenRemoteIndexFileNameUnknown)
 
 TEST_F(RetrieverUnitTest, TestRetrieveIndexFileDoesNotReplaceWhenReplaceNotSpecified)
 {
+	if (fs::exists("/tmp/form.20131011.idx"))
+		fs::remove("/tmp/form.20131011.idx");
+
 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-11"));
 	idxFileRet.RetrieveRemoteIndexFileTo("/tmp");
 	decltype(auto) d1 = fs::last_write_time(idxFileRet.GetLocalIndexFilePath());
@@ -444,6 +451,9 @@ TEST_F(RetrieverUnitTest, TestRetrieveIndexFileDoesNotReplaceWhenReplaceNotSpeci
 
 TEST_F(RetrieverUnitTest, TestRetrieveIndexFileDoesReplaceWhenReplaceIsSpecified)
 {
+	if (fs::exists("/tmp/form.20131011.idx"))
+		fs::remove("/tmp/form.20131011.idx");
+
 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-11"));
 	idxFileRet.RetrieveRemoteIndexFileTo("/tmp");
 	decltype(auto) d1 = fs::last_write_time(idxFileRet.GetLocalIndexFilePath());
