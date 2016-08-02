@@ -1,0 +1,122 @@
+providers: [
+  {
+    key: "bt"
+    config:
+      commands: [
+        {
+          project: "/home/dpriedel/projects/github/CollectEDGARData_Test"
+          source: "/home/dpriedel/projects/github/CollectEDGARData_Test/.build-tools.cson"
+          name: "make_clean_unit_test"
+          command: "make -f makefile_unit clean"
+          wd: "."
+          env: {}
+          modifier:
+            shell:
+              command: "bash -c"
+          environment:
+            name: "child_process"
+            config:
+              stdoe: "both"
+          stdout:
+            pipeline: []
+          stderr:
+            pipeline: []
+          output:
+            console:
+              close_success: true
+              queue_in_buffer: true
+              colors: false
+              stdin: false
+          version: 2
+        }
+        {
+          project: "/home/dpriedel/projects/github/CollectEDGARData_Test"
+          source: "/home/dpriedel/projects/github/CollectEDGARData_Test/.build-tools.cson"
+          name: "make_unit_test"
+          command: "make -f makefile_unit -j4"
+          wd: "."
+          env: {}
+          modifier:
+            shell:
+              command: "bash -c"
+            save_all: {}
+          environment:
+            name: "child_process"
+            config:
+              stdoe: "both"
+          stdout:
+            pipeline: []
+          stderr:
+            pipeline: []
+          output:
+            console:
+              close_success: true
+              queue_in_buffer: true
+              colors: false
+              stdin: false
+            linter:
+              no_trace: false
+              immediate: false
+          version: 2
+        }
+        {
+          project: "/home/dpriedel/projects/github/CollectEDGARData_Test"
+          source: "/home/dpriedel/projects/github/CollectEDGARData_Test/.build-tools.cson"
+          name: "e2e_clean"
+          command: "make -f makefile_e2e clean"
+          wd: "."
+          env: {}
+          modifier:
+            shell:
+              command: "bash -c"
+          environment:
+            name: "child_process"
+            config:
+              stdoe: "both"
+          stdout:
+            pipeline: []
+          stderr:
+            pipeline: []
+          output:
+            console:
+              close_success: true
+              queue_in_buffer: true
+              colors: false
+              stdin: false
+            linter:
+              no_trace: false
+              immediate: false
+          version: 2
+        }
+        {
+          project: "/home/dpriedel/projects/github/CollectEDGARData_Test"
+          source: "/home/dpriedel/projects/github/CollectEDGARData_Test/.build-tools.cson"
+          name: "e2e_make"
+          command: "make -f makefile_e2e -j4"
+          wd: "."
+          env: {}
+          modifier:
+            shell:
+              command: "bash -c"
+          environment:
+            name: "child_process"
+            config:
+              stdoe: "both"
+          stdout:
+            pipeline: []
+          stderr:
+            pipeline: []
+          output:
+            console:
+              close_success: true
+              queue_in_buffer: true
+              colors: false
+              stdin: false
+            linter:
+              no_trace: false
+              immediate: false
+          version: 2
+        }
+      ]
+  }
+]
