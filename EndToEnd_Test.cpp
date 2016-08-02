@@ -1,18 +1,18 @@
 // =====================================================================================
-// 
+//
 //       Filename:  EndToEndTest.cpp
-// 
+//
 //    Description:  Driver program for end-to-end tests
-// 
+//
 //        Version:  1.0
 //        Created:  01/03/2014 11:13:53 AM
 //       Revision:  none
 //       Compiler:  g++
-// 
+//
 //         Author:  David P. Riedel (dpr), driedel@cox.net
 //        License:  GNU General Public License v3
-//        Company:  
-// 
+//        Company:
+//
 // =====================================================================================
 
 	/* This file is part of CollectEDGARData. */
@@ -32,8 +32,8 @@
 
 
 // =====================================================================================
-//        Class:  
-//  Description:  
+//        Class:
+//  Description:
 // =====================================================================================
 
 
@@ -63,6 +63,12 @@ using namespace testing;
 
 /* MATCHER_P(DirectoryContainsNFiles, value, std::string(negation ? "doesn't" : "does") + */
 /*                         " contain " + std::to_string(value) + " files") */
+
+// NOTE:  file will be counted even if it is empty which suits my tests since a failed
+// attempt will leave an empty file in the target directory.  This lets me see
+// that an attempt was made and what file was to be downloaded which is all I need
+// for these tests.
+
 int CountFilesInDirectoryTree(const fs::path& directory)
 {
 	int count = std::count_if(fs::recursive_directory_iterator(directory), fs::recursive_directory_iterator(),
@@ -106,6 +112,8 @@ std::map<std::string, std::time_t> CollectLastModifiedTimesForFilesInDirectoryTr
 }
 
 
+// NOTE: I'm going to run all these daily index tests against my local FTP server.
+
 class DailyEndToEndTest : public Test
 {
 	public:
@@ -114,13 +122,17 @@ class DailyEndToEndTest : public Test
 
 TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile)
 {
+	fs::remove_all("/tmp/forms");
+	fs::create_directory("/tmp/forms");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp --begin-date 2013-Oct-14 --form-dir /tmp/forms"
+        " --host localhost"
 		" --login aaa@bbb.com"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
 	{
@@ -129,11 +141,13 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 		myApp.Run();
 		myApp.Quit();
 	}
-	
+
+    // catch any problems trying to setup application
+
 	catch (std::exception& theProblem)
 	{
 		CApplication::sCErrorHandler->HandleException(theProblem);
@@ -156,22 +170,23 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 
 	std::string command_line{"the_program --index-dir /tmp --begin-date 2013-Oct-14 --form-dir /tmp/forms "
 		"--login aaa@bbb.com "
+        "--host localhost "
 		"--index-only"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
 	{
 		CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 		myApp.StartUp();
-		
+
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 		myApp.Run();
 		myApp.Quit();
 	}
-	
+
 	catch (std::exception& theProblem)
 	{
 		CApplication::sCErrorHandler->HandleException(theProblem);
@@ -186,14 +201,20 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 
 TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFiles)
 {
+	fs::remove_all("/tmp/index1");
+	fs::remove_all("/tmp/forms1");
+	fs::create_directory("/tmp/forms1");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index1 --form-dir /tmp/forms1 "
 		"--login aaa@bbb.com "
+        "--host localhost "
+        "--max 17 "
 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
 	{
@@ -202,11 +223,11 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 		myApp.Run();
 		myApp.Quit();
 	}
-	
+
 	catch (std::exception& theProblem)
 	{
 		CApplication::sCErrorHandler->HandleException(theProblem);
@@ -216,22 +237,24 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 	{		// handle exception: unspecified
 		throw;
 	}
-	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(129));
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(17));
 }
 
 TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenIndexOnlySpecified)
 {
+	fs::remove_all("/tmp/index1");
 	fs::remove_all("/tmp/forms1");
 	fs::create_directory("/tmp/forms1");
-	
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index1 --form-dir /tmp/forms1 "
+        "--host localhost "
 		"--login aaa@bbb.com "
 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 --index-only"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
 	{
@@ -240,11 +263,11 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 		myApp.Run();
 		myApp.Quit();
 	}
-	
+
 	catch (std::exception& theProblem)
 	{
 		CApplication::sCErrorHandler->HandleException(theProblem);
@@ -259,21 +282,26 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 
 TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingIndexFilesWhenReplaceNotSpecifed)
 {
+	fs::remove_all("/tmp/index2");
+	fs::remove_all("/tmp/forms2");
+	fs::create_directory("/tmp/forms2");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms1 "
+        "--host localhost "
 		"--login aaa@bbb.com "
 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 --index-only"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 	myApp.StartUp();
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 	myApp.Run();
 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
 
@@ -283,28 +311,33 @@ TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingIndexFilesWhenReplaceNotSpeci
 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
 
 	myApp.Quit();
-	
+
 	ASSERT_THAT(x1 == x2, Eq(true));
 }
 
 TEST(DailyEndToEndTest, VerifyDownloadsOfExistingIndexFilesWhenReplaceIsSpecifed)
 {
+	fs::remove_all("/tmp/index2");
+	fs::remove_all("/tmp/forms1");
+	fs::create_directory("/tmp/forms1");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms1 "
+        "--host localhost "
 		"--login aaa@bbb.com "
 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "
 		"--replace-index-files --index-only"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 	myApp.StartUp();
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 	myApp.Run();
 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
 
@@ -314,27 +347,32 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingIndexFilesWhenReplaceIsSpecifed
 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
 
 	myApp.Quit();
-	
+
 	ASSERT_THAT(x1 == x2, Eq(false));
 }
 
 TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingFormFilesWhenReplaceNotSpecifed)
 {
+	fs::remove_all("/tmp/index2");
+	fs::remove_all("/tmp/forms2");
+	fs::create_directory("/tmp/forms2");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms2 "
+        "--host localhost "
 		"--login aaa@bbb.com "
 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 	myApp.StartUp();
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 	myApp.Run();
 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
 
@@ -344,28 +382,33 @@ TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingFormFilesWhenReplaceNotSpecif
 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
 
 	myApp.Quit();
-	
+
 	ASSERT_THAT(x1 == x2, Eq(true));
 }
 
 TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
 {
+	fs::remove_all("/tmp/index2");
+	fs::remove_all("/tmp/forms2");
+	fs::create_directory("/tmp/forms2");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms2 "
+        "--host localhost "
 		"--login aaa@bbb.com "
 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "
 		"--replace-form-files"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 	myApp.StartUp();
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 	myApp.Run();
 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
 
@@ -375,9 +418,11 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
 
 	myApp.Quit();
-	
+
 	ASSERT_THAT(x1 == x2, Eq(false));
 }
+
+// NOTE: the quarterly index tests will run against the actual EDGAR server.
 
 class QuarterlyEndToEndTest : public Test
 {
@@ -386,6 +431,8 @@ class QuarterlyEndToEndTest : public Test
 
 TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQuarter)
 {
+	fs::remove_all("/tmp/index3");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
@@ -394,22 +441,24 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 		"--begin-date 2000-Jan-01 "
 		"--index-only --mode quarterly"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 	myApp.StartUp();
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 	myApp.Run();
 	myApp.Quit();
-	
+
 	ASSERT_THAT(fs::exists("/tmp/index3/2000/QTR1/form.idx"), Eq(true));
 }
 
 TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFilesForDateRange)
 {
+	fs::remove_all("/tmp/index4");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
@@ -418,55 +467,63 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFilesForDateRan
 		"--begin-date 2009-Sep-01 --end-date 2010-Oct-01 "
 		"--index-only --mode quarterly"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 	myApp.StartUp();
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 	myApp.Run();
 	myApp.Quit();
-	
+
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/index4"), Eq(5));
 }
 
 TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForQuarter)
 {
+	fs::remove_all("/tmp/index4");
+	fs::remove_all("/tmp/forms4");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index4 --form-dir /tmp/forms4 "
+        "--max 9 "
 		"--login aaa@bbb.com "
 		"--begin-date 2009-Sep-01  "
 		" --mode quarterly"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	CollectEDGARApp myApp{G_ARGC, G_ARGV, tokens};
 	myApp.StartUp();
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 	myApp.Run();
 	myApp.Quit();
-	
-	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms4"), Eq(10));
+
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms4"), Eq(9));
 }
 
 TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange)
 {
+	fs::remove_all("/tmp/index5");
+	fs::remove_all("/tmp/forms5");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp/index5 --form-dir /tmp/forms5 "
+        "--max 11 "
 		"--login aaa@bbb.com "
 		"--begin-date 2009-Sep-01 --end-date 2010-Oct-04 "
 		" --mode quarterly"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
 	{
@@ -475,7 +532,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 		myApp.Run();
 		myApp.Quit();
 	}
@@ -488,7 +545,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 	{		// handle exception: unspecified
 		throw;
 	}
-	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms5"), Eq(10));
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms5"), Eq(11));
 }
 
 class TickerEndToEndTest : public Test
@@ -506,7 +563,7 @@ TEST(TickerEndToEndTest, VerifyWritesToLogFile)
 		" --mode ticker-only --ticker AAPL "
 		" --log-path /tmp/the_log"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
 	{
@@ -515,7 +572,7 @@ TEST(TickerEndToEndTest, VerifyWritesToLogFile)
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 		myApp.Run();
 		myApp.Quit();
 	}
@@ -528,7 +585,7 @@ TEST(TickerEndToEndTest, VerifyWritesToLogFile)
 	{		// handle exception: unspecified
 		throw;
 	}
-	ASSERT_THAT(fs::exists("/tmp/the_log"), Eq(true));
+	ASSERT_THAT((fs::exists("/tmp/the_log") && ! fs::is_empty("/tmp/the_log")), Eq(true));
 }
 
 TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
@@ -541,7 +598,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 		" --mode ticker-only --ticker AAPL "
 		" --log-path /tmp/the_log --ticker-cache /tmp/ticker_to_CIK"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
 	{
@@ -550,7 +607,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 		myApp.Run();
 		myApp.Quit();
 	}
@@ -563,7 +620,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 	{		// handle exception: unspecified
 		throw;
 	}
-	ASSERT_THAT(fs::exists("/tmp/ticker_to_CIK"), Eq(true));
+	ASSERT_THAT((fs::exists("/tmp/ticker_to_CIK") && ! fs::is_empty("/tmp/ticker_to_CIK")), Eq(true));
 }
 
 TEST(TickerEndToEndTest, VerifyTickerLookupForFileOfTickers)
@@ -576,7 +633,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupForFileOfTickers)
 		" --mode ticker-only --ticker-file ./test_tickers_file "
 		" --log-path /tmp/the_log --ticker-cache /tmp/tickers_to_CIK"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
 	{
@@ -585,7 +642,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupForFileOfTickers)
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 		myApp.Run();
 		myApp.Quit();
 	}
@@ -603,6 +660,9 @@ TEST(TickerEndToEndTest, VerifyTickerLookupForFileOfTickers)
 
 TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesForSingleQuarter)
 {
+	fs::remove_all("/tmp/forms6");
+	fs::remove_all("/tmp/index5");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
@@ -613,7 +673,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesFor
 		" --log-path /tmp/the_log "
 		" --ticker AAPL"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
 	{
@@ -622,7 +682,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesFor
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 		myApp.Run();
 		myApp.Quit();
 	}
@@ -640,6 +700,9 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesFor
 
 TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesForDateRange)
 {
+	fs::remove_all("/tmp/forms7");
+	fs::remove_all("/tmp/index5");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
@@ -651,7 +714,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesFor
 		" --log-path /tmp/the_log "
 		" --ticker AAPL"};
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
 	{
@@ -660,7 +723,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesFor
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 		myApp.Run();
 		myApp.Quit();
 	}
@@ -683,16 +746,19 @@ class DailyEndToEndTestWithTicker : public Test
 
 TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFileWithTickerFilter)
 {
+	fs::remove_all("/tmp/forms8");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp --form-dir /tmp/forms8 "
+        "--host localhost "
 		"--login aaa@bbb.com "
 		" --begin-date 2013-Oct-17 "
 		" --ticker AAPL"
 		" --form 4" };
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
 	{
@@ -701,11 +767,11 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForSingl
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 		myApp.Run();
 		myApp.Quit();
 	}
-	
+
 	catch (std::exception& theProblem)
 	{
 		CApplication::sCErrorHandler->HandleException(theProblem);
@@ -720,17 +786,20 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForSingl
 
 TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateRangeWithTickerFilter)
 {
+	fs::remove_all("/tmp/forms9");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp --form-dir /tmp/forms9 "
+        "--host localhost "
 		"--login aaa@bbb.com "
 		" --end-date 2013-Oct-17 "
 		" --begin-date 2013-Oct-09 "
 		" --ticker AAPL"
 		" --form 4" };
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
 	{
@@ -739,11 +808,11 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 		myApp.Run();
 		myApp.Quit();
 	}
-	
+
 	catch (std::exception& theProblem)
 	{
 		CApplication::sCErrorHandler->HandleException(theProblem);
@@ -763,16 +832,19 @@ class DailyEndToEndTestWithMultipleFormTypes : public Test
 
 TEST(DailyEndToEndTestWithMultipleFormTypes, VerifyDownloadMultipleTypesOfFormFilesForSingleDate)
 {
+	fs::remove_all("/tmp/forms10");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp --form-dir /tmp/forms10 "
+        "--host localhost "
 		"--login aaa@bbb.com "
 		" --begin-date 2013-Oct-17 "
 		" --log-path /tmp/the_log "
 		" --form 10-K,10-Q,4" };
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
 	{
@@ -781,11 +853,11 @@ TEST(DailyEndToEndTestWithMultipleFormTypes, VerifyDownloadMultipleTypesOfFormFi
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 		myApp.Run();
 		myApp.Quit();
 	}
-	
+
 	catch (std::exception& theProblem)
 	{
 		CApplication::sCErrorHandler->HandleException(theProblem);
@@ -802,16 +874,19 @@ TEST(DailyEndToEndTestWithMultipleFormTypes, VerifyDownloadMultipleTypesOfFormFi
 
 TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFileWithMultipleTickerFilter)
 {
+	fs::remove_all("/tmp/forms11");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
 	std::string command_line{"the_program --index-dir /tmp --form-dir /tmp/forms11 "
+        "--host localhost "
 		"--login aaa@bbb.com "
 		" --begin-date 2013-Oct-17 "
 		" --ticker AAPL,DHS,GOOG"
 		" --form 4" };
 	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);		
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
 	{
@@ -820,11 +895,11 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForSingl
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-		
+
 		myApp.Run();
 		myApp.Quit();
 	}
-	
+
 	catch (std::exception& theProblem)
 	{
 		CApplication::sCErrorHandler->HandleException(theProblem);
@@ -834,7 +909,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForSingl
 	{		// handle exception: unspecified
 		throw;
 	}
-	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms11"), Eq(5));
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms11"), Eq(4));
 }
 
 
@@ -844,6 +919,3 @@ int main(int argc, char** argv) {
 	testing::InitGoogleMock(&argc, argv);
    return RUN_ALL_TESTS();
 }
-
-
-
