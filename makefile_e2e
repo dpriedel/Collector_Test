@@ -48,7 +48,7 @@ SRCS2 := $(SDIR2)/FTP_Connection.cpp $(SDIR2)/DailyIndexFileRetriever.cpp \
 
 SDIR3h := ../app_framework/include
 SDIR3 := ../app_framework/src
-SRCS3 := $(SDIR3)/TException.cpp $(SDIR3)/ErrorHandler.cpp $(SDIR3)/CApplication.cpp
+SRCS3 := $(SDIR3)/TException.cpp $(SDIR3)/ErrorHandler.cpp
 
 SRCS := $(SRCS1) $(SRCS2) $(SRCS3)
 
