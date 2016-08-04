@@ -130,10 +130,10 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
-	// std::string command_line{"the_program --index-dir /tmp --begin-date 2013-Oct-14 --form-dir /tmp/forms"
-    //     " --host localhost"
-	// 	" --login aaa@bbb.com"};
-	std::string command_line{"EndToEndTest --help"};
+	std::string command_line{"the_program --index-dir /tmp --begin-date 2013-Oct-14 --form-dir /tmp/forms"
+        " --host localhost"
+		" --login aaa@bbb.com"};
+	// std::string command_line{"EndToEndTest --begin-date 2013-Oct-14"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
 	try
@@ -142,12 +142,11 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 		CollectEDGARApp myApp;
         myApp.init(tokens);
 
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+
         myApp.run();
 		// myApp.StartUp();
-        //
-		// decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		// std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-        //
 		// myApp.Run();
 		// myApp.Quit();
 	}
@@ -156,7 +155,7 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 
 	catch (std::exception& theProblem)
 	{
-		// CApplication::sCErrorHandler->HandleException(theProblem);
+		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)

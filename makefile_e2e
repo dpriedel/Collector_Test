@@ -63,7 +63,7 @@ OUTDIR=Debug_e2e
 
 CFG_LIB := -liberty -lpthread -L$(BOOSTDIR)/lib -lboost_system-d -lboost_filesystem-d -lboost_program_options-d \
 		-lboost_date_time-d -lboost_regex-d \
-		-L/usr/local/lib -lPocoNetSSL -lPocoNet -lPocoFoundation -lPocoUtil -lPocoZip \
+		-L/usr/local/lib -lPocoFoundationd -lPocoUtild -lPocoNetSSLd -lPocoNetd -lPocoZipd \
 		-L/usr/local/lib -lgmock_main
 
 OBJS1=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS1)))))
