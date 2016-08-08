@@ -278,147 +278,133 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(0));
 }
 
-// TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingIndexFilesWhenReplaceNotSpecifed)
-// {
-// 	fs::remove_all("/tmp/index2");
-// 	fs::remove_all("/tmp/forms2");
-// 	fs::create_directory("/tmp/forms2");
-//
-// 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
-// 	//	the test program.
-//
-// 	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms1 "
-//         "--host localhost "
-// 		"--login aaa@bbb.com "
-// 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 --index-only"};
-// 	//std::string command_line{"the_program --index-dir /tmp"};
-// 	std::vector<std::string> tokens =  po::split_unix(command_line);
-//
-// 		CollectEDGARApp myApp;
-//         myApp.init(tokens);
-//
-// 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-//
-//         myApp.run();
-// 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
-//
-// 	std::this_thread::sleep_for(std::chrono::seconds{1});
-//
-// 	myApp.Run();
-// 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
-//
-// 	myApp.Quit();
-//
-// 	ASSERT_THAT(x1 == x2, Eq(true));
-// }
-//
-// TEST(DailyEndToEndTest, VerifyDownloadsOfExistingIndexFilesWhenReplaceIsSpecifed)
-// {
-// 	fs::remove_all("/tmp/index2");
-// 	fs::remove_all("/tmp/forms1");
-// 	fs::create_directory("/tmp/forms1");
-//
-// 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
-// 	//	the test program.
-//
-// 	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms1 "
-//         "--host localhost "
-// 		"--login aaa@bbb.com "
-// 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "
-// 		"--replace-index-files --index-only"};
-// 	//std::string command_line{"the_program --index-dir /tmp"};
-// 	std::vector<std::string> tokens =  po::split_unix(command_line);
-//
-// 		CollectEDGARApp myApp;
-//         myApp.init(tokens);
-//
-// 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-//
-//         myApp.run();
-// 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
-//
-// 	std::this_thread::sleep_for(std::chrono::seconds{1});
-//
-// 	myApp.Run();
-// 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
-//
-// 	myApp.Quit();
-//
-// 	ASSERT_THAT(x1 == x2, Eq(false));
-// }
+TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingIndexFilesWhenReplaceNotSpecifed)
+{
+	fs::remove_all("/tmp/index2");
+	fs::remove_all("/tmp/forms2");
+	fs::create_directory("/tmp/forms2");
 
-// TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingFormFilesWhenReplaceNotSpecifed)
-// {
-// 	fs::remove_all("/tmp/index2");
-// 	fs::remove_all("/tmp/forms2");
-// 	fs::create_directory("/tmp/forms2");
-//
-// 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
-// 	//	the test program.
-//
-// 	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms2 "
-//         "--host localhost "
-// 		"--login aaa@bbb.com "
-// 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "};
-// 	//std::string command_line{"the_program --index-dir /tmp"};
-// 	std::vector<std::string> tokens =  po::split_unix(command_line);
-//
-// 	CollectEDGARApp myApp;
-//     myApp.init(tokens);
-//
-// 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-//
-//     myApp.run();
-// 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
-//
-// 	std::this_thread::sleep_for(std::chrono::seconds{1});
-//
-// 	myApp.run();
-// 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
-//
-// 	myApp.Quit();
-//
-// 	ASSERT_THAT(x1 == x2, Eq(true));
-// }
+	std::string command_line{"CollectEDGARApp --index-dir /tmp/index2 --form-dir /tmp/forms1 "
+        "--host localhost "
+		"--login aaa@bbb.com "
+		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 --index-only"};
+	//std::string command_line{"the_program --index-dir /tmp"};
+	std::vector<std::string> tokens =  po::split_unix(command_line);
 
-// TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
-// {
-// 	fs::remove_all("/tmp/index2");
-// 	fs::remove_all("/tmp/forms2");
-// 	fs::create_directory("/tmp/forms2");
-//
-// 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
-// 	//	the test program.
-//
-// 	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms2 "
-//         "--host localhost "
-// 		"--login aaa@bbb.com "
-// 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "
-// 		"--replace-form-files"};
-// 	//std::string command_line{"the_program --index-dir /tmp"};
-// 	std::vector<std::string> tokens =  po::split_unix(command_line);
-//
-// 		CollectEDGARApp myApp;
-//         myApp.init(tokens);
-//
-// 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
-//
-//         myApp.run();
-// 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
-//
-// 	std::this_thread::sleep_for(std::chrono::seconds{1});
-//
-// 	myApp.Run();
-// 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
-//
-// 	myApp.Quit();
-//
-// 	ASSERT_THAT(x1 == x2, Eq(false));
-// }
+	CollectEDGARApp myApp;
+    myApp.init(tokens);
+
+	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+
+    myApp.run();
+	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
+
+	std::this_thread::sleep_for(std::chrono::seconds{1});
+
+	myApp.run();
+	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
+
+	ASSERT_THAT(x1 == x2, Eq(true));
+}
+
+TEST(DailyEndToEndTest, VerifyDownloadsOfExistingIndexFilesWhenReplaceIsSpecifed)
+{
+	fs::remove_all("/tmp/index2");
+	fs::remove_all("/tmp/forms1");
+	fs::create_directory("/tmp/forms1");
+
+	std::string command_line{"CollectEDGARApp --index-dir /tmp/index2 --form-dir /tmp/forms1 "
+        "--host localhost "
+		"--login aaa@bbb.com "
+		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "
+		"--replace-index-files --index-only"};
+	//std::string command_line{"the_program --index-dir /tmp"};
+	std::vector<std::string> tokens =  po::split_unix(command_line);
+
+	CollectEDGARApp myApp;
+    myApp.init(tokens);
+
+	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+
+    myApp.run();
+	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
+
+	std::this_thread::sleep_for(std::chrono::seconds{1});
+
+	myApp.run();
+	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
+
+	ASSERT_THAT(x1 == x2, Eq(false));
+}
+
+TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingFormFilesWhenReplaceNotSpecifed)
+{
+	fs::remove_all("/tmp/index2");
+	fs::remove_all("/tmp/forms2");
+	fs::create_directory("/tmp/forms2");
+
+	//	NOTE: the program name 'the_program' in the command line below is ignored in the
+	//	the test program.
+
+	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms2 "
+        "--host localhost "
+		"--login aaa@bbb.com "
+		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "};
+	//std::string command_line{"the_program --index-dir /tmp"};
+	std::vector<std::string> tokens =  po::split_unix(command_line);
+
+	CollectEDGARApp myApp;
+    myApp.init(tokens);
+
+	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+
+    myApp.run();
+	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
+
+	std::this_thread::sleep_for(std::chrono::seconds{1});
+
+	myApp.run();
+	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
+
+	ASSERT_THAT(x1 == x2, Eq(true));
+}
+
+TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
+{
+	fs::remove_all("/tmp/index2");
+	fs::remove_all("/tmp/forms2");
+	fs::create_directory("/tmp/forms2");
+
+	//	NOTE: the program name 'the_program' in the command line below is ignored in the
+	//	the test program.
+
+	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms2 "
+        "--host localhost "
+		"--login aaa@bbb.com "
+		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "
+		"--replace-form-files"};
+	//std::string command_line{"the_program --index-dir /tmp"};
+	std::vector<std::string> tokens =  po::split_unix(command_line);
+
+	CollectEDGARApp myApp;
+    myApp.init(tokens);
+
+	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+
+    myApp.run();
+	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
+
+	std::this_thread::sleep_for(std::chrono::seconds{1});
+
+	myApp.run();
+	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
+
+	ASSERT_THAT(x1 == x2, Eq(false));
+}
 
 // NOTE: the quarterly index tests will run against the actual EDGAR server.
 
