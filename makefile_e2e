@@ -48,11 +48,11 @@ SRCS2 := $(SDIR2)/FTP_Connection.cpp $(SDIR2)/DailyIndexFileRetriever.cpp \
 
 SDIR3h := ../app_framework/include
 SDIR3 := ../app_framework/src
-SRCS3 := $(SDIR3)/TException.cpp $(SDIR3)/ErrorHandler.cpp
+# SRCS3 := $(SDIR3)/TException.cpp $(SDIR3)/ErrorHandler.cpp
 
-SRCS := $(SRCS1) $(SRCS2) $(SRCS3)
+SRCS := $(SRCS1) $(SRCS2)
 
-VPATH := $(SDIR1):$(SDIR2):$(SDIR3):$(SDIR3h)
+VPATH := $(SDIR1):$(SDIR2):$(SDIR3h)
 
 #
 # Configuration: Debug
@@ -68,9 +68,9 @@ CFG_LIB := -liberty -lpthread -L$(BOOSTDIR)/lib -lboost_system-d -lboost_filesys
 
 OBJS1=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS1)))))
 OBJS2=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS2)))))
-OBJS3=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS3)))))
+# OBJS3=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS3)))))
 
-OBJS=$(OBJS1) $(OBJS2) $(OBJS3)
+OBJS=$(OBJS1) $(OBJS2)
 DEPS=$(OBJS:.o=.d)
 
 COMPILE=$(CPP) -c  -x c++  -O0  -g3 -std=c++14 -fPIC -o $@ $(CFG_INC) $< -march=native -MMD -MP
@@ -84,7 +84,7 @@ all: $(OUTFILE)
 $(OUTDIR)/%.o : %.cpp
 	$(COMPILE)
 
-$(OUTFILE): $(OUTDIR) $(OBJS1) $(OBJS2) $(OBJS3)
+$(OUTFILE): $(OUTDIR) $(OBJS1) $(OBJS2)
 	$(LINK)
 
 -include $(DEPS)
