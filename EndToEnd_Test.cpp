@@ -138,7 +138,7 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 
 	try
 	{
-		CollectEDGARApp myApp;
+        CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
@@ -149,13 +149,15 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 
     // catch any problems trying to setup application
 
-	catch (std::exception& theProblem)
+	catch (const std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		// poco_fatal(myApp->logger(), theProblem.what());
+		std::clog << "Something fundamental went wrong: " << theProblem.what();
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+        std::clog << "Something totally unexpected happened." << std::endl;
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(18));
@@ -189,11 +191,12 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		std::clog << "Something fundamental went wrong: " << theProblem.what();
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+        std::clog << "Something totally unexpected happened." << std::endl;
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(0));
@@ -229,11 +232,12 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		std::clog << "Something fundamental went wrong: " << theProblem.what();
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+        std::clog << "Something totally unexpected happened." << std::endl;
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(17));
@@ -268,11 +272,12 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		std::clog << "Something fundamental went wrong: " << theProblem.what();
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+        std::clog << "Something totally unexpected happened." << std::endl;
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(0));
@@ -518,11 +523,12 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 	}
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		std::clog << "Something fundamental went wrong: " << theProblem.what();
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+        std::clog << "Something totally unexpected happened." << std::endl;
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms5"), Eq(11));
@@ -535,6 +541,9 @@ class TickerEndToEndTest : public Test
 
 TEST(TickerEndToEndTest, VerifyWritesToLogFile)
 {
+    if (fs::exists("/tmp/the_log"))
+        fs::remove("/tmp/the_log");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
@@ -557,11 +566,12 @@ TEST(TickerEndToEndTest, VerifyWritesToLogFile)
 	}
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		std::clog << "Something fundamental went wrong: " << theProblem.what();
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+        std::clog << "Something totally unexpected happened." << std::endl;
 		throw;
 	}
 	ASSERT_THAT((fs::exists("/tmp/the_log") && ! fs::is_empty("/tmp/the_log")), Eq(true));
@@ -591,11 +601,12 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 	}
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		std::clog << "Something fundamental went wrong: " << theProblem.what();
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+        std::clog << "Something totally unexpected happened." << std::endl;
 		throw;
 	}
 	ASSERT_THAT((fs::exists("/tmp/ticker_to_CIK") && ! fs::is_empty("/tmp/ticker_to_CIK")), Eq(true));
@@ -625,11 +636,12 @@ TEST(TickerEndToEndTest, VerifyTickerLookupForFileOfTickers)
 	}
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		std::clog << "Something fundamental went wrong: " << theProblem.what();
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+        std::clog << "Something totally unexpected happened." << std::endl;
 		throw;
 	}
 	ASSERT_THAT(fs::exists("/tmp/tickers_to_CIK"), Eq(true));
@@ -664,11 +676,12 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesFor
 	}
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		std::clog << "Something fundamental went wrong: " << theProblem.what();
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+        std::clog << "Something totally unexpected happened." << std::endl;
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms6"), Eq(1));
@@ -704,11 +717,12 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesFor
 	}
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		std::clog << "Something fundamental went wrong: " << theProblem.what();
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+        std::clog << "Something totally unexpected happened." << std::endl;
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms7"), Eq(4));
@@ -748,11 +762,12 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForSingl
 
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		std::clog << "Something fundamental went wrong: " << theProblem.what();
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+        std::clog << "Something totally unexpected happened." << std::endl;
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms8"), Eq(4));
@@ -788,11 +803,12 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		std::clog << "Something fundamental went wrong: " << theProblem.what();
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+        std::clog << "Something totally unexpected happened." << std::endl;
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms9"), Eq(5));
@@ -832,11 +848,12 @@ TEST(DailyEndToEndTestWithMultipleFormTypes, VerifyDownloadMultipleTypesOfFormFi
 
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		std::clog << "Something fundamental went wrong: " << theProblem.what();
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+        std::clog << "Something totally unexpected happened." << std::endl;
 		throw;
 	}
 	ASSERT_THAT(DirectoryTreeContainsDirectory("/tmp/forms10", "10-K"), Eq(true));
@@ -873,11 +890,12 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForSingl
 
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		std::clog << "Something fundamental went wrong: " << theProblem.what();
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+        std::clog << "Something totally unexpected happened." << std::endl;
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms11"), Eq(4));
