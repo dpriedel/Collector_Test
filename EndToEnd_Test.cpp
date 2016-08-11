@@ -132,6 +132,7 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 
 	std::string command_line{"the_program --index-dir /tmp --begin-date 2013-Oct-14 --form-dir /tmp/forms"
         " --host localhost"
+        " --log-level debug"
 		" --login aaa@bbb.com"};
 	// std::string command_line{"EndToEndTest --begin-date 2013-Oct-14"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
