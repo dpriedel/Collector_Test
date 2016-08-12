@@ -34,7 +34,7 @@ endif
 OUTFILE := Unit_Test
 
 CFG_INC := -I/home/dpriedel/projects/github/app_framework/include/ -I/home/dpriedel/projects/github/CollectEDGARData/src \
-		-I$(GCCDIR)/include/libiberty -I$(GTESTDIR) -I$(BOOSTDIR)
+		-I$(GTESTDIR) -I$(BOOSTDIR)
 
 RPATH_LIB := -Wl,-rpath,$(GCCDIR)/lib64 -Wl,-rpath,$(BOOSTDIR)/lib -Wl,-rpath,/usr/local/lib
 
@@ -48,9 +48,8 @@ SRCS2 := $(SDIR2)/FTP_Connection.cpp $(SDIR2)/DailyIndexFileRetriever.cpp \
 
 SDIR3h := ../app_framework/include
 SDIR3 := ../app_framework/src
-SRCS3 := $(SDIR3)/TException.cpp
 
-SRCS := $(SRCS1) $(SRCS2) $(SRCS3)
+SRCS := $(SRCS1) $(SRCS2)
 
 VPATH := $(SDIR1):$(SDIR2):$(SDIR3):$(SDIR3h)
 
@@ -61,9 +60,9 @@ ifeq "$(CFG)" "Debug"
 
 OUTDIR := Debug_unit
 
-CFG_LIB := -liberty -lpthread -L$(BOOSTDIR)/lib -lboost_system-d -lboost_filesystem-d  \
+CFG_LIB := -lpthread -L$(BOOSTDIR)/lib -lboost_system-d -lboost_filesystem-d  \
 		-lboost_date_time-d -lboost_regex-d \
-		-L/usr/local/lib -lPocoNetSSL -lPocoNet -lPocoFoundation -lPocoUtil -lPocoZip \
+		-L/usr/local/lib -lPocoNetSSLd -lPocoNetd -lPocoFoundationd -lPocoUtild -lPocoZipd \
 		-L/usr/local/lib -lgmock_main
 
 OBJS1=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS1)))))
@@ -73,7 +72,7 @@ OBJS3=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS3)))))
 OBJS=$(OBJS1) $(OBJS2) $(OBJS3)
 DEPS=$(OBJS:.o=.d)
 
-COMPILE=$(CPP) -c  -x c++  -O0  -g3 -std=c++1y -fPIC -o $@ $(CFG_INC) $< -march=native -MMD -MP
+COMPILE=$(CPP) -c  -x c++  -O0  -g3 -std=c++14 -D_DEBUG -fPIC -o $@ $(CFG_INC) $< -march=native -MMD -MP
 LINK := $(CPP)  -g -o $(OUTFILE) $(OBJS) $(CFG_LIB) -Wl,-E $(RPATH_LIB)
 
 endif #	DEBUG configuration

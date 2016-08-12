@@ -53,6 +53,12 @@
 #include <iostream>
 #include <sstream>
 #include <Poco/Net/NetException.h>
+#include "Poco/Logger.h"
+#include "Poco/Channel.h"
+#include "Poco/Message.h"
+
+#include "Poco/ConsoleChannel.h"
+// #include "Poco/SimpleFileChannel.h"
 
 #include "FTP_Connection.h"
 #include "DailyIndexFileRetriever.h"
@@ -75,6 +81,8 @@ using Poco::AutoPtr;
 
 int G_ARGC = 0;
 char** G_ARGV = nullptr;
+
+Poco::Logger* THE_LOGGER = nullptr;
 
 // using one of the example Poco programs to get going
 
@@ -191,6 +199,7 @@ protected:
 
 	int main(const ArgVec& args)
 	{
+        setLogger(*THE_LOGGER);
 		if (!_helpRequested)
 		{
 			logger().information("Command line:");
@@ -385,7 +394,7 @@ class RetrieverUnitTest : public Test
 {
 public:
 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
-	DailyIndexFileRetriever idxFileRet{a_server};
+	DailyIndexFileRetriever idxFileRet{a_server, *THE_LOGGER};
 };
 
 TEST_F(RetrieverUnitTest, VerifyRejectsInvalidDates)
@@ -472,7 +481,7 @@ class ParserUnitTest : public Test
 public:
 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
 	/* FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
-	DailyIndexFileRetriever idxFileRet{a_server};
+	DailyIndexFileRetriever idxFileRet{a_server, *THE_LOGGER};
 };
 
 //	The following block of tests relate to working with the Index file located above.
@@ -483,7 +492,7 @@ TEST_F(ParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFile)
 	idxFileRet.RetrieveRemoteIndexFileTo("/tmp");
 	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath();
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
 	std::vector<std::string> forms_list{"10-Q"};
 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(25));
@@ -637,7 +646,7 @@ class QuarterlyUnitTest : public Test
 public:
 	//FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
 	FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"};
-	QuarterlyIndexFileRetriever idxFileRet{a_server};
+	QuarterlyIndexFileRetriever idxFileRet{a_server, *THE_LOGGER};
 };
 
 /* TEST_F(QuarterlyUnitTest, VerifyRejectsInvalidDates) */
@@ -734,7 +743,7 @@ class QuarterlyRetrieveMultipleFiles : public Test
 public:
 	//FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
 	FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"};
-	QuarterlyIndexFileRetriever idxFileRet{a_server};
+	QuarterlyIndexFileRetriever idxFileRet{a_server, *THE_LOGGER};
 };
 
 /* TEST_F(QuarterlyRetrieveMultipleFiles, VerifyRejectsFutureDates) */
@@ -869,7 +878,7 @@ public:
 
 TEST_F(TickerLookupUnitTest, VerifyConvertsSingleTickerThatExistsToCIK)
 {
-	TickerConverter sym;
+	TickerConverter sym{*THE_LOGGER};
 	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL");
 
 	ASSERT_THAT(CIK == "0000320193", Eq(true));
@@ -887,7 +896,7 @@ TEST_F(TickerLookupUnitTest, VerifyConvertsSingleTickerThatExistsToCIK)
 
 TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistToCIK)
 {
-	TickerConverter sym;
+	TickerConverter sym{*THE_LOGGER};
 	decltype(auto) CIK = sym.ConvertTickerToCIK("DHS");
 
 	ASSERT_THAT(CIK == "**no_CIK_found**", Eq(true));
@@ -954,7 +963,7 @@ class QuarterlyParserFilterTest : public Test
 public:
 	//FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
 	FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"};
-	QuarterlyIndexFileRetriever idxFileRet{a_server};
+	QuarterlyIndexFileRetriever idxFileRet{a_server, *THE_LOGGER};
 };
 
 TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileForTicker)
@@ -963,12 +972,12 @@ TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterly
 	idxFileRet.RetrieveRemoteIndexFileTo("/tmp");
 	decltype(auto) local_quarterly_index_file_name = idxFileRet.GetLocalIndexFilePath();
 
-	TickerConverter sym;
+	TickerConverter sym{*THE_LOGGER};
 	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL");
 	std::map<std::string, std::string> ticker_map;
 	ticker_map["AAPL"] = CIK;
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
 	std::vector<std::string> forms_list{"10-Q"};
 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_quarterly_index_file_name, ticker_map);
 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(1));
@@ -998,7 +1007,7 @@ class MultipleFormsParserUnitTest : public Test
 public:
 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
 	/* FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
-	DailyIndexFileRetriever idxFileRet{a_server};
+	DailyIndexFileRetriever idxFileRet{a_server, *THE_LOGGER};
 };
 
 //	The following block of tests relate to working with the Index file located above.
@@ -1009,7 +1018,7 @@ TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFi
 	idxFileRet.RetrieveRemoteIndexFileTo("/tmp");
 	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath();
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
 	std::vector<std::string> forms_list{"4", "10-K", "10-Q"};
 
 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
@@ -1024,7 +1033,7 @@ TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFi
 	idxFileRet.RetrieveIndexFilesForDateRangeTo("/tmp/daily_index1");
 	decltype(auto) index_file_list = idxFileRet.GetfRemoteIndexFileNamesForDateRange();
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
 	std::vector<std::string> forms_list{"4", "10-K", "10-Q"};
 
 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, "/tmp/daily_index1", index_file_list);
@@ -1083,26 +1092,26 @@ int main(int argc, char** argv)
 	G_ARGC = argc;
 	G_ARGV = argv;
 
+    int result = 0;
+
 	EDGAR_UnitTest the_app;
 	try
 	{
 		the_app.init(argc, argv);
+
+        THE_LOGGER = &Poco::Logger::get("TestLogger");
+        AutoPtr<Poco::Channel> pChannel(new Poco::ConsoleChannel);
+        // pChannel->setProperty("path", "/tmp/Testing.log");
+        THE_LOGGER->setChannel(pChannel);
+        THE_LOGGER->setLevel(Poco::Message::PRIO_DEBUG);
+
+    	result = the_app.run();
 	}
 	catch (Poco::Exception& exc)
 	{
 		the_app.logger().log(exc);
-		return Application::EXIT_CONFIG;
+		result =  Application::EXIT_CONFIG;
 	}
-	return the_app.run();
-	/* AutoPtr<HTTPLoadTest> pApp = new HTTPLoadTest; */
-	/* try */
-	/* { */
-	/* 	pApp->init(argc, argv); */
-	/* } */
-	/* catch (Poco::Exception& exc) */
-	/* { */
-	/* 	pApp->logger().log(exc); */
-	/* 	return Application::EXIT_CONFIG; */
-	/* } */
-	/* return pApp->run(); */
+
+    return result;
 }

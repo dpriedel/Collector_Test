@@ -45,9 +45,21 @@ providers: [
             config:
               stdoe: "both"
           stdout:
-            pipeline: []
+            pipeline: [
+              {
+                name: "profile"
+                config:
+                  profile: "gcc_clang"
+              }
+            ]
           stderr:
-            pipeline: []
+            pipeline: [
+              {
+                name: "profile"
+                config:
+                  profile: "gcc_clang"
+              }
+            ]
           output:
             console:
               close_success: true
@@ -103,9 +115,21 @@ providers: [
             config:
               stdoe: "both"
           stdout:
-            pipeline: []
+            pipeline: [
+              {
+                name: "profile"
+                config:
+                  profile: "gcc_clang"
+              }
+            ]
           stderr:
-            pipeline: []
+            pipeline: [
+              {
+                name: "profile"
+                config:
+                  profile: "gcc_clang"
+              }
+            ]
           output:
             console:
               close_success: true
