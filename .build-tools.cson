@@ -6,7 +6,7 @@ providers: [
         {
           project: "/home/dpriedel/projects/github/CollectEDGARData_Test"
           source: "/home/dpriedel/projects/github/CollectEDGARData_Test/.build-tools.cson"
-          name: "make_clean_unit_test"
+          name: "unit_test_clean"
           command: "make -f makefile_unit clean"
           wd: "."
           env: {}
@@ -32,7 +32,7 @@ providers: [
         {
           project: "/home/dpriedel/projects/github/CollectEDGARData_Test"
           source: "/home/dpriedel/projects/github/CollectEDGARData_Test/.build-tools.cson"
-          name: "make_unit_test"
+          name: "unit_test_make"
           command: "make -f makefile_unit -j4"
           wd: "."
           env: {}
@@ -66,9 +66,6 @@ providers: [
               queue_in_buffer: true
               colors: false
               stdin: false
-            linter:
-              no_trace: false
-              immediate: false
           version: 2
         }
         {
@@ -136,9 +133,6 @@ providers: [
               queue_in_buffer: true
               colors: false
               stdin: false
-            linter:
-              no_trace: false
-              immediate: false
           version: 2
         }
       ]
