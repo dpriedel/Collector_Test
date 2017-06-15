@@ -132,30 +132,34 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 
 	std::string command_line{"the_program --index-dir /tmp --begin-date 2013-Oct-14 --form-dir /tmp/forms"
         " --host localhost"
+        " --log-level debug"
 		" --login aaa@bbb.com"};
 	// std::string command_line{"EndToEndTest --begin-date 2013-Oct-14"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
+    CollectEDGARApp myApp;
 	try
 	{
-		CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
         myApp.run();
 	}
 
     // catch any problems trying to setup application
 
-	catch (std::exception& theProblem)
+	catch (const std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		// poco_fatal(myApp->logger(), theProblem.what());
+
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(18));
@@ -176,24 +180,25 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
+    CollectEDGARApp myApp;
 	try
 	{
-		CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
         myApp.run();
 	}
 
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(0));
@@ -216,24 +221,25 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
+    CollectEDGARApp myApp;
 	try
 	{
-		CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
         myApp.run();
 	}
 
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(17));
@@ -255,24 +261,25 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
+    CollectEDGARApp myApp;
 	try
 	{
-		CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
         myApp.run();
 	}
 
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(0));
@@ -295,7 +302,7 @@ TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingIndexFilesWhenReplaceNotSpeci
     myApp.init(tokens);
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
     myApp.run();
 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
@@ -326,7 +333,7 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingIndexFilesWhenReplaceIsSpecifed
     myApp.init(tokens);
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
     myApp.run();
 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
@@ -359,7 +366,7 @@ TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingFormFilesWhenReplaceNotSpecif
     myApp.init(tokens);
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
     myApp.run();
 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
@@ -393,7 +400,7 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
     myApp.init(tokens);
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
     myApp.run();
 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
@@ -431,7 +438,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
     myApp.init(tokens);
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
     myApp.run();
 
@@ -456,7 +463,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFilesForDateRan
     myApp.init(tokens);
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
     myApp.run();
 
@@ -483,7 +490,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForQuarter)
     myApp.init(tokens);
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-	std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
     myApp.run();
 
@@ -506,23 +513,24 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
+    CollectEDGARApp myApp;
 	try
 	{
-		CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
         myApp.run();
 	}
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms5"), Eq(11));
@@ -535,6 +543,9 @@ class TickerEndToEndTest : public Test
 
 TEST(TickerEndToEndTest, VerifyWritesToLogFile)
 {
+    if (fs::exists("/tmp/the_log"))
+        fs::remove("/tmp/the_log");
+
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
@@ -545,23 +556,24 @@ TEST(TickerEndToEndTest, VerifyWritesToLogFile)
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
+    CollectEDGARApp myApp;
 	try
 	{
-		CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
         myApp.run();
 	}
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT((fs::exists("/tmp/the_log") && ! fs::is_empty("/tmp/the_log")), Eq(true));
@@ -579,23 +591,24 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
+    CollectEDGARApp myApp;
 	try
 	{
-		CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
         myApp.run();
 	}
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT((fs::exists("/tmp/ticker_to_CIK") && ! fs::is_empty("/tmp/ticker_to_CIK")), Eq(true));
@@ -613,23 +626,24 @@ TEST(TickerEndToEndTest, VerifyTickerLookupForFileOfTickers)
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
+    CollectEDGARApp myApp;
 	try
 	{
-		CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
         myApp.run();
 	}
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(fs::exists("/tmp/tickers_to_CIK"), Eq(true));
@@ -652,23 +666,24 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesFor
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
+    CollectEDGARApp myApp;
 	try
 	{
-		CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
         myApp.run();
 	}
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms6"), Eq(1));
@@ -692,23 +707,24 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesFor
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
+    CollectEDGARApp myApp;
 	try
 	{
-		CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
         myApp.run();
 	}
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms7"), Eq(4));
@@ -735,24 +751,25 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForSingl
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
+    CollectEDGARApp myApp;
 	try
 	{
-		CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
         myApp.run();
 	}
 
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms8"), Eq(4));
@@ -775,24 +792,25 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
+    CollectEDGARApp myApp;
 	try
 	{
-		CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
         myApp.run();
 	}
 
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms9"), Eq(5));
@@ -819,24 +837,25 @@ TEST(DailyEndToEndTestWithMultipleFormTypes, VerifyDownloadMultipleTypesOfFormFi
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
+    CollectEDGARApp myApp;
 	try
 	{
-		CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
         myApp.run();
 	}
 
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(DirectoryTreeContainsDirectory("/tmp/forms10", "10-K"), Eq(true));
@@ -860,24 +879,25 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForSingl
 	//std::string command_line{"the_program --index-dir /tmp"};
 	std::vector<std::string> tokens =  po::split_unix(command_line);
 
+    CollectEDGARApp myApp;
 	try
 	{
-		CollectEDGARApp myApp;
         myApp.init(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		std::clog << "\n\nTest: " << test_info->name() << " test case: " << test_info->test_case_name() << "\n\n";
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
 
         myApp.run();
 	}
 
 	catch (std::exception& theProblem)
 	{
-		CollectEDGARApp::sCErrorHandler->HandleException(theProblem);
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms11"), Eq(4));
