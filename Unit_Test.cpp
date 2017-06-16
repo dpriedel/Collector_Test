@@ -61,7 +61,7 @@
 #include "Poco/ConsoleChannel.h"
 // #include "Poco/SimpleFileChannel.h"
 
-// #include "FTP_Connection.h"
+#include "HTTPS_Connection.h"
 // #include "DailyIndexFileRetriever.h"
 // #include "FormFileRetriever.h"
 // #include "QuarterlyIndexFileRetriever.h"
