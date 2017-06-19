@@ -312,12 +312,12 @@ std::map<std::string, std::time_t> CollectLastModifiedTimesForFilesInDirectoryTr
 // NOTE: for some of these tests, I run an FTP server on localhost using
 // a directory structure that mimics part of the SEC server.
 //
-// class FTP_UnitTest : public Test
-// {
-//
-//
-// };
-//
+class HTTPS_UnitTest : public Test
+{
+
+
+};
+
 // /* TEST_F(RetrieverUnitTest, VerifyRetrievesIndexFileforNearestDate) */
 // /* { */
 // /* 	idxFileRet.UseDate(std::string{"2013-12-13"}); */
@@ -337,12 +337,14 @@ std::map<std::string, std::time_t> CollectLastModifiedTimesForFilesInDirectoryTr
 // 	ASSERT_THROW(a_server.OpenFTPConnection(), Poco::Net::NetException);
 // }
 //
-// TEST_F(FTP_UnitTest, TestAbilityToConnectToFTPServer)
-// {
-// 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
-// 	ASSERT_NO_THROW(a_server.OpenFTPConnection());
-// }
-//
+TEST_F(HTTPS_UnitTest, TestAbilityToConnectToHTTPSServer)
+{
+	HTTPS_Server a_server{"https://localhost:8443/test.txt"};
+	// ASSERT_NO_THROW(a_server.OpenHTTPSConnection());
+	a_server.OpenHTTPSConnection();
+	ASSERT_THAT(a_server.HaveActiveSession(), Eq(true));
+}
+
 // /* TEST_F(FTP_UnitTest, TestAbilityToChangeWorkingDirectory) */
 // /* { */
 // /* 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
