@@ -10,3 +10,7 @@ EndToEnd_Test
 Unit_Test
 
 .tag*
+
+# our test cert
+
+https_server/server.pem
