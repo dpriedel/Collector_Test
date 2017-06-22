@@ -61,7 +61,7 @@
 #include "Poco/ConsoleChannel.h"
 // #include "Poco/SimpleFileChannel.h"
 
-#include "HTTPS_Connection.h"
+#include "HTTPS_Downloader.h"
 // #include "DailyIndexFileRetriever.h"
 // #include "FormFileRetriever.h"
 // #include "QuarterlyIndexFileRetriever.h"
@@ -339,10 +339,10 @@ class HTTPS_UnitTest : public Test
 //
 TEST_F(HTTPS_UnitTest, TestAbilityToConnectToHTTPSServer)
 {
-	HTTPS_Server a_server{"https://localhost:8443/test.txt"};
+	HTTPS_Downloader a_server{"https://localhost:8443"};
 	// ASSERT_NO_THROW(a_server.OpenHTTPSConnection());
-	a_server.OpenHTTPSConnection();
-	ASSERT_THAT(a_server.HaveActiveSession(), Eq(true));
+	std::string data = a_server.RetrieveDataFromServer("/test.txt");
+	ASSERT_THAT(data, Eq(std::string{"Hello, there!\n"}));
 }
 
 // /* TEST_F(FTP_UnitTest, TestAbilityToChangeWorkingDirectory) */
