@@ -58,6 +58,9 @@
 #include "Poco/Channel.h"
 #include "Poco/Message.h"
 
+#include "Poco/Net/HTTPStreamFactory.h"
+#include "Poco/Net/HTTPSStreamFactory.h"
+#include "Poco/Net/FTPStreamFactory.h"
 #include "Poco/ConsoleChannel.h"
 // #include "Poco/SimpleFileChannel.h"
 
@@ -79,6 +82,9 @@ using Poco::Util::HelpFormatter;
 using Poco::Util::AbstractConfiguration;
 using Poco::Util::OptionCallback;
 using Poco::AutoPtr;
+using Poco::Net::HTTPStreamFactory;
+using Poco::Net::HTTPSStreamFactory;
+using Poco::Net::FTPStreamFactory;
 
 //	need these to feed into testing framework.
 
@@ -205,6 +211,10 @@ protected:
         setLogger(*THE_LOGGER);
 		if (!_helpRequested)
 		{
+			HTTPStreamFactory::registerFactory();
+			HTTPSStreamFactory::registerFactory();
+			FTPStreamFactory::registerFactory();
+
 			logger().information("Command line:");
 			std::ostringstream ostr;
 			for (ArgVec::const_iterator it = argv().begin(); it != argv().end(); ++it)
@@ -347,7 +357,7 @@ TEST_F(HTTPS_UnitTest, TestAbilityToConnectToHTTPSServer)
 
 // /* TEST_F(FTP_UnitTest, TestAbilityToChangeWorkingDirectory) */
 // /* { */
-// /* 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"}; */
+// /* 	FTP_Server a_server{"localhost", "anonymous", index_file_name"aaa@bbb.net"}; */
 // /* 	a_server.OpenFTPConnection(); */
 // /* 	a_server.ChangeWorkingDirectoryTo("edgar/daily-index"); */
 // /* 	ASSERT_THAT(a_server.GetWorkingDirectory().size(), Gt(0)); */
@@ -362,16 +372,14 @@ TEST_F(HTTPS_UnitTest, TestAbilityToConnectToHTTPSServer)
 //
 // }
 //
-// TEST_F(FTP_UnitTest, TestAbilityToListWorkingDirectory)
-// {
-// 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
-// 	a_server.OpenFTPConnection();
-// 	a_server.ChangeWorkingDirectoryTo("edgar/daily-index");
-// 	decltype(auto) directory_list = a_server.ListWorkingDirectoryContents();
-// 	ASSERT_THAT(directory_list.size(), Gt(0));
-//
-// }
-//
+TEST_F(HTTPS_UnitTest, TestAbilityToListDirectoryContents)
+{
+	HTTPS_Downloader a_server{"https://localhost:8443"};
+	decltype(auto) directory_list = a_server.ListDirectoryContents("/edgar/full-index/2013/QTR4");
+	ASSERT_THAT(directory_list.size(), Gt(0));
+
+}
+
 // TEST_F(FTP_UnitTest, VerifyAbilityToDownloadFileWhichExists)
 // {
 // 	if (fs::exists("/tmp/form.20131010.idx"))
