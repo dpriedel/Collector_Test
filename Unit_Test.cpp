@@ -376,7 +376,7 @@ TEST_F(HTTPS_UnitTest, TestAbilityToListDirectoryContents)
 {
 	HTTPS_Downloader a_server{"https://localhost:8443"};
 	decltype(auto) directory_list = a_server.ListDirectoryContents("/edgar/full-index/2013/QTR4");
-	ASSERT_THAT(directory_list.size(), Gt(0));
+	ASSERT_TRUE(std::find(directory_list.begin(), directory_list.end(), "company.gz") != directory_list.end());
 
 }
 

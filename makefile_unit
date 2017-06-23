@@ -34,7 +34,7 @@ endif
 OUTFILE := Unit_Test
 
 CFG_INC := -I/home/dpriedel/projects/github/app_framework/include/ -I/home/dpriedel/projects/github/CollectEDGARData/src \
-		-I$(GTESTDIR) -I$(BOOSTDIR)
+		-I$(GTESTDIR) -I$(BOOSTDIR) -I/extra/gcc/cpp-json/include/
 
 RPATH_LIB := -Wl,-rpath,$(GCCDIR)/lib64 -Wl,-rpath,$(BOOSTDIR)/lib -Wl,-rpath,/usr/local/lib
 
