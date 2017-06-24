@@ -380,19 +380,16 @@ TEST_F(HTTPS_UnitTest, TestAbilityToListDirectoryContents)
 
 }
 
-// TEST_F(FTP_UnitTest, VerifyAbilityToDownloadFileWhichExists)
-// {
-// 	if (fs::exists("/tmp/form.20131010.idx"))
-// 		fs::remove("/tmp/form.20131010.idx");
-//
-// 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
-// 	a_server.OpenFTPConnection();
-// 	a_server.ChangeWorkingDirectoryTo("edgar/daily-index");
-//
-// 	a_server.DownloadFile("form.20131010.idx", "/tmp/form.20131010.idx");
-// 	ASSERT_THAT(fs::exists("/tmp/form.20131010.idx"), Eq(true));
-// }
-//
+TEST_F(HTTPS_UnitTest, VerifyAbilityToDownloadFileWhichExists)
+{
+	if (fs::exists("/tmp/form.20131010.idx"))
+		fs::remove("/tmp/form.20131010.idx");
+
+	HTTPS_Downloader a_server{"https://localhost:8443"};
+	a_server.DownloadFile("/edgar/daily-index/form.20131010.idx", "/tmp/form.20131010.idx");
+	ASSERT_THAT(fs::exists("/tmp/form.20131010.idx"), Eq(true));
+}
+
 // TEST_F(FTP_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 // {
 // 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
