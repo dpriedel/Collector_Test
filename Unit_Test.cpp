@@ -67,7 +67,7 @@
 #include "HTTPS_Downloader.h"
 // #include "DailyIndexFileRetriever.h"
 // #include "FormFileRetriever.h"
-// #include "QuarterlyIndexFileRetriever.h"
+#include "QuarterlyIndexFileRetriever.h"
 #include "TickerConverter.h"
 
 namespace fs = boost::filesystem;
@@ -390,16 +390,14 @@ TEST_F(HTTPS_UnitTest, VerifyAbilityToDownloadFileWhichExists)
 	ASSERT_THAT(fs::exists("/tmp/form.20131010.idx"), Eq(true));
 }
 
-// TEST_F(FTP_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
-// {
-// 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
-// 	a_server.OpenFTPConnection();
-// 	a_server.ChangeWorkingDirectoryTo("edgar/daily-index");
-// 	decltype(auto) directory_list = a_server.ListWorkingDirectoryContents();
-//
-// 	ASSERT_THROW(a_server.DownloadFile("form.20131010.abc", "/tmp/downloaded/form.20131010.abc"), Poco::Net::FTPException);
-// }
-//
+TEST_F(HTTPS_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
+{
+	if (fs::exists("/tmp/form.20131008.idx"))
+		fs::remove("/tmp/form.20131008.idx");
+	HTTPS_Downloader a_server{"https://localhost:8443"};
+	ASSERT_THROW(a_server.DownloadFile("/edgar/daily-index/form.20131008.idx", "/tmp/form.20131008.idx"), std::runtime_error);
+}
+
 // class RetrieverUnitTest : public Test
 // {
 // public:
@@ -671,43 +669,41 @@ TEST_F(HTTPS_UnitTest, VerifyAbilityToDownloadFileWhichExists)
 // /* } */
 //
 //
-// class QuarterlyUnitTest : public Test
-// {
-// public:
-// 	//FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
-// 	FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"};
-// 	QuarterlyIndexFileRetriever idxFileRet{a_server, *THE_LOGGER};
-// };
-//
-// /* TEST_F(QuarterlyUnitTest, VerifyRejectsInvalidDates) */
-// /* { */
-// /* 	ASSERT_THROW(idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2013-Oxt-13")), std::out_of_range); */
-// /* } */
-//
-// /* TEST_F(QuarterlyUnitTest, VerifyRejectsFutureDates) */
-// /* { */
-// /* 	ASSERT_THROW(idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2014-10-13")), std::range_error); */
-// /* } */
-//
-// /* TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenFirstDayInQuarter) */
-// /* { */
-// /* 	decltype(auto) file_name = idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2000-01-01")); */
-// /* 	ASSERT_THAT(file_name == "2000/QTR1/form.zip", Eq(true)); */
-// /* } */
-//
-// /* TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenLastDayInQuarter) */
-// /* { */
-// /* 	decltype(auto) file_name = idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2002-06-30")); */
-// /* 	ASSERT_THAT(file_name == "2002/QTR2/form.zip", Eq(true)); */
-// /* } */
-//
-// TEST_F(QuarterlyUnitTest, TestFindAllQuarterlyIndexFilesForAYear)
-// {
-// 	decltype(auto) file_names = idxFileRet.FindIndexFileNamesForDateRange(bg::from_simple_string("2002-Jan-01"),\
-// 			bg::from_string("2002-Dec-31"));
-// 	ASSERT_THAT(file_names.size(), Eq(4));
-// }
-//
+class QuarterlyUnitTest : public Test
+{
+public:
+	HTTPS_Downloader a_server{"https://localhost:8443"};
+	QuarterlyIndexFileRetriever idxFileRet{a_server, *THE_LOGGER};
+};
+
+TEST_F(QuarterlyUnitTest, VerifyRejectsInvalidDates)
+{
+	ASSERT_THROW(idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2013-Oxt-13")), std::out_of_range);
+}
+
+ TEST_F(QuarterlyUnitTest, VerifyRejectsFutureDates)
+ {
+ 	ASSERT_THROW(idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2018-10-13")), Poco::AssertionViolationException);
+ }
+
+ TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenFirstDayInQuarter)
+ {
+ 	decltype(auto) file_name = idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2000-01-01"));
+ 	ASSERT_THAT(file_name == "2000/QTR1/form.zip", Eq(true));
+ }
+
+ TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenLastDayInQuarter)
+ {
+ 	decltype(auto) file_name = idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2002-06-30"));
+ 	ASSERT_THAT(file_name == "2002/QTR2/form.zip", Eq(true));
+ }
+
+TEST_F(QuarterlyUnitTest, TestFindAllQuarterlyIndexFilesForAYear)
+{
+	decltype(auto) file_names = idxFileRet.FindIndexFileNamesForDateRange(bg::from_simple_string("2002-Jan-01"), bg::from_string("2003-Jan-1"));
+	ASSERT_THAT(file_names.size(), Eq(5));
+}
+
 // TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFile)
 // {
 // 	decltype(auto) file_name = idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2000-01-01"));
