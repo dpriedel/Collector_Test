@@ -65,7 +65,7 @@
 // #include "Poco/SimpleFileChannel.h"
 
 #include "HTTPS_Downloader.h"
-// #include "DailyIndexFileRetriever.h"
+#include "DailyIndexFileRetriever.h"
 // #include "FormFileRetriever.h"
 #include "QuarterlyIndexFileRetriever.h"
 #include "TickerConverter.h"
@@ -341,12 +341,12 @@ class HTTPS_UnitTest : public Test
 //
 // /* } */
 //
-// TEST_F(FTP_UnitTest, TestExceptionOnFailureToConnectToFTPServer)
-// {
-// 	FTP_Server a_server{"localxxxx", "anonymous", "aaa@bbb.net"};
-// 	ASSERT_THROW(a_server.OpenFTPConnection(), Poco::Net::NetException);
-// }
-//
+TEST_F(HTTPS_UnitTest, TestExceptionOnFailureToConnectToHTTPSServer)
+{
+	HTTPS_Downloader a_server{"https://xxxlocalhost:8443"};
+	ASSERT_THROW(a_server.RetrieveDataFromServer(""), Poco::Net::NetException);
+}
+
 TEST_F(HTTPS_UnitTest, TestAbilityToConnectToHTTPSServer)
 {
 	HTTPS_Downloader a_server{"https://localhost:8443"};
@@ -386,7 +386,7 @@ TEST_F(HTTPS_UnitTest, VerifyAbilityToDownloadFileWhichExists)
 		fs::remove("/tmp/form.20131010.idx");
 
 	HTTPS_Downloader a_server{"https://localhost:8443"};
-	a_server.DownloadFile("/edgar/daily-index/form.20131010.idx", "/tmp/form.20131010.idx");
+	a_server.DownloadFile("/edgar/daily-index/2013/QTR4/form.20131010.idx", "/tmp/form.20131010.idx");
 	ASSERT_THAT(fs::exists("/tmp/form.20131010.idx"), Eq(true));
 }
 
@@ -395,46 +395,46 @@ TEST_F(HTTPS_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 	if (fs::exists("/tmp/form.20131008.idx"))
 		fs::remove("/tmp/form.20131008.idx");
 	HTTPS_Downloader a_server{"https://localhost:8443"};
-	ASSERT_THROW(a_server.DownloadFile("/edgar/daily-index/form.20131008.idx", "/tmp/form.20131008.idx"), std::runtime_error);
+	ASSERT_THROW(a_server.DownloadFile("/edgar/daily-index/2013/QTR4/form.20131008.idx", "/tmp/form.20131008.idx"), std::runtime_error);
 }
 
-// class RetrieverUnitTest : public Test
-// {
-// public:
-// 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
-// 	DailyIndexFileRetriever idxFileRet{a_server, *THE_LOGGER};
-// };
-//
-// TEST_F(RetrieverUnitTest, VerifyRejectsInvalidDates)
-// {
-// 	ASSERT_THROW(idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-Oxt-13")), std::out_of_range);
-// }
-//
-// TEST_F(RetrieverUnitTest, VerifyRejectsFutureDates)
-// {
-// 	// let's make a date in the future
-//
-// 	auto today = bg::day_clock::local_day();
-// 	auto tomorrow = today + bg::date_duration(1);
-//
-// 	ASSERT_THROW(idxFileRet.FindIndexFileNameNearestDate(tomorrow), std::range_error);
-// }
-//
-//
-// //	Finally, we get to the point
-//
-// TEST_F(RetrieverUnitTest, TestFindIndexFileDateNearestWhereDateExists)
-// {
-// 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-11"));
-// 	ASSERT_THAT(idxFileRet.GetActualIndexFileDate() == bg::from_simple_string("2013-10-11"), Eq(true));
-// }
-//
-// TEST_F(RetrieverUnitTest, TestFindIndexFileDateNearestWhereDateDoesNotExist)
-// {
-// 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-14"));
-// 	ASSERT_THAT(idxFileRet.GetActualIndexFileDate() == bg::from_simple_string("2013-10-11"), Eq(true));
-// }
-//
+class RetrieverUnitTest : public Test
+{
+public:
+
+	HTTPS_Downloader a_server{"https://localhost:8443"};
+	DailyIndexFileRetriever idxFileRet{a_server, "/edgar/daily-index", *THE_LOGGER};
+};
+
+TEST_F(RetrieverUnitTest, VerifyRejectsInvalidDates)
+{
+	ASSERT_THROW(idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-Oxt-13")), std::out_of_range);
+}
+
+TEST_F(RetrieverUnitTest, VerifyRejectsFutureDates)
+{
+	// let's make a date in the future
+
+	auto today = bg::day_clock::local_day();
+	auto tomorrow = today + bg::date_duration(1);
+
+	ASSERT_THROW(idxFileRet.FindIndexFileNameNearestDate(tomorrow), Poco::AssertionViolationException);
+}
+
+//	Finally, we get to the point
+
+TEST_F(RetrieverUnitTest, TestFindIndexFileDateNearestWhereDateExists)
+{
+	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-11"));
+	ASSERT_THAT(idxFileRet.GetActualIndexFileDate() == bg::from_simple_string("2013-10-11"), Eq(true));
+}
+
+TEST_F(RetrieverUnitTest, TestFindIndexFileDateNearestWhereDateDoesNotExist)
+{
+	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-14"));
+	ASSERT_THAT(idxFileRet.GetActualIndexFileDate() == bg::from_simple_string("2013-10-11"), Eq(true));
+}
+
 // TEST_F(RetrieverUnitTest, TestExceptionThrownWhenRemoteIndexFileNameUnknown)
 // {
 // 	ASSERT_THROW(idxFileRet.RetrieveRemoteIndexFileTo("/tmp"), std::runtime_error);
@@ -673,7 +673,7 @@ class QuarterlyUnitTest : public Test
 {
 public:
 	HTTPS_Downloader a_server{"https://localhost:8443"};
-	QuarterlyIndexFileRetriever idxFileRet{a_server, *THE_LOGGER};
+	QuarterlyIndexFileRetriever idxFileRet{a_server, "/edgar/full-index", *THE_LOGGER};
 };
 
 TEST_F(QuarterlyUnitTest, VerifyRejectsInvalidDates)
@@ -689,13 +689,13 @@ TEST_F(QuarterlyUnitTest, VerifyRejectsInvalidDates)
  TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenFirstDayInQuarter)
  {
  	decltype(auto) file_name = idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2000-01-01"));
- 	ASSERT_THAT(file_name == "2000/QTR1/form.zip", Eq(true));
+ 	ASSERT_THAT(file_name == "/edgar/full-index/2000/QTR1/form.zip", Eq(true));
  }
 
  TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenLastDayInQuarter)
  {
  	decltype(auto) file_name = idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2002-06-30"));
- 	ASSERT_THAT(file_name == "2002/QTR2/form.zip", Eq(true));
+ 	ASSERT_THAT(file_name == "/edgar/full-index/2002/QTR2/form.zip", Eq(true));
  }
 
 TEST_F(QuarterlyUnitTest, TestFindAllQuarterlyIndexFilesForAYear)
@@ -704,15 +704,18 @@ TEST_F(QuarterlyUnitTest, TestFindAllQuarterlyIndexFilesForAYear)
 	ASSERT_THAT(file_names.size(), Eq(5));
 }
 
-// TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFile)
-// {
-// 	decltype(auto) file_name = idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2000-01-01"));
-// 	idxFileRet.RetrieveRemoteIndexFileTo("/tmp");
-//
-// 	ASSERT_THAT(fs::exists("/tmp/2000/QTR1/form.idx"), Eq(true));
-// 	//ASSERT_THAT(fs::exists(idxFileRet.GetLocalIndexFilePath()), Eq(true));
-// }
-//
+TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFile)
+{
+	if (fs::exists("/tmp/edgar/full-index/2000/QTR1/form.idx"))
+		fs::remove("/tmp/edgar/full-index/2000/QTR1/form.idx");
+
+	decltype(auto) file_name = idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2000-01-01"));
+	idxFileRet.RetrieveRemoteIndexFileTo("/tmp", true);
+
+	ASSERT_THAT(fs::exists("/tmp/edgar/full-index/2000/QTR1/form.idx"), Eq(true));
+	//ASSERT_THAT(fs::exists(idxFileRet.GetLocalIndexFilePath()), Eq(true));
+}
+
 // /* TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFileThenUnzipIt) */
 // /* { */
 // /* 	decltype(auto) file_name = idxFileRet.MakeQuarterIndexPathName(bg::from_simple_string("2000-01-01")); */
@@ -900,39 +903,39 @@ TEST_F(QuarterlyUnitTest, TestFindAllQuarterlyIndexFilesForAYear)
 // /* 	ASSERT_THAT(x1 == x2, Eq(true)); */
 // /* } */
 //
-// class TickerLookupUnitTest : public Test
-// {
-// public:
-//
-// };
-//
-// TEST_F(TickerLookupUnitTest, VerifyConvertsSingleTickerThatExistsToCIK)
-// {
-// 	TickerConverter sym{*THE_LOGGER};
-// 	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL");
-//
-// 	ASSERT_THAT(CIK == "0000320193", Eq(true));
-//
-// }
-//
-// /* TEST_F(TickerLookupUnitTest, VerifyConvertsFileOfTickersToCIKs) */
-// /* { */
-// /* 	TickerConverter sym; */
-// /* 	decltype(auto) CIKs = sym.ConvertTickerFileToCIKs("./test_tickers_file", 1); */
-//
-// /* 	ASSERT_THAT(CIKs, Eq(50)); */
-//
-// /* } */
-//
-// TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistToCIK)
-// {
-// 	TickerConverter sym{*THE_LOGGER};
-// 	decltype(auto) CIK = sym.ConvertTickerToCIK("DHS");
-//
-// 	ASSERT_THAT(CIK == "**no_CIK_found**", Eq(true));
-//
-// }
-//
+class TickerLookupUnitTest : public Test
+{
+public:
+
+};
+
+TEST_F(TickerLookupUnitTest, VerifyConvertsSingleTickerThatExistsToCIK)
+{
+	TickerConverter sym{*THE_LOGGER};
+	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL");
+
+	ASSERT_THAT(CIK == "0000320193", Eq(true));
+
+}
+
+ TEST_F(TickerLookupUnitTest, DISABLED_VerifyConvertsFileOfTickersToCIKs)
+ {
+	TickerConverter sym{*THE_LOGGER};
+ 	decltype(auto) CIKs = sym.ConvertTickerFileToCIKs("./test_tickers_file", 1);
+
+ 	ASSERT_THAT(CIKs, Eq(50));
+
+ }
+
+TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistToCIK)
+{
+	TickerConverter sym{*THE_LOGGER};
+	decltype(auto) CIK = sym.ConvertTickerToCIK("DHS");
+
+	ASSERT_THAT(CIK == "**no_CIK_found**", Eq(true));
+
+}
+
 // /* class TickerConverterStub : public TickerConverter */
 // /* { */
 // /* 	public: */
