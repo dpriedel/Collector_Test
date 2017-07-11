@@ -34,7 +34,7 @@ endif
 OUTFILE := EndToEnd_Test
 
 CFG_INC := -I/home/dpriedel/projects/github/app_framework/include/ -I/home/dpriedel/projects/github/CollectEDGARData/src \
-		-I$(GTESTDIR) -I$(BOOSTDIR)
+		-I$(GTESTDIR) -I$(BOOSTDIR) -I/extra/gcc/cpp-json/include/
 
 RPATH_LIB := -Wl,-rpath,$(GCCDIR)/lib64 -Wl,-rpath,$(BOOSTDIR)/lib -Wl,-rpath,/usr/local/lib
 
@@ -42,9 +42,10 @@ SDIR1 := .
 SRCS1 := $(SDIR1)/EndToEnd_Test.cpp
 
 SDIR2 := ../CollectEDGARData/src
-SRCS2 := $(SDIR2)/FTP_Connection.cpp $(SDIR2)/DailyIndexFileRetriever.cpp \
+SRCS2 := $(SDIR2)/HTTPS_Downloader.cpp $(SDIR2)/DailyIndexFileRetriever.cpp \
 		 $(SDIR2)/FormFileRetriever.cpp $(SDIR2)/QuarterlyIndexFileRetriever.cpp \
-		 $(SDIR2)/TickerConverter.cpp $(SDIR2)/CollectEDGARApp.cpp
+		 $(SDIR2)/TickerConverter.cpp $(SDIR2)/CollectEDGARApp.cpp \
+		 $(SDIR2)/PathNameGenerator.cpp
 
 SDIR3h := ../app_framework/include
 SDIR3 := ../app_framework/src
@@ -62,7 +63,7 @@ ifeq "$(CFG)" "Debug"
 OUTDIR=Debug_e2e
 
 CFG_LIB := -lpthread -L$(BOOSTDIR)/lib -lboost_system-d -lboost_filesystem-d -lboost_program_options-d \
-		-lboost_date_time-d -lboost_regex-d \
+		-lboost_date_time-d -lboost_regex-d -lboost_iostreams \
 		-L/usr/local/lib -lPocoFoundationd -lPocoUtild -lPocoNetSSLd -lPocoNetd -lPocoZipd \
 		-L/usr/local/lib -lgmock_main
 
@@ -73,7 +74,7 @@ OBJS2=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS2)))))
 OBJS=$(OBJS1) $(OBJS2)
 DEPS=$(OBJS:.o=.d)
 
-COMPILE=$(CPP) -c  -x c++  -O0  -g3 -std=c++14 -D_DEBUG -fPIC -o $@ $(CFG_INC) $< -march=native -MMD -MP
+COMPILE=$(CPP) -c  -x c++  -O0  -g3 -std=c++1z -D_DEBUG -fPIC -o $@ $(CFG_INC) $< -march=native -MMD -MP
 LINK := $(CPP)  -g -o $(OUTFILE) $(OBJS) $(CFG_LIB) -Wl,-E $(RPATH_LIB)
 
 endif #	DEBUG configuration
