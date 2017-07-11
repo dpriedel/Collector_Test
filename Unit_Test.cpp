@@ -66,7 +66,7 @@
 
 #include "HTTPS_Downloader.h"
 #include "DailyIndexFileRetriever.h"
-// #include "FormFileRetriever.h"
+#include "FormFileRetriever.h"
 #include "QuarterlyIndexFileRetriever.h"
 #include "TickerConverter.h"
 
@@ -310,15 +310,15 @@ std::map<std::string, std::time_t> CollectLastModifiedTimesForFilesInDirectoryTr
 	return results;
 }
 
-// int CountTotalFormsFilesFound(const FormFileRetriever::FormsList& file_list)
-// {
-// 	int grand_total{0};
-// 	for (const auto& elem : file_list)
-// 		grand_total += elem.second.size();
-//
-// 	return grand_total;
-// }
-//
+int CountTotalFormsFilesFound(const FormFileRetriever::FormsList& file_list)
+{
+	int grand_total{0};
+	for (const auto& elem : file_list)
+		grand_total += elem.second.size();
+
+	return grand_total;
+}
+
 // NOTE: for some of these tests, I run an HTTPS server on localhost using
 // a directory structure that mimics part of the SEC server.
 //
@@ -534,106 +534,144 @@ TEST_F(RetrieverUnitTest, TestHierarchicalRetrieveIndexFileDoesReplaceWhenReplac
 	ASSERT_THAT(d2 == d1, Eq(false));
 }
 
-// class ParserUnitTest : public Test
-// {
-// public:
-// 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
-// 	/* FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
-// 	DailyIndexFileRetriever idxFileRet{a_server, *THE_LOGGER};
-// };
-//
-// //	The following block of tests relate to working with the Index file located above.
-//
-// TEST_F(ParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFile)
-// {
-// 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
-// 	idxFileRet.CopyRemoteIndexFileTo("/tmp");
-// 	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath();
-//
-// 	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
-// 	std::vector<std::string> forms_list{"10-Q"};
-// 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
-// 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(25));
-//
-// }
-//
-// TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesListedInIndexFile)
-// {
-//     if (fs::exists("/tmp/forms_unit"))
-// 	   fs::remove_all("/tmp/forms_unit");
-//
-// 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
-// 	idxFileRet.CopyRemoteIndexFileTo("/tmp");
-// 	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath();
-//
-// 	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
-// 	std::vector<std::string> forms_list{"10-Q"};
-// 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
-//
-// 	form_file_getter.RetrieveSpecifiedFiles(file_list, "/tmp/forms_unit");
-// 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms_unit"), Eq(CountTotalFormsFilesFound(file_list)));
-// }
-//
-// TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName)
-// {
-//     if (fs::exists("/tmp/forms_unit"))
-// 	   fs::remove_all("/tmp/forms_unit");
-//
-// 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
-// 	idxFileRet.CopyRemoteIndexFileTo("/tmp");
-// 	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath();
-//
-// 	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
-// 	std::vector<std::string> forms_list{"10-Q/A"};
-// 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
-//
-// 	form_file_getter.RetrieveSpecifiedFiles(file_list, "/tmp/forms_unit");
-// 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms_unit"), Eq(CountTotalFormsFilesFound(file_list)));
-// }
-//
-// /* TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesDoesNotReplaceWhenReplaceNotSpecified) */
-// /* { */
-// /* 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-10")); */
-// /* 	idxFileRet.CopyRemoteIndexFileTo("/tmp"); */
-// /* 	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath(); */
-//
-// /* 	FormFileRetriever form_file_getter{a_server}; */
-// /* 	std::vector<std::string> forms_list{"10-Q"}; */
-// /* 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name); */
-//
-// /* 	form_file_getter.RetrieveSpecifiedFiles(file_list, "/tmp/forms_unit2"); */
-// /* 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms_unit2"); */
-//
-// /* 	std::this_thread::sleep_for(std::chrono::seconds{1}); */
-//
-// /* 	form_file_getter.RetrieveSpecifiedFiles(file_list, "/tmp/forms_unit2"); */
-// /* 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms_unit2"); */
-//
-// /* 	ASSERT_THAT(x1 == x2, Eq(true)); */
-// /* } */
-//
-// /* TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesDoesReplaceWhenReplaceIsSpecified) */
-// /* { */
-// /* 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-10")); */
-// /* 	idxFileRet.CopyRemoteIndexFileTo("/tmp"); */
-// /* 	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath(); */
-//
-// /* 	FormFileRetriever form_file_getter{a_server}; */
-// /* 	std::vector<std::string> forms_list{"10-Q"}; */
-// /* 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name); */
-//
-// /* 	form_file_getter.RetrieveSpecifiedFiles(file_list, "/tmp/forms_unit3"); */
-// /* 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms_unit3"); */
-//
-// /* 	std::this_thread::sleep_for(std::chrono::seconds{1}); */
-//
-//
-// /* 	form_file_getter.RetrieveSpecifiedFiles(file_list, "/tmp/forms_unit3", true); */
-// /* 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms_unit3"); */
-//
-// /* 	ASSERT_THAT(x1 == x2, Eq(false)); */
-// /* } */
-//
+class ParserUnitTest : public Test
+{
+public:
+	HTTPS_Downloader a_server{"https://localhost:8443"};
+	/* FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
+	DailyIndexFileRetriever idxFileRet{a_server, "/edgar/daily-index", *THE_LOGGER};
+};
+
+//	The following block of tests relate to working with the Index file located above.
+
+TEST_F(ParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFile)
+{
+	if (fs::exists("/tmp/form.20131010.idx"))
+		fs::remove("/tmp/form.20131010.idx");
+
+	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
+	idxFileRet.CopyRemoteIndexFileTo("/tmp");
+	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath();
+
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
+	std::vector<std::string> forms_list{"10-Q"};
+	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
+	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(25));
+
+}
+
+TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesListedInIndexFile)
+{
+	if (fs::exists("/tmp/form.20131010.idx"))
+		fs::remove("/tmp/form.20131010.idx");
+
+    if (fs::exists("/tmp/forms_unit"))
+	   fs::remove_all("/tmp/forms_unit");
+
+	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
+	idxFileRet.CopyRemoteIndexFileTo("/tmp");
+	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath();
+
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
+	std::vector<std::string> forms_list{"10-Q"};
+	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
+
+	form_file_getter.RetrieveSpecifiedFiles(file_list, "/tmp/forms_unit");
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms_unit"), Eq(CountTotalFormsFilesFound(file_list)));
+}
+
+TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName)
+{
+	if (fs::exists("/tmp/form.20131010.idx"))
+		fs::remove("/tmp/form.20131010.idx");
+
+    if (fs::exists("/tmp/forms_unit"))
+	   fs::remove_all("/tmp/forms_unit");
+
+	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
+	idxFileRet.CopyRemoteIndexFileTo("/tmp");
+	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath();
+
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
+	std::vector<std::string> forms_list{"10-Q/A"};
+	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
+
+	form_file_getter.RetrieveSpecifiedFiles(file_list, "/tmp/forms_unit");
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms_unit"), Eq(CountTotalFormsFilesFound(file_list)));
+}
+
+ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesDoesNotReplaceWhenReplaceNotSpecified)
+ {
+	if (fs::exists("/tmp/form.20131010.idx"))
+		fs::remove("/tmp/form.20131010.idx");
+
+    if (fs::exists("/tmp/forms_unit2"))
+	   fs::remove_all("/tmp/forms_unit2");
+
+ 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
+ 	idxFileRet.CopyRemoteIndexFileTo("/tmp");
+ 	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath();
+
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
+ 	std::vector<std::string> forms_list{"10-Q"};
+ 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
+
+ 	form_file_getter.RetrieveSpecifiedFiles(file_list, "/tmp/forms_unit2");
+ 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms_unit2");
+
+ 	std::this_thread::sleep_for(std::chrono::seconds{1});
+
+ 	form_file_getter.RetrieveSpecifiedFiles(file_list, "/tmp/forms_unit2");
+ 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms_unit2");
+
+ 	ASSERT_THAT(x1 == x2, Eq(true));
+ }
+
+ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesDoesReplaceWhenReplaceIsSpecified)
+ {
+	if (fs::exists("/tmp/form.20131010.idx"))
+		fs::remove("/tmp/form.20131010.idx");
+
+    if (fs::exists("/tmp/forms_unit3"))
+	   fs::remove_all("/tmp/forms_unit3");
+
+ 	decltype(auto) file_name = idxFileRet.FindIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
+ 	idxFileRet.CopyRemoteIndexFileTo("/tmp");
+ 	decltype(auto) local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath();
+
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
+ 	std::vector<std::string> forms_list{"10-Q"};
+ 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
+
+ 	form_file_getter.RetrieveSpecifiedFiles(file_list, "/tmp/forms_unit3");
+ 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms_unit3");
+
+ 	std::this_thread::sleep_for(std::chrono::seconds{1});
+
+
+ 	form_file_getter.RetrieveSpecifiedFiles(file_list, "/tmp/forms_unit3", true);
+ 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms_unit3");
+
+ 	ASSERT_THAT(x1 == x2, Eq(false));
+ }
+
+ // TEST_F(ParserUnitTest, VerifyFindsCorrectNumberOfFormFilesListedInMultipleIndexFiles)
+ // {
+ //    if (fs::exists("/tmp/downloaded_p"))
+ //    fs::remove_all("/tmp/downloaded_p");
+ //
+ // 	decltype(auto) results = idxFileRet.FindIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-10"), bg::from_simple_string("2013-10-21"));
+ // 	idxFileRet.CopyIndexFilesForDateRangeTo("/tmp/downloaded_p");
+ // 	decltype(auto) index_file_list = idxFileRet.GetfRemoteIndexFileNamesForDateRange();
+ //
+ // FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
+ // 	std::vector<std::string> forms_list{"10-Q"};
+ // 	decltype(auto) form_file_list = form_file_getter.FindFilesForForms(forms_list, "/tmp/downloaded_p", index_file_list);
+ //
+ // 	ASSERT_THAT(CountTotalFormsFilesFound(form_file_list), Eq(255));
+ // }
+ // 
+
  class RetrieverMultipleDailies : public Test
  {
  public:
@@ -683,7 +721,7 @@ TEST_F(RetrieverUnitTest, TestHierarchicalRetrieveIndexFileDoesReplaceWhenReplac
     if (fs::exists("/tmp/downloaded_l"))
 	   fs::remove_all("/tmp/downloaded_l");
 
- 	decltype(auto) file_list = idxFileRet.FindIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-10"), bg::from_simple_string("2013-10-21"));
+ 	[[maybe_unused]] decltype(auto) file_list = idxFileRet.FindIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-10"), bg::from_simple_string("2013-10-21"));
  	idxFileRet.CopyIndexFilesForDateRangeTo("/tmp/downloaded_l");
  	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/downloaded_l");
 
@@ -700,7 +738,7 @@ TEST_F(RetrieverMultipleDailies, VerifyDownloadOfIndexFilesForDateRangeDoesRepla
     if (fs::exists("/tmp/downloaded_l"))
 	   fs::remove_all("/tmp/downloaded_l");
 
- 	decltype(auto) file_list = idxFileRet.FindIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-10"), bg::from_simple_string("2013-10-21"));
+ 	[[maybe_unused]] decltype(auto) file_list = idxFileRet.FindIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-10"), bg::from_simple_string("2013-10-21"));
  	idxFileRet.CopyIndexFilesForDateRangeTo("/tmp/downloaded_l");
  	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/downloaded_l");
 
@@ -713,20 +751,6 @@ TEST_F(RetrieverMultipleDailies, VerifyDownloadOfIndexFilesForDateRangeDoesRepla
  }
 
 
-/* TEST_F(ParserUnitTest, VerifyFindsCorrectNumberOfFormFilesListedInMultipleIndexFiles) */
-/* { */
-/* 	decltype(auto) results = idxFileRet.FindIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-10"), bg::from_simple_string("2013-10-21")); */
-/* 	idxFileRet.CopyIndexFilesForDateRangeTo("/tmp/downloaded_p"); */
-/* 	decltype(auto) index_file_list = idxFileRet.GetfRemoteIndexFileNamesForDateRange(); */
-
-/* 	FormFileRetriever form_file_getter{a_server}; */
-/* 	std::vector<std::string> forms_list{"10-Q"}; */
-/* 	decltype(auto) form_file_list = form_file_getter.FindFilesForForms(forms_list, "/tmp/downloaded_p", index_file_list); */
-
-/* 	ASSERT_THAT(CountTotalFormsFilesFound(form_file_list), Eq(255)); */
-/* } */
-//
-//
 class QuarterlyUnitTest : public Test
 {
 public:
@@ -866,7 +890,7 @@ TEST_F(QuarterlyRetrieveMultipleFiles, VerifyFindsCorrectNumberOfIndexFilesInRan
     if (fs::exists("/tmp/downloaded_q"))
 	   fs::remove_all("/tmp/downloaded_q");
 
- 	decltype(auto) file_list = idxFileRet.MakeIndexFileNamesForDateRange(bg::from_simple_string("2013-Sep-10"), bg::from_simple_string("2014-10-21"));
+ 	[[maybe_unused]] decltype(auto) file_list = idxFileRet.MakeIndexFileNamesForDateRange(bg::from_simple_string("2013-Sep-10"), bg::from_simple_string("2014-10-21"));
  	idxFileRet.HierarchicalCopyIndexFilesForDateRangeTo("/tmp/downloaded_q");
  	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/downloaded_q");
 
@@ -883,7 +907,7 @@ TEST_F(QuarterlyRetrieveMultipleFiles, VerifyFindsCorrectNumberOfIndexFilesInRan
     if (fs::exists("/tmp/downloaded_q"))
 	   fs::remove_all("/tmp/downloaded_q");
 
- 	decltype(auto) file_list = idxFileRet.MakeIndexFileNamesForDateRange(bg::from_simple_string("2013-Sep-10"), bg::from_simple_string("2014-10-21"));
+ 	[[maybe_unused]] decltype(auto) file_list = idxFileRet.MakeIndexFileNamesForDateRange(bg::from_simple_string("2013-Sep-10"), bg::from_simple_string("2014-10-21"));
  	idxFileRet.HierarchicalCopyIndexFilesForDateRangeTo("/tmp/downloaded_q");
  	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/downloaded_q");
 
