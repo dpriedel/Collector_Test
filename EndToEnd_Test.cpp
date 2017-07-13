@@ -167,126 +167,123 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(18));
 }
 
-// TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
-// {
-// 	fs::remove_all("/tmp/forms");
-// 	fs::create_directory("/tmp/forms");
-//
-// 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
-// 	//	the test program.
-//
-// 	std::string command_line{"the_program --index-dir /tmp --begin-date 2013-Oct-14 --form-dir /tmp/forms "
-// 		"--login aaa@bbb.com "
-//         "--host localhost "
-// 		"--index-only"};
-// 	//std::string command_line{"the_program --index-dir /tmp"};
-// 	std::vector<std::string> tokens =  po::split_unix(command_line);
-//
-//     CollectEDGARApp myApp;
-// 	try
-// 	{
-//         myApp.init(tokens);
-//
-// 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
-//
-//         myApp.run();
-// 	}
-//
-// 	catch (std::exception& theProblem)
-// 	{
-// 		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
-// 		throw;	//	so test framework will get it too.
-// 	}
-// 	catch (...)
-// 	{		// handle exception: unspecified
-// 		myApp.logger().error("Something totally unexpected happened.");
-// 		throw;
-// 	}
-// 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(0));
-// }
-//
-// TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFiles)
-// {
-// 	fs::remove_all("/tmp/index1");
-// 	fs::remove_all("/tmp/forms1");
-// 	fs::create_directory("/tmp/forms1");
-//
-// 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
-// 	//	the test program.
-//
-// 	std::string command_line{"the_program --index-dir /tmp/index1 --form-dir /tmp/forms1 "
-// 		"--login aaa@bbb.com "
-//         "--host localhost "
-//         "--max 17 "
-// 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17"};
-// 	//std::string command_line{"the_program --index-dir /tmp"};
-// 	std::vector<std::string> tokens =  po::split_unix(command_line);
-//
-//     CollectEDGARApp myApp;
-// 	try
-// 	{
-//         myApp.init(tokens);
-//
-// 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
-//
-//         myApp.run();
-// 	}
-//
-// 	catch (std::exception& theProblem)
-// 	{
-// 		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
-// 		throw;	//	so test framework will get it too.
-// 	}
-// 	catch (...)
-// 	{		// handle exception: unspecified
-// 		myApp.logger().error("Something totally unexpected happened.");
-// 		throw;
-// 	}
-// 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(17));
-// }
-//
-// TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenIndexOnlySpecified)
-// {
-// 	fs::remove_all("/tmp/index1");
-// 	fs::remove_all("/tmp/forms1");
-// 	fs::create_directory("/tmp/forms1");
-//
-// 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
-// 	//	the test program.
-//
-// 	std::string command_line{"the_program --index-dir /tmp/index1 --form-dir /tmp/forms1 "
-//         "--host localhost "
-// 		"--login aaa@bbb.com "
-// 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 --index-only"};
-// 	//std::string command_line{"the_program --index-dir /tmp"};
-// 	std::vector<std::string> tokens =  po::split_unix(command_line);
-//
-//     CollectEDGARApp myApp;
-// 	try
-// 	{
-//         myApp.init(tokens);
-//
-// 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
-//
-//         myApp.run();
-// 	}
-//
-// 	catch (std::exception& theProblem)
-// 	{
-// 		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
-// 		throw;	//	so test framework will get it too.
-// 	}
-// 	catch (...)
-// 	{		// handle exception: unspecified
-// 		myApp.logger().error("Something totally unexpected happened.");
-// 		throw;
-// 	}
-// 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(0));
-// }
-//
+TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
+{
+	fs::remove_all("/tmp/forms");
+	fs::create_directory("/tmp/forms");
+
+	//	NOTE: the program name 'the_program' in the command line below is ignored in the
+	//	the test program.
+
+	std::string command_line{"the_program --index-dir /tmp --begin-date 2013-Oct-14 --form-dir /tmp/forms "
+        " --host https://localhost:8443"
+		" --index-only"};
+	//std::string command_line{"the_program --index-dir /tmp"};
+	std::vector<std::string> tokens =  po::split_unix(command_line);
+
+    CollectEDGARApp myApp;
+	try
+	{
+        myApp.init(tokens);
+
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+
+        myApp.run();
+	}
+
+	catch (std::exception& theProblem)
+	{
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+		throw;	//	so test framework will get it too.
+	}
+	catch (...)
+	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
+		throw;
+	}
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(0));
+}
+
+TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFiles)
+{
+	fs::remove_all("/tmp/index1");
+	fs::remove_all("/tmp/forms1");
+	fs::create_directory("/tmp/forms1");
+
+	//	NOTE: the program name 'the_program' in the command line below is ignored in the
+	//	the test program.
+
+	std::string command_line{"the_program --index-dir /tmp/index1 --form-dir /tmp/forms1 "
+        "--host https://localhost:8443 "
+        "--max 17 "
+		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17"};
+	//std::string command_line{"the_program --index-dir /tmp"};
+	std::vector<std::string> tokens =  po::split_unix(command_line);
+
+    CollectEDGARApp myApp;
+	try
+	{
+        myApp.init(tokens);
+
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+
+        myApp.run();
+	}
+
+	catch (std::exception& theProblem)
+	{
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+		throw;	//	so test framework will get it too.
+	}
+	catch (...)
+	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
+		throw;
+	}
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(17));
+}
+
+TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenIndexOnlySpecified)
+{
+	fs::remove_all("/tmp/index1");
+	fs::remove_all("/tmp/forms1");
+	fs::create_directory("/tmp/forms1");
+
+	//	NOTE: the program name 'the_program' in the command line below is ignored in the
+	//	the test program.
+
+	std::string command_line{"the_program --index-dir /tmp/index1 --form-dir /tmp/forms1 "
+        "--host https://localhost:8443 "
+		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 --index-only"};
+	//std::string command_line{"the_program --index-dir /tmp"};
+	std::vector<std::string> tokens =  po::split_unix(command_line);
+
+    CollectEDGARApp myApp;
+	try
+	{
+        myApp.init(tokens);
+
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+
+        myApp.run();
+	}
+
+	catch (std::exception& theProblem)
+	{
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+		throw;	//	so test framework will get it too.
+	}
+	catch (...)
+	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
+		throw;
+	}
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(0));
+}
+
 // TEST(DailyEndToEndTest, VerifyNoDownloadsOfExistingIndexFilesWhenReplaceNotSpecifed)
 // {
 // 	fs::remove_all("/tmp/index2");
@@ -381,40 +378,39 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 // 	ASSERT_THAT(x1 == x2, Eq(true));
 // }
 //
-// TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
-// {
-// 	fs::remove_all("/tmp/index2");
-// 	fs::remove_all("/tmp/forms2");
-// 	fs::create_directory("/tmp/forms2");
-//
-// 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
-// 	//	the test program.
-//
-// 	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms2 "
-//         "--host localhost "
-// 		"--login aaa@bbb.com "
-// 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "
-// 		"--replace-form-files"};
-// 	//std::string command_line{"the_program --index-dir /tmp"};
-// 	std::vector<std::string> tokens =  po::split_unix(command_line);
-//
-// 	CollectEDGARApp myApp;
-//     myApp.init(tokens);
-//
-// 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
-//
-//     myApp.run();
-// 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
-//
-// 	std::this_thread::sleep_for(std::chrono::seconds{1});
-//
-// 	myApp.run();
-// 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
-//
-// 	ASSERT_THAT(x1 == x2, Eq(false));
-// }
-//
+TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
+{
+	fs::remove_all("/tmp/index2");
+	fs::remove_all("/tmp/forms2");
+	fs::create_directory("/tmp/forms2");
+
+	//	NOTE: the program name 'the_program' in the command line below is ignored in the
+	//	the test program.
+
+	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms2 "
+        "--host https://localhost:8443 "
+		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "
+		"--replace-form-files"};
+	//std::string command_line{"the_program --index-dir /tmp"};
+	std::vector<std::string> tokens =  po::split_unix(command_line);
+
+	CollectEDGARApp myApp;
+    myApp.init(tokens);
+
+	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+
+    myApp.run();
+	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
+
+	std::this_thread::sleep_for(std::chrono::seconds{1});
+
+	myApp.run();
+	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
+
+	ASSERT_THAT(x1 == x2, Eq(false));
+}
+
 // // NOTE: the quarterly index tests will run against the actual EDGAR server.
 //
 // class QuarterlyEndToEndTest : public Test
