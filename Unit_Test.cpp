@@ -69,6 +69,7 @@
 #include "FormFileRetriever.h"
 #include "QuarterlyIndexFileRetriever.h"
 #include "TickerConverter.h"
+#include "PathNameGenerator.h"
 
 namespace fs = boost::filesystem;
 
@@ -322,6 +323,117 @@ int CountTotalFormsFilesFound(const FormFileRetriever::FormsList& file_list)
 // NOTE: for some of these tests, I run an HTTPS server on localhost using
 // a directory structure that mimics part of the SEC server.
 //
+class PathNameGenerator_UnitTest : public Test
+{
+
+
+};
+
+TEST_F(PathNameGenerator_UnitTest, TestSameStartEndDates)
+{
+	std::vector<fs::path> results;
+
+	PathNameGenerator p_gen{"/tmp", bg::from_simple_string("2013-Oct-13"), bg::from_simple_string("2013-Oct-13")};
+	PathNameGenerator p_end;
+
+	for (; p_gen != p_end; ++p_gen)
+	{
+		auto remote_file_name = *p_gen;
+		results.push_back(remote_file_name);
+	}
+	ASSERT_THAT(results.size(), Eq(1));
+}
+
+TEST_F(PathNameGenerator_UnitTest, TestSameStartEndDatesQuarterBegin)
+{
+	std::vector<fs::path> results;
+
+	PathNameGenerator p_gen{"/tmp", bg::from_simple_string("2014-01-01"), bg::from_simple_string("2014-01-01")};
+	PathNameGenerator p_end;
+
+	for (; p_gen != p_end; ++p_gen)
+	{
+		auto remote_file_name = *p_gen;
+		results.push_back(remote_file_name);
+	}
+	ASSERT_THAT(results.size(), Eq(1));
+}
+
+TEST_F(PathNameGenerator_UnitTest, TestSameStartEndDatesQuarterEnd)
+{
+	std::vector<fs::path> results;
+
+	PathNameGenerator p_gen{"/tmp", bg::from_simple_string("2014-12-31"), bg::from_simple_string("2014-12-31")};
+	PathNameGenerator p_end;
+
+	for (; p_gen != p_end; ++p_gen)
+	{
+		auto remote_file_name = *p_gen;
+		results.push_back(remote_file_name);
+	}
+	ASSERT_THAT(results.size(), Eq(1));
+}
+
+TEST_F(PathNameGenerator_UnitTest, TestStartEndDatesQuarterBeginEnd)
+{
+	std::vector<fs::path> results;
+
+	PathNameGenerator p_gen{"/tmp", bg::from_simple_string("2014-1-1"), bg::from_simple_string("2014-3-31")};
+	PathNameGenerator p_end;
+
+	for (; p_gen != p_end; ++p_gen)
+	{
+		auto remote_file_name = *p_gen;
+		results.push_back(remote_file_name);
+	}
+	ASSERT_THAT(results.size(), Eq(1));
+}
+
+TEST_F(PathNameGenerator_UnitTest, TestStartEndDatesYearBeginEnd)
+{
+	std::vector<fs::path> results;
+
+	PathNameGenerator p_gen{"/tmp", bg::from_simple_string("2014-1-1"), bg::from_simple_string("2015-1-1")};
+	PathNameGenerator p_end;
+
+	for (; p_gen != p_end; ++p_gen)
+	{
+		auto remote_file_name = *p_gen;
+		results.push_back(remote_file_name);
+	}
+	ASSERT_THAT(results.size(), Eq(5));
+}
+
+TEST_F(PathNameGenerator_UnitTest, TestStartYear1EndYear2)
+{
+	std::vector<fs::path> results;
+
+	PathNameGenerator p_gen{"/tmp", bg::from_simple_string("2014-7-1"), bg::from_simple_string("2015-6-30")};
+	PathNameGenerator p_end;
+
+	for (; p_gen != p_end; ++p_gen)
+	{
+		auto remote_file_name = *p_gen;
+		results.push_back(remote_file_name);
+	}
+	ASSERT_THAT(results.size(), Eq(4));
+}
+
+TEST_F(PathNameGenerator_UnitTest, TestArbitraryStartEnd)
+{
+	std::vector<fs::path> results;
+
+	PathNameGenerator p_gen{"/tmp", bg::from_simple_string("2013-12-20"), bg::from_simple_string("2014-5-21")};
+	PathNameGenerator p_end;
+
+	for (; p_gen != p_end; ++p_gen)
+	{
+		auto remote_file_name = *p_gen;
+		results.push_back(remote_file_name);
+	}
+	ASSERT_THAT(results.size(), Eq(3));
+}
+
 class HTTPS_UnitTest : public Test
 {
 
@@ -694,6 +806,12 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName)
  	ASSERT_THAT(results.size(), Eq(7));
  }
 
+ TEST_F(RetrieverMultipleDailies, VerifyFindsCorrectNumberOfIndexFilesInMultiQuarterRange)
+ {
+ 	decltype(auto) results = idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2013-Dec-20"), bg::from_simple_string("2014-05-21"));
+ 	ASSERT_THAT(results.size(), Eq(98));
+ }
+
  TEST_F(RetrieverMultipleDailies, VerifyThrowsWhenNoIndexFilesInRange)
  {
  	ASSERT_THROW(idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2012-Oct-10"), bg::from_simple_string("2012-10-21")),
@@ -860,7 +978,7 @@ public:
 TEST_F(QuarterlyRetrieveMultipleFiles, VerifyFindsCorrectNumberOfIndexFilesInRange)
 {
 	decltype(auto) file_list = idxFileRet.MakeIndexFileNamesForDateRange(bg::from_simple_string("2013-Sep-10"), bg::from_simple_string("2014-10-21"));
-	ASSERT_THAT(file_list.size(), Eq(5));
+	ASSERT_THAT(file_list.size(), Eq(6));
 }
 
 // TEST_F(QuarterlyRetrieveMultipleFiles, VerifyThrowsWhenNoIndexFilesInRange)

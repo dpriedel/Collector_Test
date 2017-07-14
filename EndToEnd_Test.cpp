@@ -412,37 +412,37 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
 }
 
 // // NOTE: the quarterly index tests will run against the actual EDGAR server.
-//
-// class QuarterlyEndToEndTest : public Test
-// {
-// 	public:
-// };
-//
-// TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQuarter)
-// {
-// 	fs::remove_all("/tmp/index3");
-//
-// 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
-// 	//	the test program.
-//
-// 	std::string command_line{"the_program --index-dir /tmp/index3 "
-// 		"--login aaa@bbb.com "
-// 		"--begin-date 2000-Jan-01 "
-// 		"--index-only --mode quarterly"};
-// 	//std::string command_line{"the_program --index-dir /tmp"};
-// 	std::vector<std::string> tokens =  po::split_unix(command_line);
-//
-// 	CollectEDGARApp myApp;
-//     myApp.init(tokens);
-//
-// 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
-//
-//     myApp.run();
-//
-// 	ASSERT_THAT(fs::exists("/tmp/index3/2000/QTR1/form.idx"), Eq(true));
-// }
-//
+
+class QuarterlyEndToEndTest : public Test
+{
+	public:
+};
+
+TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQuarter)
+{
+	fs::remove_all("/tmp/index3");
+
+	//	NOTE: the program name 'the_program' in the command line below is ignored in the
+	//	the test program.
+
+	std::string command_line{"the_program --index-dir /tmp/index3 "
+        "--host https://localhost:8443 "
+		"--begin-date 2000-Jan-01 "
+		"--index-only --mode quarterly"};
+	//std::string command_line{"the_program --index-dir /tmp"};
+	std::vector<std::string> tokens =  po::split_unix(command_line);
+
+	CollectEDGARApp myApp;
+    myApp.init(tokens);
+
+	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+
+    myApp.run();
+
+	ASSERT_THAT(fs::exists("/tmp/index3/2000/QTR1/form.idx"), Eq(true));
+}
+
 // TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFilesForDateRange)
 // {
 // 	fs::remove_all("/tmp/index4");
