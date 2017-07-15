@@ -62,7 +62,7 @@ ifeq "$(CFG)" "Debug"
 
 OUTDIR=Debug_e2e
 
-CFG_LIB := -lpthread -L$(BOOSTDIR)/lib -lboost_system-d -lboost_filesystem-d -lboost_program_options-d \
+CFG_LIB := -lpthread -L$(BOOSTDIR)/lib -lboost_system-d -lboost_filesystem-d \
 		-lboost_date_time-d -lboost_regex-d -lboost_iostreams \
 		-L/usr/local/lib -lPocoFoundationd -lPocoUtild -lPocoNetSSLd -lPocoNetd -lPocoZipd \
 		-L/usr/local/lib -lgmock_main

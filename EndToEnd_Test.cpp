@@ -43,7 +43,7 @@
 #include <thread>
 
 #include <boost/filesystem.hpp>
-#include <boost/program_options/parsers.hpp>
+// #include <boost/program_options/parsers.hpp>
 
 #include <gmock/gmock.h>
 
@@ -59,7 +59,7 @@ int G_ARGC = 0;
 char** G_ARGV = nullptr;
 
 namespace fs = boost::filesystem;
-namespace po = boost::program_options;
+// namespace po = boost::program_options;
 
 using namespace testing;
 
@@ -133,11 +133,13 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
-	std::string command_line{"the_program --index-dir /tmp --begin-date 2013-Oct-14 --form-dir /tmp/forms"
-        " --host https://localhost:8443"
-        " --log-level debug"};
-	// std::string command_line{"EndToEndTest --begin-date 2013-Oct-14"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);
+	std::vector<std::string> tokens{"the_program",
+		"--index-dir", "/tmp",
+		"--begin-date", "2013-Oct-14",
+		"--form-dir", "/tmp/forms",
+        "--host",  "https://localhost:8443",
+        "--log-level", "debug"
+	};
 
     CollectEDGARApp myApp;
 	try
@@ -175,12 +177,13 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
-	std::string command_line{"the_program --index-dir /tmp --begin-date 2013-Oct-14 --form-dir /tmp/forms "
-        " --host https://localhost:8443"
-		" --index-only"};
-	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);
-
+	std::vector<std::string> tokens{"the_program",
+	 	"--index-dir", "/tmp",
+		"--begin-date", "2013-Oct-14",
+		"--form-dir", "/tmp/forms",
+        "--host", "https://localhost:8443",
+		"--index-only"
+	};
     CollectEDGARApp myApp;
 	try
 	{
@@ -214,12 +217,14 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
-	std::string command_line{"the_program --index-dir /tmp/index1 --form-dir /tmp/forms1 "
-        "--host https://localhost:8443 "
-        "--max 17 "
-		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17"};
-	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);
+	std::vector<std::string> tokens{"the_program",
+	 	"--index-dir", "/tmp/index1",
+		"--form-dir", "/tmp/forms1",
+        "--host", "https://localhost:8443",
+        "--max", "17",
+		"--begin-date", "2013-Oct-14",
+		"--end-date", "2013-Oct-17"
+	};
 
     CollectEDGARApp myApp;
 	try
@@ -254,11 +259,14 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
-	std::string command_line{"the_program --index-dir /tmp/index1 --form-dir /tmp/forms1 "
-        "--host https://localhost:8443 "
-		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 --index-only"};
-	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);
+	std::vector<std::string> tokens{"the_program",
+		"--index-dir", "/tmp/index1",
+		"--form-dir", "/tmp/forms1",
+        "--host", "https://localhost:8443",
+		"--begin-date", "2013-Oct-14",
+		"--end-date", "2013-Oct-17",
+		"--index-only"
+	};
 
     CollectEDGARApp myApp;
 	try
@@ -387,12 +395,14 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
-	std::string command_line{"the_program --index-dir /tmp/index2 --form-dir /tmp/forms2 "
-        "--host https://localhost:8443 "
-		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "
-		"--replace-form-files"};
-	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);
+	std::vector<std::string> tokens{"the_program",
+		"--index-dir", "/tmp/index2",
+		"--form-dir", "/tmp/forms2",
+        "--host", "https://localhost:8443",
+		"--begin-date", "2013-Oct-14",
+		"--end-date", "2013-Oct-17",
+		"--replace-form-files"
+	};
 
 	CollectEDGARApp myApp;
     myApp.init(tokens);
@@ -425,12 +435,13 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
-	std::string command_line{"the_program --index-dir /tmp/index3 "
-        "--host https://localhost:8443 "
-		"--begin-date 2000-Jan-01 "
-		"--index-only --mode quarterly"};
-	//std::string command_line{"the_program --index-dir /tmp"};
-	std::vector<std::string> tokens =  po::split_unix(command_line);
+	std::vector<std::string> tokens{"the_program",
+		"--index-dir", "/tmp/index3",
+        "--host", "https://localhost:8443",
+		"--begin-date", "2000-Jan-01",
+		"--index-only",
+		"--mode", "quarterly"
+	};
 
 	CollectEDGARApp myApp;
     myApp.init(tokens);
@@ -495,45 +506,48 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 // 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms4"), Eq(9));
 // }
 //
-// TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange)
-// {
-// 	fs::remove_all("/tmp/index5");
-// 	fs::remove_all("/tmp/forms5");
-//
-// 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
-// 	//	the test program.
-//
-// 	std::string command_line{"the_program --index-dir /tmp/index5 --form-dir /tmp/forms5 "
-//         "--max 11 "
-// 		"--login aaa@bbb.com "
-// 		"--begin-date 2009-Sep-01 --end-date 2010-Oct-04 "
-// 		" --mode quarterly"};
-// 	//std::string command_line{"the_program --index-dir /tmp"};
-// 	std::vector<std::string> tokens =  po::split_unix(command_line);
-//
-//     CollectEDGARApp myApp;
-// 	try
-// 	{
-//         myApp.init(tokens);
-//
-// 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
-//
-//         myApp.run();
-// 	}
-// 	catch (std::exception& theProblem)
-// 	{
-// 		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
-// 		throw;	//	so test framework will get it too.
-// 	}
-// 	catch (...)
-// 	{		// handle exception: unspecified
-// 		myApp.logger().error("Something totally unexpected happened.");
-// 		throw;
-// 	}
-// 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms5"), Eq(11));
-// }
-//
+TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange)
+{
+	fs::remove_all("/tmp/index5");
+	fs::remove_all("/tmp/forms5");
+
+	//	NOTE: the program name 'the_program' in the command line below is ignored in the
+	//	the test program.
+
+	std::vector<std::string> tokens{"the_program",
+		"--index-dir", "/tmp/index5",
+		"--form-dir", "/tmp/forms5",
+        "--max", "10",
+        "--host", "https://www.sec.gov",
+		"--log-level", "debug",
+		"--begin-date", "2009-Sep-01",
+		"--end-date", "2010-Oct-04",
+		"--mode", "quarterly"
+	};
+
+    CollectEDGARApp myApp;
+	try
+	{
+        myApp.init(tokens);
+
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+
+        myApp.run();
+	}
+	catch (std::exception& theProblem)
+	{
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+		throw;	//	so test framework will get it too.
+	}
+	catch (...)
+	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
+		throw;
+	}
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms5"), Eq(10));
+}
+
 // class TickerEndToEndTest : public Test
 // {
 // 	public:
