@@ -981,12 +981,6 @@ TEST_F(QuarterlyRetrieveMultipleFiles, VerifyFindsCorrectNumberOfIndexFilesInRan
 	ASSERT_THAT(file_list.size(), Eq(6));
 }
 
-// TEST_F(QuarterlyRetrieveMultipleFiles, VerifyThrowsWhenNoIndexFilesInRange)
-// {
-// 	ASSERT_THROW(idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2012-Oct-10"), bg::from_simple_string("2012-10-21")),
-// 			std::range_error);
-// }
-//
  TEST_F(QuarterlyRetrieveMultipleFiles, VerifyDownloadsCorrectNumberOfIndexFilesForDateRange)
  {
     if (fs::exists("/tmp/downloaded_q"))
@@ -1042,6 +1036,9 @@ public:
 
 TEST_F(QuarterlyParserUnitTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFile)
 {
+	if (fs::exists("/tmp/2002/QTR1/form.idx"))
+		fs::remove("/tmp/2002/QTR1/form.idx");
+
 	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2002-01-01"));
 	auto local_quarterly_index_file_name = idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp");
 
@@ -1056,27 +1053,32 @@ TEST_F(QuarterlyParserUnitTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIn
 
 }
 
-// /* TEST_F(QuarterlyParserUnitTest, VerifyDownloadOfFormFilesListedInQuarterlyIndexFile) */
-// /* { */
-// /* 	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2009-10-10")); */
-// /* 	idxFileRet.CopyRemoteIndexFileTo("/tmp"); */
-// /* 	decltype(auto) local_quarterly_index_file_name = idxFileRet.GetLocalIndexFilePath(); */
-//
-// /* 	FormFileRetriever form_file_getter{a_server}; */
-// /* 	std::vector<std::string> forms_list{"10-Q"}; */
-// /* 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_quarterly_index_file_name); */
-//
-// /* 	//	since there are thousands of form files listed in the quarterly index, */
-// /* 	//	we will only download a small number to verify functionality */
-//
-// /* 	if (file_list.begin()->second.size() > 10) */
-// /* 		file_list.begin()->second.resize(10); */
-//
-// /* 	form_file_getter.RetrieveSpecifiedFiles(file_list, "/tmp/forms_unit4"); */
-// /* 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms_unit4"), Eq(CountTotalFormsFilesFound(file_list))); */
-// /* } */
-//
-//
+ TEST_F(QuarterlyParserUnitTest, VerifyDownloadOfFormFilesListedInQuarterlyIndexFile)
+ {
+	if (fs::exists("/tmp/2002/QTR1/form.idx"))
+		fs::remove("/tmp/2002/QTR1/form.idx");
+
+	if (fs::exists("/tmp/forms_unit4"))
+		fs::remove_all("/tmp/forms_unit4");
+
+ 	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2009-10-10"));
+	auto local_quarterly_index_file_name = idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp");
+
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
+ 	std::vector<std::string> forms_list{"10-Q"};
+ 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_quarterly_index_file_name);
+
+ 	//	since there are thousands of form files listed in the quarterly index,
+ 	//	we will only download a small number to verify functionality
+
+ 	if (file_list.begin()->second.size() > 10)
+ 		file_list.begin()->second.resize(10);
+
+ 	form_file_getter.RetrieveSpecifiedFiles(file_list, "/tmp/forms_unit4");
+ 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms_unit4"), Eq(CountTotalFormsFilesFound(file_list)));
+ }
+
+
 // /* TEST_F(QuarterlyParserUnitTest, VerifyDownloadOfFormFilesDoesNotReplaceWhenReplaceNotSpecified) */
 // /* { */
 // /* 	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2009-10-10")); */
@@ -1192,32 +1194,33 @@ TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistTo
 // /* } */
 //
 //
-// class QuarterlyParserFilterTest : public Test
-// {
-// public:
-// 	//FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
-// 	FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"};
-// 	QuarterlyIndexFileRetriever idxFileRet{a_server, *THE_LOGGER};
-// };
-//
-// TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileForTicker)
-// {
-// 	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2009-09-10"));
-// 	idxFileRet.CopyRemoteIndexFileTo("/tmp");
-// 	decltype(auto) local_quarterly_index_file_name = idxFileRet.GetLocalIndexFilePath();
-//
-// 	TickerConverter sym{*THE_LOGGER};
-// 	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL");
-// 	std::map<std::string, std::string> ticker_map;
-// 	ticker_map["AAPL"] = CIK;
-//
-// 	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
-// 	std::vector<std::string> forms_list{"10-Q"};
-// 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_quarterly_index_file_name, ticker_map);
-// 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(1));
-//
-// }
-//
+class QuarterlyParserFilterTest : public Test
+{
+public:
+	HTTPS_Downloader a_server{"https://localhost:8443"};
+	QuarterlyIndexFileRetriever idxFileRet{a_server, "/edgar/full-index", *THE_LOGGER};
+};
+
+TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileForTicker)
+{
+	if (fs::exists("/tmp/2009/QTR3/form.idx"))
+		fs::remove("/tmp/2009/QTR3/form.idx");
+
+	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2009-09-10"));
+	auto local_quarterly_index_file_name = idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp");
+
+	TickerConverter sym{*THE_LOGGER};
+	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL");
+	std::map<std::string, std::string> ticker_map;
+	ticker_map["AAPL"] = CIK;
+
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
+	std::vector<std::string> forms_list{"10-Q"};
+	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_quarterly_index_file_name, ticker_map);
+	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(1));
+
+}
+
 // /* TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileDateRangeForTicker) */
 // /* { */
 // /* 	idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2009-Sep-10"), bg::from_simple_string("2010-10-21")); */
@@ -1236,14 +1239,13 @@ TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistTo
 //
 // /* } */
 //
-// class MultipleFormsParserUnitTest : public Test
-// {
-// public:
-// 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
-// 	/* FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
-// 	DailyIndexFileRetriever idxFileRet{a_server, *THE_LOGGER};
-// };
-//
+class MultipleFormsParserUnitTest : public Test
+{
+public:
+	HTTPS_Downloader a_server{"https://localhost:8443"};
+	DailyIndexFileRetriever idxFileRet{a_server, "/edgar/daily-index", *THE_LOGGER};
+};
+
 // //	The following block of tests relate to working with the Index file located above.
 //
 // TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFile)
@@ -1261,21 +1263,22 @@ TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistTo
 //
 // }
 //
-// TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFileForDateRange)
-// {
-// 	idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-14"), bg::from_simple_string("2013-10-20"));
-// 	idxFileRet.CopyIndexFilesForDateRangeTo("/tmp/daily_index1");
-// 	decltype(auto) index_file_list = idxFileRet.GetfRemoteIndexFileNamesForDateRange();
-//
-// 	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
-// 	std::vector<std::string> forms_list{"4", "10-K", "10-Q"};
-//
-// 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, "/tmp/daily_index1", index_file_list);
-//
-// 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(4395));
-//
-// }
-//
+TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFileForDateRange)
+{
+	if (fs::exists("/tmp/daily_index1"))
+		fs::remove_all("/tmp/daily_index1");
+
+	auto index_file_list = idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-14"), bg::from_simple_string("2013-10-20"));
+	auto local_index_files = idxFileRet.CopyIndexFilesForDateRangeTo(index_file_list, "/tmp/daily_index1");
+
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
+	std::vector<std::string> forms_list{"4", "10-K", "10-Q"};
+
+	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, "/tmp/daily_index1", local_index_files);
+
+	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(4395));
+}
+
 // /* TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileForMultipleTickers) */
 // /* { */
 // /* 	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2009-09-10")); */
