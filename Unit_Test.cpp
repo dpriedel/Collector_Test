@@ -487,7 +487,7 @@ TEST_F(HTTPS_UnitTest, TestAbilityToConnectToHTTPSServer)
 TEST_F(HTTPS_UnitTest, TestAbilityToListDirectoryContents)
 {
 	HTTPS_Downloader a_server{"https://localhost:8443"};
-	decltype(auto) directory_list = a_server.ListDirectoryContents("/edgar/full-index/2013/QTR4");
+	decltype(auto) directory_list = a_server.ListDirectoryContents("/Archives/edgar/full-index/2013/QTR4");
 	ASSERT_TRUE(std::find(directory_list.begin(), directory_list.end(), "company.gz") != directory_list.end());
 
 }
@@ -498,7 +498,7 @@ TEST_F(HTTPS_UnitTest, VerifyAbilityToDownloadFileWhichExists)
 		fs::remove("/tmp/form.20131010.idx");
 
 	HTTPS_Downloader a_server{"https://localhost:8443"};
-	a_server.DownloadFile("/edgar/daily-index/2013/QTR4/form.20131010.idx", "/tmp/form.20131010.idx");
+	a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131010.idx", "/tmp/form.20131010.idx");
 	ASSERT_THAT(fs::exists("/tmp/form.20131010.idx"), Eq(true));
 }
 
@@ -507,7 +507,7 @@ TEST_F(HTTPS_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 	if (fs::exists("/tmp/form.20131008.idx"))
 		fs::remove("/tmp/form.20131008.idx");
 	HTTPS_Downloader a_server{"https://localhost:8443"};
-	ASSERT_THROW(a_server.DownloadFile("/edgar/daily-index/2013/QTR4/form.20131008.idx", "/tmp/form.20131008.idx"), std::runtime_error);
+	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131008.idx", "/tmp/form.20131008.idx"), std::runtime_error);
 }
 
 class RetrieverUnitTest : public Test
@@ -515,7 +515,7 @@ class RetrieverUnitTest : public Test
 public:
 
 	HTTPS_Downloader a_server{"https://localhost:8443"};
-	DailyIndexFileRetriever idxFileRet{a_server, "/edgar/daily-index", *THE_LOGGER};
+	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index", *THE_LOGGER};
 };
 
 TEST_F(RetrieverUnitTest, VerifyRejectsInvalidDates)
@@ -651,7 +651,7 @@ class ParserUnitTest : public Test
 public:
 	HTTPS_Downloader a_server{"https://localhost:8443"};
 	/* FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
-	DailyIndexFileRetriever idxFileRet{a_server, "/edgar/daily-index", *THE_LOGGER};
+	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index", *THE_LOGGER};
 };
 
 //	The following block of tests relate to working with the Index file located above.
@@ -783,7 +783,7 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName)
  {
  public:
 	HTTPS_Downloader a_server{"https://localhost:8443"};
-	DailyIndexFileRetriever idxFileRet{a_server, "/edgar/daily-index", *THE_LOGGER};
+	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index", *THE_LOGGER};
  };
 
  TEST_F(RetrieverMultipleDailies, VerifyRejectsFutureDates)
@@ -868,7 +868,7 @@ class QuarterlyUnitTest : public Test
 {
 public:
 	HTTPS_Downloader a_server{"https://localhost:8443"};
-	QuarterlyIndexFileRetriever idxFileRet{a_server, "/edgar/full-index", *THE_LOGGER};
+	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
 };
 
 TEST_F(QuarterlyUnitTest, VerifyRejectsInvalidDates)
@@ -884,13 +884,13 @@ TEST_F(QuarterlyUnitTest, VerifyRejectsInvalidDates)
  TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenFirstDayInQuarter)
  {
  	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2000-01-01"));
- 	ASSERT_THAT(file_name == "/edgar/full-index/2000/QTR1/form.zip", Eq(true));
+ 	ASSERT_THAT(file_name == "/Archives/edgar/full-index/2000/QTR1/form.zip", Eq(true));
  }
 
  TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenLastDayInQuarter)
  {
  	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2002-06-30"));
- 	ASSERT_THAT(file_name == "/edgar/full-index/2002/QTR2/form.zip", Eq(true));
+ 	ASSERT_THAT(file_name == "/Archives/edgar/full-index/2002/QTR2/form.zip", Eq(true));
  }
 
 TEST_F(QuarterlyUnitTest, TestFindAllQuarterlyIndexFilesForAYear)
@@ -966,7 +966,7 @@ class QuarterlyRetrieveMultipleFiles : public Test
 {
 public:
 	HTTPS_Downloader a_server{"https://localhost:8443"};
-	QuarterlyIndexFileRetriever idxFileRet{a_server, "/edgar/full-index", *THE_LOGGER};
+	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
 };
 
  TEST_F(QuarterlyRetrieveMultipleFiles, VerifyRejectsFutureDates)
@@ -1030,7 +1030,7 @@ class QuarterlyParserUnitTest : public Test
 {
 public:
 	HTTPS_Downloader a_server{"https://localhost:8443"};
-	QuarterlyIndexFileRetriever idxFileRet{a_server, "/edgar/full-index", *THE_LOGGER};
+	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
 };
 
 
@@ -1198,7 +1198,7 @@ class QuarterlyParserFilterTest : public Test
 {
 public:
 	HTTPS_Downloader a_server{"https://localhost:8443"};
-	QuarterlyIndexFileRetriever idxFileRet{a_server, "/edgar/full-index", *THE_LOGGER};
+	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
 };
 
 TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileForTicker)
@@ -1243,7 +1243,7 @@ class MultipleFormsParserUnitTest : public Test
 {
 public:
 	HTTPS_Downloader a_server{"https://localhost:8443"};
-	DailyIndexFileRetriever idxFileRet{a_server, "/edgar/daily-index", *THE_LOGGER};
+	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index", *THE_LOGGER};
 };
 
 // //	The following block of tests relate to working with the Index file located above.
