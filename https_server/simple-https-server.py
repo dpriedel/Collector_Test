@@ -11,11 +11,12 @@ import socketserver
 import ssl
 
 PORT = 8443
+CERT = "/home/dpriedel/projects/github/CollectEDGARData_Test/https_server/server.pem"
 
 Handler = http.server.SimpleHTTPRequestHandler
 
 server = socketserver.TCPServer(("localhost", PORT), Handler)
-server.socket = ssl.wrap_socket(server.socket, certfile='../server.pem', server_side=True)
+server.socket = ssl.wrap_socket(server.socket, certfile=CERT, server_side=True)
 with server:
     print("serving at port", PORT)
     server.serve_forever()

@@ -13,5 +13,5 @@ Unit_Test
 
 # our test cert
 
-https_server/*
+https_server/**
 
