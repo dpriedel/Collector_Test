@@ -14,12 +14,11 @@ C++11 as described in the book "Modern C++ Programming with Test Driven Developm
 I found this book to be very well written and helpful.
 
 To build these programs requires the Google Test and Mock libraries (https://code.google.com/p/googletest/downloads/list)
-and (https://code.google.com/p/googlemock/downloads/list).  I used version 1.7.
+and (https://code.google.com/p/googlemock/downloads/list).  I used version 1.8.
 
-NOTE:  There is code in the CollectEDGARApp.cpp which is commented out but should be uncommented when doing testing.
-
-The methods containing this code are: Do_Run_DailyIndexFiles and Do_Run_QuarterlyIndexFiles.  What the commented
-out code does is limit the number of forms to be downloaded to a random selection of 10 forms per form type.  This is because
-the EDGAR FTP server seems to refuse connections if you hit it too hard during the daytime.
+NOTE:  Almost all of the test code now runs against a local test configuration on my system.
+I have downloaded a selection of files from the EDGAR site into a directory hierarchy which mimics
+that of the EDGAR server.  I use a small Python program to serve these files but any simple
+directory server should do.
 
 
