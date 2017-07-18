@@ -864,6 +864,61 @@ TEST_F(RetrieverMultipleDailies, VerifyDownloadOfIndexFilesForDateRangeDoesRepla
  }
 
 
+ class ConcurrentlyRetrieverMultipleDailies : public Test
+ {
+ public:
+	HTTPS_Downloader a_server{"https://localhost:8443"};
+	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index", *THE_LOGGER};
+ };
+
+ TEST_F(ConcurrentlyRetrieverMultipleDailies, VerifyDownloadsCorrectNumberOfIndexFilesForDateRange)
+ {
+    if (fs::exists("/tmp/downloaded_l"))
+	   fs::remove_all("/tmp/downloaded_l");
+
+ 	decltype(auto) file_list = idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-10"), bg::from_simple_string("2013-10-21"));
+ 	idxFileRet.ConcurrentlyCopyIndexFilesForDateRangeTo(file_list, "/tmp/downloaded_l", 4);
+
+ 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/downloaded_l"), Eq(file_list.size()));
+ }
+
+ TEST_F(ConcurrentlyRetrieverMultipleDailies, VerifyDownloadOfIndexFilesForDateRangeDoesNotReplaceWhenReplaceNotSpecified)
+ {
+    if (fs::exists("/tmp/downloaded_l"))
+	   fs::remove_all("/tmp/downloaded_l");
+
+ 	[[maybe_unused]] decltype(auto) file_list = idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-10"), bg::from_simple_string("2013-10-21"));
+ 	idxFileRet.ConcurrentlyCopyIndexFilesForDateRangeTo(file_list, "/tmp/downloaded_l", 4);
+ 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/downloaded_l");
+
+ 	std::this_thread::sleep_for(std::chrono::seconds{1});
+
+ 	idxFileRet.ConcurrentlyCopyIndexFilesForDateRangeTo(file_list, "/tmp/downloaded_l", 4);
+ 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectory("/tmp/downloaded_l");
+
+ 	ASSERT_THAT(x1 == x2, Eq(true));
+ }
+
+
+class ConcurrentlyRetrieveMultipleQuarterlyFiles : public Test
+{
+public:
+	HTTPS_Downloader a_server{"https://localhost:8443"};
+	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
+};
+
+ TEST_F(ConcurrentlyRetrieveMultipleQuarterlyFiles, VerifyDownloadsCorrectNumberOfIndexFilesForDateRange)
+ {
+    if (fs::exists("/tmp/downloaded_q"))
+	   fs::remove_all("/tmp/downloaded_q");
+
+ 	decltype(auto) file_list = idxFileRet.MakeIndexFileNamesForDateRange(bg::from_simple_string("2013-Sep-10"), bg::from_simple_string("2014-10-21"));
+ 	idxFileRet.ConcurrentlyHierarchicalCopyIndexFilesForDateRangeTo(file_list, "/tmp/downloaded_q", 4);
+
+ 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/downloaded_q"), Eq(file_list.size()));
+ }
+
+
 class QuarterlyUnitTest : public Test
 {
 public:
