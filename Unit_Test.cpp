@@ -899,6 +899,52 @@ TEST_F(RetrieverMultipleDailies, VerifyDownloadOfIndexFilesForDateRangeDoesRepla
  	ASSERT_THAT(x1 == x2, Eq(true));
  }
 
+TEST_F(ConcurrentlyRetrieveMultipleDailies, VerifyDownloadOfFormFilesListedInIndexFile)
+{
+	if (fs::exists("/tmp/form.20131010.idx"))
+		fs::remove("/tmp/form.20131010.idx");
+
+    if (fs::exists("/tmp/forms_unit"))
+	   fs::remove_all("/tmp/forms_unit");
+
+	decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
+	auto local_daily_index_file_name = idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
+
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
+	std::vector<std::string> forms_list{"10-Q"};
+	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
+
+	form_file_getter.ConcurrentlyRetrieveSpecifiedFiles(file_list, "/tmp/forms_unit", 10);
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms_unit"), Eq(CountTotalFormsFilesFound(file_list)));
+}
+
+ TEST_F(ConcurrentlyRetrieveMultipleDailies, VerifyDownloadOfFormFilesDoesReplaceWhenReplaceIsSpecified)
+ {
+	if (fs::exists("/tmp/form.20131010.idx"))
+		fs::remove("/tmp/form.20131010.idx");
+
+    if (fs::exists("/tmp/forms_unit3"))
+	   fs::remove_all("/tmp/forms_unit3");
+
+ 	decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
+ 	auto local_daily_index_file_name = idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
+
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
+ 	std::vector<std::string> forms_list{"10-Q"};
+ 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
+
+ 	form_file_getter.ConcurrentlyRetrieveSpecifiedFiles(file_list, "/tmp/forms_unit3", 20);
+ 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms_unit3");
+
+ 	std::this_thread::sleep_for(std::chrono::seconds{1});
+
+
+ 	form_file_getter.ConcurrentlyRetrieveSpecifiedFiles(file_list, "/tmp/forms_unit3", 20, true);
+ 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms_unit3");
+
+ 	ASSERT_THAT(x1 == x2, Eq(false));
+ }
+
 
 class ConcurrentlyRetrieveMultipleQuarterlyFiles : public Test
 {
