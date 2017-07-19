@@ -311,7 +311,7 @@ std::map<std::string, std::time_t> CollectLastModifiedTimesForFilesInDirectoryTr
 	return results;
 }
 
-int CountTotalFormsFilesFound(const FormFileRetriever::FormsList& file_list)
+int CountTotalFormsFilesFound(const FormFileRetriever::FormsAndFilesList& file_list)
 {
 	int grand_total{0};
 	for (const auto& elem : file_list)
@@ -463,7 +463,7 @@ TEST_F(HTTPS_UnitTest, TestAbilityToConnectToHTTPSServer)
 {
 	HTTPS_Downloader a_server{"https://localhost:8443"};
 	// ASSERT_NO_THROW(a_server.OpenHTTPSConnection());
-	std::string data = a_server.RetrieveDataFromServer("/test.txt");
+	std::string data = a_server.RetrieveDataFromServer("/Archives/test.txt");
 	ASSERT_THAT(data, Eq(std::string{"Hello, there!\n"}));
 }
 
@@ -773,7 +773,7 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName)
 
     FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
  	std::vector<std::string> forms_list{"10-Q"};
- 	decltype(auto) form_file_list = form_file_getter.FindFilesForForms(forms_list, "/tmp/downloaded_p", local_index_files);
+ 	decltype(auto) form_file_list = form_file_getter.FindFilesForForms(forms_list, local_index_files);
 
  	ASSERT_THAT(CountTotalFormsFilesFound(form_file_list), Eq(255));
  }
@@ -864,14 +864,14 @@ TEST_F(RetrieverMultipleDailies, VerifyDownloadOfIndexFilesForDateRangeDoesRepla
  }
 
 
- class ConcurrentlyRetrieverMultipleDailies : public Test
+ class ConcurrentlyRetrieveMultipleDailies : public Test
  {
  public:
 	HTTPS_Downloader a_server{"https://localhost:8443"};
 	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index", *THE_LOGGER};
  };
 
- TEST_F(ConcurrentlyRetrieverMultipleDailies, VerifyDownloadsCorrectNumberOfIndexFilesForDateRange)
+ TEST_F(ConcurrentlyRetrieveMultipleDailies, VerifyDownloadsCorrectNumberOfIndexFilesForDateRange)
  {
     if (fs::exists("/tmp/downloaded_l"))
 	   fs::remove_all("/tmp/downloaded_l");
@@ -882,7 +882,7 @@ TEST_F(RetrieverMultipleDailies, VerifyDownloadOfIndexFilesForDateRangeDoesRepla
  	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/downloaded_l"), Eq(file_list.size()));
  }
 
- TEST_F(ConcurrentlyRetrieverMultipleDailies, VerifyDownloadOfIndexFilesForDateRangeDoesNotReplaceWhenReplaceNotSpecified)
+ TEST_F(ConcurrentlyRetrieveMultipleDailies, VerifyDownloadOfIndexFilesForDateRangeDoesNotReplaceWhenReplaceNotSpecified)
  {
     if (fs::exists("/tmp/downloaded_l"))
 	   fs::remove_all("/tmp/downloaded_l");
@@ -1329,7 +1329,7 @@ TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFi
 	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
 	std::vector<std::string> forms_list{"4", "10-K", "10-Q"};
 
-	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, "/tmp/daily_index1", local_index_files);
+	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_index_files);
 
 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(4395));
 }
