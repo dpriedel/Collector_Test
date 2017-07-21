@@ -455,13 +455,13 @@ class HTTPS_UnitTest : public Test
 //
 TEST_F(HTTPS_UnitTest, TestExceptionOnFailureToConnectToHTTPSServer)
 {
-	HTTPS_Downloader a_server{"https://xxxlocalhost:8443"};
+	HTTPS_Downloader a_server{"https://xxxlocalhost:8443", *THE_LOGGER};
 	ASSERT_THROW(a_server.RetrieveDataFromServer(""), Poco::Net::NetException);
 }
 
 TEST_F(HTTPS_UnitTest, TestAbilityToConnectToHTTPSServer)
 {
-	HTTPS_Downloader a_server{"https://localhost:8443"};
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	// ASSERT_NO_THROW(a_server.OpenHTTPSConnection());
 	std::string data = a_server.RetrieveDataFromServer("/Archives/test.txt");
 	ASSERT_THAT(data, Eq(std::string{"Hello, there!\n"}));
@@ -486,7 +486,7 @@ TEST_F(HTTPS_UnitTest, TestAbilityToConnectToHTTPSServer)
 //
 TEST_F(HTTPS_UnitTest, TestAbilityToListDirectoryContents)
 {
-	HTTPS_Downloader a_server{"https://localhost:8443"};
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	decltype(auto) directory_list = a_server.ListDirectoryContents("/Archives/edgar/full-index/2013/QTR4");
 	ASSERT_TRUE(std::find(directory_list.begin(), directory_list.end(), "company.gz") != directory_list.end());
 
@@ -497,7 +497,7 @@ TEST_F(HTTPS_UnitTest, VerifyAbilityToDownloadFileWhichExists)
 	if (fs::exists("/tmp/form.20131010.idx"))
 		fs::remove("/tmp/form.20131010.idx");
 
-	HTTPS_Downloader a_server{"https://localhost:8443"};
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131010.idx", "/tmp/form.20131010.idx");
 	ASSERT_THAT(fs::exists("/tmp/form.20131010.idx"), Eq(true));
 }
@@ -506,7 +506,7 @@ TEST_F(HTTPS_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 {
 	if (fs::exists("/tmp/form.20131008.idx"))
 		fs::remove("/tmp/form.20131008.idx");
-	HTTPS_Downloader a_server{"https://localhost:8443"};
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131008.idx", "/tmp/form.20131008.idx"), std::runtime_error);
 }
 
@@ -514,7 +514,7 @@ class RetrieverUnitTest : public Test
 {
 public:
 
-	HTTPS_Downloader a_server{"https://localhost:8443"};
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index", *THE_LOGGER};
 };
 
@@ -649,7 +649,7 @@ TEST_F(RetrieverUnitTest, TestHierarchicalRetrieveIndexFileDoesReplaceWhenReplac
 class ParserUnitTest : public Test
 {
 public:
-	HTTPS_Downloader a_server{"https://localhost:8443"};
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	/* FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
 	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index", *THE_LOGGER};
 };
@@ -782,7 +782,7 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName)
  class RetrieverMultipleDailies : public Test
  {
  public:
-	HTTPS_Downloader a_server{"https://localhost:8443"};
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index", *THE_LOGGER};
  };
 
@@ -867,7 +867,7 @@ TEST_F(RetrieverMultipleDailies, VerifyDownloadOfIndexFilesForDateRangeDoesRepla
  class ConcurrentlyRetrieveMultipleDailies : public Test
  {
  public:
-	HTTPS_Downloader a_server{"https://localhost:8443"};
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index", *THE_LOGGER};
  };
 
@@ -945,11 +945,61 @@ TEST_F(ConcurrentlyRetrieveMultipleDailies, VerifyDownloadOfFormFilesListedInInd
  	ASSERT_THAT(x1 == x2, Eq(false));
  }
 
+ TEST_F(ConcurrentlyRetrieveMultipleDailies, VerifyConcurrentDownloadDoesntMessUpFiles)
+ {
+	// first we download some index files and a bunch of form files using the
+	// single-thread methods.
+
+    if (fs::exists("/tmp/index2"))
+	   fs::remove_all("/tmp/index2");
+
+    if (fs::exists("/tmp/forms_unit2"))
+	   fs::remove_all("/tmp/forms_unit2");
+
+ 	decltype(auto) remote_index_files2 = idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-14"), bg::from_simple_string("2013-10-17"));
+ 	auto index_files2 = idxFileRet.HierarchicalCopyIndexFilesForDateRangeTo(remote_index_files2, "/tmp/index2");
+
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
+ 	std::vector<std::string> forms_list2{"10-Q"};
+ 	decltype(auto) remote_form_file_list2 = form_file_getter.FindFilesForForms(forms_list2, index_files2);
+
+ 	form_file_getter.RetrieveSpecifiedFiles(remote_form_file_list2, "/tmp/forms_unit2");
+
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms_unit2"), Eq(CountTotalFormsFilesFound(remote_form_file_list2)));
+
+	// next we repeat the downloads but this time concurrently and to a separate set of directories.
+	// then, we will compare the file heriarchies and contents to see if they match.
+
+    if (fs::exists("/tmp/index4"))
+	   fs::remove_all("/tmp/index4");
+
+    if (fs::exists("/tmp/forms_unit4"))
+	   fs::remove_all("/tmp/forms_unit4");
+
+ 	decltype(auto) remote_index_files4 = idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-14"), bg::from_simple_string("2013-10-17"));
+ 	auto index_files4 = idxFileRet.ConcurrentlyHierarchicalCopyIndexFilesForDateRangeTo(remote_index_files4, "/tmp/index4", 2);
+
+	FormFileRetriever form_file_getter4{a_server, *THE_LOGGER};
+ 	std::vector<std::string> forms_list4{"10-Q"};
+ 	decltype(auto) remote_form_file_list4 = form_file_getter4.FindFilesForForms(forms_list4, index_files4);
+
+ 	form_file_getter.ConcurrentlyRetrieveSpecifiedFiles(remote_form_file_list4, "/tmp/forms_unit4", 10);
+
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms_unit4"), Eq(CountTotalFormsFilesFound(remote_form_file_list4)));
+
+	// this test downloads 3 index files and 129 form files so it seems like a decent test.
+	
+	// for now, I'm just doing:
+	// diff -rq /tmp/index2 /tmp/index4
+	// diff -rq /tmp/forms_unit2 /tmp/forms_unit4
+	// and checking for zero return code
+ }
+
 
 class ConcurrentlyRetrieveMultipleQuarterlyFiles : public Test
 {
 public:
-	HTTPS_Downloader a_server{"https://localhost:8443"};
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
 };
 
@@ -968,7 +1018,7 @@ public:
 class QuarterlyUnitTest : public Test
 {
 public:
-	HTTPS_Downloader a_server{"https://localhost:8443"};
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
 };
 
@@ -1066,7 +1116,7 @@ TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFile)
 class QuarterlyRetrieveMultipleFiles : public Test
 {
 public:
-	HTTPS_Downloader a_server{"https://localhost:8443"};
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
 };
 
@@ -1130,7 +1180,7 @@ TEST_F(QuarterlyRetrieveMultipleFiles, VerifyFindsCorrectNumberOfIndexFilesInRan
 class QuarterlyParserUnitTest : public Test
 {
 public:
-	HTTPS_Downloader a_server{"https://localhost:8443"};
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
 };
 
@@ -1298,7 +1348,7 @@ TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistTo
 class QuarterlyParserFilterTest : public Test
 {
 public:
-	HTTPS_Downloader a_server{"https://localhost:8443"};
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
 };
 
@@ -1343,7 +1393,7 @@ TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterly
 class MultipleFormsParserUnitTest : public Test
 {
 public:
-	HTTPS_Downloader a_server{"https://localhost:8443"};
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index", *THE_LOGGER};
 };
 
