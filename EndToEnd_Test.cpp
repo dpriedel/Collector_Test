@@ -591,41 +591,40 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 // 	ASSERT_THAT((fs::exists("/tmp/the_log") && ! fs::is_empty("/tmp/the_log")), Eq(true));
 // }
 //
-// TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
-// {
-// 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
-// 	//	the test program.
-//
-// 	std::string command_line{"the_program  "
-// 		"--login aaa@bbb.com "
-// 		" --mode ticker-only --ticker AAPL "
-// 		" --log-path /tmp/the_log --ticker-cache /tmp/ticker_to_CIK"};
-// 	//std::string command_line{"the_program --index-dir /tmp"};
-// 	std::vector<std::string> tokens =  po::split_unix(command_line);
-//
-//     CollectEDGARApp myApp;
-// 	try
-// 	{
-//         myApp.init(tokens);
-//
-// 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
-//
-//         myApp.run();
-// 	}
-// 	catch (std::exception& theProblem)
-// 	{
-// 		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
-// 		throw;	//	so test framework will get it too.
-// 	}
-// 	catch (...)
-// 	{		// handle exception: unspecified
-// 		myApp.logger().error("Something totally unexpected happened.");
-// 		throw;
-// 	}
-// 	ASSERT_THAT((fs::exists("/tmp/ticker_to_CIK") && ! fs::is_empty("/tmp/ticker_to_CIK")), Eq(true));
-// }
-//
+TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
+{
+	//	NOTE: the program name 'the_program' in the command line below is ignored in the
+	//	the test program.
+
+	std::vector<std::string> tokens{"the_program",
+		"--mode", "ticker-only",
+		"--ticker", "AAPL",
+		"--ticker-cache", "/tmp/ticker_to_CIK"
+	};
+
+    CollectEDGARApp myApp;
+	try
+	{
+        myApp.init(tokens);
+
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+
+        myApp.run();
+	}
+	catch (std::exception& theProblem)
+	{
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+		throw;	//	so test framework will get it too.
+	}
+	catch (...)
+	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
+		throw;
+	}
+	ASSERT_THAT((fs::exists("/tmp/ticker_to_CIK") && ! fs::is_empty("/tmp/ticker_to_CIK")), Eq(true));
+}
+
 // TEST(TickerEndToEndTest, VerifyTickerLookupForFileOfTickers)
 // {
 // 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
@@ -787,47 +786,52 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 // 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms8"), Eq(4));
 // }
 //
-// TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateRangeWithTickerFilter)
-// {
-// 	fs::remove_all("/tmp/forms9");
-//
-// 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
-// 	//	the test program.
-//
-// 	std::string command_line{"the_program --index-dir /tmp --form-dir /tmp/forms9 "
-//         "--host localhost "
-// 		"--login aaa@bbb.com "
-// 		" --end-date 2013-Oct-17 "
-// 		" --begin-date 2013-Oct-09 "
-// 		" --ticker AAPL"
-// 		" --form 4" };
-// 	//std::string command_line{"the_program --index-dir /tmp"};
-// 	std::vector<std::string> tokens =  po::split_unix(command_line);
-//
-//     CollectEDGARApp myApp;
-// 	try
-// 	{
-//         myApp.init(tokens);
-//
-// 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
-//
-//         myApp.run();
-// 	}
-//
-// 	catch (std::exception& theProblem)
-// 	{
-// 		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
-// 		throw;	//	so test framework will get it too.
-// 	}
-// 	catch (...)
-// 	{		// handle exception: unspecified
-// 		myApp.logger().error("Something totally unexpected happened.");
-// 		throw;
-// 	}
-// 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms9"), Eq(5));
-// }
-//
+TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateRangeWithTickerFilter)
+{
+	if (fs::exists("/tmp/index9"))
+		fs::remove_all("/tmp/index9");
+
+	if (fs::exists("/tmp/forms9"))
+		fs::remove_all("/tmp/forms9");
+
+	//	NOTE: the program name 'the_program' in the command line below is ignored in the
+	//	the test program.
+
+	std::vector<std::string> tokens{"the_program",
+        "--index-dir", "/tmp/index9",
+        "--form-dir", "/tmp/forms9",
+        "--host", "https://localhost:8443",
+		"--end-date", "2013-Oct-17",
+		"--begin-date", "2013-Oct-09",
+		"--ticker", "AAPL",
+		"--ticker-cache", "/tmp/ticker_to_CIK",
+		"--form", "4"
+    };
+
+    CollectEDGARApp myApp;
+	try
+	{
+        myApp.init(tokens);
+
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+
+        myApp.run();
+	}
+
+	catch (std::exception& theProblem)
+	{
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+		throw;	//	so test framework will get it too.
+	}
+	catch (...)
+	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
+		throw;
+	}
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms9"), Eq(5));
+}
+
 // class DailyEndToEndTestWithMultipleFormTypes : public Test
 // {
 // 	public:
