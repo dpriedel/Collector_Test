@@ -250,6 +250,44 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(17));
 }
 
+TEST(DailyEndToEndTest, VerifyExceptionsThrownWhenDiskIsFull)
+{
+	//	NOTE: the program name 'the_program' in the command line below is ignored in the
+	//	the test program.
+
+	std::vector<std::string> tokens{"the_program",
+	 	"--index-dir", "/extra/EDGAR_Info/test_2",
+		"--index-only",
+        "--host", "https://localhost:8443",
+        "--max", "17",
+		"--begin-date", "2013-Oct-14",
+		"--end-date", "2013-Oct-17"
+	};
+
+    CollectEDGARApp myApp;
+	try
+	{
+        myApp.init(tokens);
+
+		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+
+        myApp.run();
+	}
+
+	catch (std::exception& theProblem)
+	{
+		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+		throw;	//	so test framework will get it too.
+	}
+	catch (...)
+	{		// handle exception: unspecified
+		myApp.logger().error("Something totally unexpected happened.");
+		throw;
+	}
+	ASSERT_THAT(CountFilesInDirectoryTree("/extra/EDGAR_Info/test_2"), Eq(17));
+}
+
 TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenIndexOnlySpecified)
 {
 	fs::remove_all("/tmp/index1");

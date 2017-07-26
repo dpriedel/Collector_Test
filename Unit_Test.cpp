@@ -40,6 +40,9 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <iostream>
+#include <sstream>
+#include <system_error>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
@@ -51,8 +54,6 @@
 #include "Poco/Util/HelpFormatter.h"
 #include "Poco/Util/AbstractConfiguration.h"
 #include "Poco/AutoPtr.h"
-#include <iostream>
-#include <sstream>
 #include <Poco/Net/NetException.h>
 #include "Poco/Logger.h"
 #include "Poco/Channel.h"
@@ -498,7 +499,7 @@ TEST_F(HTTPS_UnitTest, VerifyAbilityToDownloadFileWhichExists)
 		fs::remove("/tmp/form.20131010.idx");
 
 	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
-	a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131010.idx", "/tmp/form.20131010.idx");
+	a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131010.idx.gz", "/tmp/form.20131010.idx");
 	ASSERT_THAT(fs::exists("/tmp/form.20131010.idx"), Eq(true));
 }
 
@@ -508,6 +509,24 @@ TEST_F(HTTPS_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 		fs::remove("/tmp/form.20131008.idx");
 	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131008.idx", "/tmp/form.20131008.idx"), std::runtime_error);
+}
+
+TEST_F(HTTPS_UnitTest, VerifyExceptionWhenDownloadingToFullDisk)
+{
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
+	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx", "/extra/EDGAR_Info/form.20131015.idx"), std::system_error);
+}
+
+TEST_F(HTTPS_UnitTest, VerifyExceptionWhenDownloadingGZFileToFullDisk)
+{
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
+	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx.gz", "/extra/EDGAR_Info/form.20131015.idx"), std::system_error);
+}
+
+TEST_F(HTTPS_UnitTest, VerifyExceptionWhenDownloadingZipFileToFullDisk)
+{
+	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
+	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/full-index/2013/QTR4/form.zip", "/extra/EDGAR_Info/form.testfull.idx"), std::system_error);
 }
 
 class RetrieverUnitTest : public Test
@@ -988,7 +1007,7 @@ TEST_F(ConcurrentlyRetrieveMultipleDailies, VerifyDownloadOfFormFilesListedInInd
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms_unit4"), Eq(CountTotalFormsFilesFound(remote_form_file_list4)));
 
 	// this test downloads 3 index files and 129 form files so it seems like a decent test.
-	
+
 	// for now, I'm just doing:
 	// diff -rq /tmp/index2 /tmp/index4
 	// diff -rq /tmp/forms_unit2 /tmp/forms_unit4
