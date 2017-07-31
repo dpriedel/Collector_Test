@@ -33,7 +33,7 @@ endif
 
 OUTFILE := Unit_Test
 
-CFG_INC := -I/home/dpriedel/projects/github/app_framework/include/ -I/home/dpriedel/projects/github/CollectEDGARData/src \
+CFG_INC := -I/home/dpriedel/projects/github/CollectEDGARData/src \
 		-I$(GTESTDIR) -I$(BOOSTDIR) -I/extra/gcc/cpp-json/include/
 
 RPATH_LIB := -Wl,-rpath,$(GCCDIR)/lib64 -Wl,-rpath,$(BOOSTDIR)/lib -Wl,-rpath,/usr/local/lib
@@ -49,12 +49,9 @@ SRCS2 := $(SDIR2)/HTTPS_Downloader.cpp \
 		$(SDIR2)/DailyIndexFileRetriever.cpp \
 		$(SDIR2)/FormFileRetriever.cpp
 
-SDIR3h := ../app_framework/include
-SDIR3 := ../app_framework/src
-
 SRCS := $(SRCS1) $(SRCS2)
 
-VPATH := $(SDIR1):$(SDIR2):$(SDIR3):$(SDIR3h)
+VPATH := $(SDIR1):$(SDIR2)
 
 #
 # Configuration: Debug
@@ -70,9 +67,8 @@ CFG_LIB := -lpthread -L$(BOOSTDIR)/lib -lboost_system-d -lboost_filesystem-d  \
 
 OBJS1=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS1)))))
 OBJS2=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS2)))))
-OBJS3=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS3)))))
 
-OBJS=$(OBJS1) $(OBJS2) $(OBJS3)
+OBJS=$(OBJS1) $(OBJS2)
 DEPS=$(OBJS:.o=.d)
 
 COMPILE=$(CPP) -c  -x c++  -O0  -g3 -std=c++1z -D NOCERTTEST -D_DEBUG -fPIC -o $@ $(CFG_INC) $< -march=native -MMD -MP
@@ -86,7 +82,7 @@ all: $(OUTFILE)
 $(OUTDIR)/%.o : %.cpp
 	$(COMPILE)
 
-$(OUTFILE): $(OUTDIR) $(OBJS1) $(OBJS2) $(OBJS3)
+$(OUTFILE): $(OUTDIR) $(OBJS1) $(OBJS2)
 	$(LINK)
 
 -include $(DEPS)
