@@ -511,19 +511,19 @@ TEST_F(HTTPS_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131008.idx", "/tmp/form.20131008.idx"), std::runtime_error);
 }
 
-TEST_F(HTTPS_UnitTest, VerifyExceptionWhenDownloadingToFullDisk)
+TEST_F(HTTPS_UnitTest, DISABLED_VerifyExceptionWhenDownloadingToFullDisk)
 {
 	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx", "/extra/EDGAR_Info/form.20131015.idx"), std::system_error);
 }
 
-TEST_F(HTTPS_UnitTest, VerifyExceptionWhenDownloadingGZFileToFullDisk)
+TEST_F(HTTPS_UnitTest, DISABLED_VerifyExceptionWhenDownloadingGZFileToFullDisk)
 {
 	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx.gz", "/extra/EDGAR_Info/form.20131015.idx"), std::system_error);
 }
 
-TEST_F(HTTPS_UnitTest, VerifyExceptionWhenDownloadingZipFileToFullDisk)
+TEST_F(HTTPS_UnitTest, DISABLED_VerifyExceptionWhenDownloadingZipFileToFullDisk)
 {
 	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/full-index/2013/QTR4/form.zip", "/extra/EDGAR_Info/form.testfull.idx"), std::system_error);

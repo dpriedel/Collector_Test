@@ -250,7 +250,7 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(17));
 }
 
-TEST(DailyEndToEndTest, VerifyExceptionsThrownWhenDiskIsFull)
+TEST(DailyEndToEndTest, DISABLED_VerifyExceptionsThrownWhenDiskIsFull)
 {
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
