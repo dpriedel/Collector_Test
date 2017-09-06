@@ -43,9 +43,10 @@
 #include <iostream>
 #include <sstream>
 #include <system_error>
+#include <experimental/filesystem>
 
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/filesystem.hpp>
+// #include <boost/filesystem.hpp>
 #include <gmock/gmock.h>
 
 #include "Poco/Util/Application.h"
@@ -72,7 +73,7 @@
 #include "TickerConverter.h"
 #include "PathNameGenerator.h"
 
-namespace fs = boost::filesystem;
+namespace fs = std::experimental::filesystem;
 
 using namespace testing;
 
@@ -282,31 +283,31 @@ MATCHER_P(StringEndsWith, value, std::string(negation ? "doesn't" : "does") +
 int CountFilesInDirectoryTree(const fs::path& directory)
 {
 	int count = std::count_if(fs::recursive_directory_iterator(directory), fs::recursive_directory_iterator(),
-			[](const fs::directory_entry& entry) { return entry.status().type() == fs::file_type::regular_file; });
+			[](const fs::directory_entry& entry) { return entry.status().type() == fs::file_type::regular; });
 	return count;
 }
 
-std::map<std::string, std::time_t> CollectLastModifiedTimesForFilesInDirectory(const fs::path& directory)
+std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDirectory(const fs::path& directory)
 {
-	std::map<std::string, std::time_t> results;
+	std::map<std::string, fs::file_time_type> results;
     auto dir_end = fs::directory_iterator();
 	for (auto x = fs::directory_iterator(directory); x != dir_end; ++x)
 	{
-		if (x->status().type() == fs::file_type::regular_file)
-			results[x->path().leaf().string()] = fs::last_write_time(x->path());
+		if (x->status().type() == fs::file_type::regular)
+			results[x->path().filename().string()] = fs::last_write_time(x->path());
 	}
 
 	return results;
 }
 
-std::map<std::string, std::time_t> CollectLastModifiedTimesForFilesInDirectoryTree(const fs::path& directory)
+std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDirectoryTree(const fs::path& directory)
 {
-	std::map<std::string, std::time_t> results;
+	std::map<std::string, fs::file_time_type> results;
 	auto dir_end = fs::recursive_directory_iterator();
 	for (auto x = fs::recursive_directory_iterator(directory); x != dir_end; ++x)
 	{
-		if (x->status().type() == fs::file_type::regular_file)
-			results[x->path().leaf().string()] = fs::last_write_time(x->path());
+		if (x->status().type() == fs::file_type::regular)
+			results[x->path().filename().string()] = fs::last_write_time(x->path());
 	}
 
 	return results;
@@ -511,10 +512,10 @@ TEST_F(HTTPS_UnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist)
 	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131008.idx", "/tmp/form.20131008.idx"), std::runtime_error);
 }
 
-TEST_F(HTTPS_UnitTest, DISABLED_VerifyExceptionWhenDownloadingToFullDisk)
+TEST_F(HTTPS_UnitTest, VerifyExceptionWhenDownloadingToFullDisk)
 {
 	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
-	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx", "/extra/EDGAR_Info/form.20131015.idx"), std::system_error);
+	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx", "/tmp/ofstream_test/form.20131015.idx"), std::system_error);
 }
 
 TEST_F(HTTPS_UnitTest, DISABLED_VerifyExceptionWhenDownloadingGZFileToFullDisk)
