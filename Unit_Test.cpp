@@ -333,107 +333,109 @@ class PathNameGenerator_UnitTest : public Test
 
 TEST_F(PathNameGenerator_UnitTest, TestSameStartEndDates)
 {
-	std::vector<fs::path> results;
+	int count{0};
 
-	PathNameGenerator p_gen{"/tmp", bg::from_simple_string("2013-Oct-13"), bg::from_simple_string("2013-Oct-13")};
-	PathNameGenerator p_end;
+	for (const auto& quarter : DateRange{bg::from_simple_string("2013-Oct-13"), bg::from_simple_string("2013-Oct-13")})
+		++count;
 
-	for (; p_gen != p_end; ++p_gen)
-	{
-		auto remote_file_name = *p_gen;
-		results.push_back(remote_file_name);
-	}
-	ASSERT_THAT(results.size(), Eq(1));
+	ASSERT_THAT(count, Eq(0));
 }
 
 TEST_F(PathNameGenerator_UnitTest, TestSameStartEndDatesQuarterBegin)
 {
-	std::vector<fs::path> results;
+	int count{0};
 
-	PathNameGenerator p_gen{"/tmp", bg::from_simple_string("2014-01-01"), bg::from_simple_string("2014-01-01")};
-	PathNameGenerator p_end;
+	for (const auto& quarter : DateRange{bg::from_simple_string("2014-01-01"), bg::from_simple_string("2014-01-01")})
+		++count;
 
-	for (; p_gen != p_end; ++p_gen)
+	int count2{0};
+	DateRange range{bg::from_simple_string("2014-01-01"), bg::from_simple_string("2014-01-01")};
+
+	for (auto quarter_begin = std::begin(range); quarter_begin <= std::end(range); ++quarter_begin)
 	{
-		auto remote_file_name = *p_gen;
-		results.push_back(remote_file_name);
+		auto remote_file_name = GeneratePath("/tmp", *quarter_begin);
+		++count2;
 	}
-	ASSERT_THAT(results.size(), Eq(1));
+	ASSERT_TRUE(count == 0 && count2 == 1);
 }
 
 TEST_F(PathNameGenerator_UnitTest, TestSameStartEndDatesQuarterEnd)
 {
-	std::vector<fs::path> results;
+	int count{0};
 
-	PathNameGenerator p_gen{"/tmp", bg::from_simple_string("2014-12-31"), bg::from_simple_string("2014-12-31")};
-	PathNameGenerator p_end;
+	for (const auto& quarter : DateRange{bg::from_simple_string("2014-12-31"), bg::from_simple_string("2014-12-31")})
+		++count;
 
-	for (; p_gen != p_end; ++p_gen)
+	int count2{0};
+	DateRange range{bg::from_simple_string("2014-12-31"), bg::from_simple_string("2014-12-31")};
+
+	for (auto quarter_begin = std::begin(range); quarter_begin <= std::end(range); ++quarter_begin)
 	{
-		auto remote_file_name = *p_gen;
-		results.push_back(remote_file_name);
+		auto remote_file_name = GeneratePath("/tmp", *quarter_begin);
+		++count2;
 	}
-	ASSERT_THAT(results.size(), Eq(1));
+	ASSERT_TRUE(count == 0 && count2 == 1);
 }
 
 TEST_F(PathNameGenerator_UnitTest, TestStartEndDatesQuarterBeginEnd)
 {
-	std::vector<fs::path> results;
+	int count{0};
 
-	PathNameGenerator p_gen{"/tmp", bg::from_simple_string("2014-1-1"), bg::from_simple_string("2014-3-31")};
-	PathNameGenerator p_end;
+	for (const auto& quarter : DateRange{bg::from_simple_string("2014-1-1"), bg::from_simple_string("2014-3-31")})
+		++count;
 
-	for (; p_gen != p_end; ++p_gen)
+	int count2{0};
+	DateRange range{bg::from_simple_string("2014-1-1"), bg::from_simple_string("2014-3-31")};
+
+	for (auto quarter_begin = std::begin(range); quarter_begin <= std::end(range); ++quarter_begin)
 	{
-		auto remote_file_name = *p_gen;
-		results.push_back(remote_file_name);
+		auto remote_file_name = GeneratePath("/tmp", *quarter_begin);
+		++count2;
 	}
-	ASSERT_THAT(results.size(), Eq(1));
+	ASSERT_TRUE(count == 0 && count2 == 1);
 }
 
 TEST_F(PathNameGenerator_UnitTest, TestStartEndDatesYearBeginEnd)
 {
-	std::vector<fs::path> results;
+	int count{0};
 
-	PathNameGenerator p_gen{"/tmp", bg::from_simple_string("2014-1-1"), bg::from_simple_string("2015-1-1")};
-	PathNameGenerator p_end;
+	for (const auto& quarter : DateRange{bg::from_simple_string("2014-1-1"), bg::from_simple_string("2015-1-1")})
+		++count;
 
-	for (; p_gen != p_end; ++p_gen)
+	int count2{0};
+	DateRange range{bg::from_simple_string("2014-1-1"), bg::from_simple_string("2015-1-1")};
+
+	for (auto quarter_begin = std::begin(range); quarter_begin <= std::end(range); ++quarter_begin)
 	{
-		auto remote_file_name = *p_gen;
-		results.push_back(remote_file_name);
+		auto remote_file_name = GeneratePath("/tmp", *quarter_begin);
+		++count2;
 	}
-	ASSERT_THAT(results.size(), Eq(5));
+	ASSERT_TRUE(count == 4 && count2 == 5);
 }
 
 TEST_F(PathNameGenerator_UnitTest, TestStartYear1EndYear2)
 {
-	std::vector<fs::path> results;
+	int count{0};
 
-	PathNameGenerator p_gen{"/tmp", bg::from_simple_string("2014-7-1"), bg::from_simple_string("2015-6-30")};
-	PathNameGenerator p_end;
+	for (const auto& quarter : DateRange{bg::from_simple_string("2014-7-1"), bg::from_simple_string("2015-6-30")})
+		++count;
 
-	for (; p_gen != p_end; ++p_gen)
-	{
-		auto remote_file_name = *p_gen;
-		results.push_back(remote_file_name);
-	}
-	ASSERT_THAT(results.size(), Eq(4));
+	int count2{0};
+
+	for (const auto& quarter : DateRange{bg::from_simple_string("2014-7-1"), bg::from_simple_string("2015-7-1")})
+		++count2;
+
+	ASSERT_TRUE(count == 3 && count2 == 4);
 }
 
 TEST_F(PathNameGenerator_UnitTest, TestArbitraryStartEnd)
 {
-	std::vector<fs::path> results;
+	int count{0};
 
-	PathNameGenerator p_gen{"/tmp", bg::from_simple_string("2013-12-20"), bg::from_simple_string("2014-5-21")};
-	PathNameGenerator p_end;
+	for (const auto& quarter : DateRange{bg::from_simple_string("2013-12-20"), bg::from_simple_string("2014-5-21")})
+		++count;
 
-	for (; p_gen != p_end; ++p_gen)
-	{
-		auto remote_file_name = *p_gen;
-		results.push_back(remote_file_name);
-	}
-	ASSERT_THAT(results.size(), Eq(3));
+	ASSERT_THAT(count, Eq(2));
 }
 
 class HTTPS_UnitTest : public Test
