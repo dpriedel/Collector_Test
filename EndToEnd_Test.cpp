@@ -41,8 +41,9 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <experimental/filesystem>
 
-#include <boost/filesystem.hpp>
+// #include <boost/filesystem.hpp>
 // #include <boost/program_options/parsers.hpp>
 
 #include <gmock/gmock.h>
@@ -58,7 +59,7 @@
 int G_ARGC = 0;
 char** G_ARGV = nullptr;
 
-namespace fs = boost::filesystem;
+namespace fs = std::experimental::filesystem;
 // namespace po = boost::program_options;
 
 using namespace testing;
@@ -74,7 +75,7 @@ using namespace testing;
 int CountFilesInDirectoryTree(const fs::path& directory)
 {
 	int count = std::count_if(fs::recursive_directory_iterator(directory), fs::recursive_directory_iterator(),
-			[](const fs::directory_entry& entry) { return entry.status().type() == fs::file_type::regular_file; });
+			[](const fs::directory_entry& entry) { return entry.status().type() == fs::file_type::regular; });
 	return count;
 }
 
@@ -82,32 +83,32 @@ bool DirectoryTreeContainsDirectory(const fs::path& tree, const fs::path& direct
 {
 	for (auto x = fs::recursive_directory_iterator(tree); x != fs::recursive_directory_iterator(); ++x)
 	{
-		if (x->status().type() == fs::file_type::directory_file)
+		if (x->status().type() == fs::file_type::directory)
 		{
-			if (x->path().leaf() == directory)
+			if (x->path().filename() == directory)
 				return true;
 		}
 	}
 	return false;
 }
 
-std::map<std::string, std::time_t> CollectLastModifiedTimesForFilesInDirectory(const fs::path& directory)
+std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDirectory(const fs::path& directory)
 {
-	std::map<std::string, std::time_t> results;
+	std::map<std::string, fs::file_time_type> results;
 	for (auto x = fs::directory_iterator(directory); x != fs::directory_iterator(); ++x)
 	{
-		results[x->path().leaf().string()] = fs::last_write_time(x->path());
+		results[x->path().filename().string()] = fs::last_write_time(x->path());
 	}
 
 	return results;
 }
 
-std::map<std::string, std::time_t> CollectLastModifiedTimesForFilesInDirectoryTree(const fs::path& directory)
+std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDirectoryTree(const fs::path& directory)
 {
-	std::map<std::string, std::time_t> results;
+	std::map<std::string, fs::file_time_type> results;
 	for (auto x = fs::recursive_directory_iterator(directory); x != fs::recursive_directory_iterator(); ++x)
 	{
-		results[x->path().leaf().string()] = fs::last_write_time(x->path());
+		results[x->path().filename().string()] = fs::last_write_time(x->path());
 	}
 
 	return results;
@@ -127,7 +128,8 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 	if (fs::exists("/tmp/form.20131011.idx"))
 		fs::remove("/tmp/form.20131011.idx");
 
-	fs::remove_all("/tmp/forms");
+	if (fs::exists("/tmp/forms"))
+		fs::remove_all("/tmp/forms");
 	fs::create_directory("/tmp/forms");
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
@@ -171,7 +173,8 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 
 TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 {
-	fs::remove_all("/tmp/forms");
+	if (fs::exists("/tmp/forms"))
+		fs::remove_all("/tmp/forms");
 	fs::create_directory("/tmp/forms");
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
@@ -210,8 +213,10 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 
 TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFiles)
 {
-	fs::remove_all("/tmp/index1");
-	fs::remove_all("/tmp/forms1");
+	if (fs::exists("/tmp/index1"))
+		fs::remove_all("/tmp/index1");
+	if (fs::exists("/tmp/forms1"))
+		fs::remove_all("/tmp/forms1");
 	fs::create_directory("/tmp/forms1");
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
@@ -250,13 +255,13 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(17));
 }
 
-TEST(DailyEndToEndTest, DISABLED_VerifyExceptionsThrownWhenDiskIsFull)
+TEST(DailyEndToEndTest, VerifyExceptionsThrownWhenDiskIsFull)
 {
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
 
 	std::vector<std::string> tokens{"the_program",
-	 	"--index-dir", "/extra/EDGAR_Info/test_2",
+	 	"--index-dir", "/tmp/ofstream_test/test_2",
 		"--index-only",
         "--host", "https://localhost:8443",
         "--max", "17",
@@ -290,8 +295,10 @@ TEST(DailyEndToEndTest, DISABLED_VerifyExceptionsThrownWhenDiskIsFull)
 
 TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenIndexOnlySpecified)
 {
-	fs::remove_all("/tmp/index1");
-	fs::remove_all("/tmp/forms1");
+	if (fs::exists("/tmp/index1"))
+		fs::remove_all("/tmp/index1");
+	if (fs::exists("/tmp/forms1"))
+		fs::remove_all("/tmp/forms1");
 	fs::create_directory("/tmp/forms1");
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
@@ -426,8 +433,10 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 //
 TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
 {
-	fs::remove_all("/tmp/index2");
-	fs::remove_all("/tmp/forms2");
+	if (fs::exists("/tmp/index2"))
+		fs::remove_all("/tmp/index2");
+	if (fs::exists("/tmp/forms2"))
+		fs::remove_all("/tmp/forms2");
 	fs::create_directory("/tmp/forms2");
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
@@ -468,7 +477,8 @@ class QuarterlyEndToEndTest : public Test
 
 TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQuarter)
 {
-	fs::remove_all("/tmp/index3");
+	if (fs::exists("/tmp/index3"))
+		fs::remove_all("/tmp/index3");
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
@@ -546,8 +556,10 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 //
 TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange)
 {
-	fs::remove_all("/tmp/index5");
-	fs::remove_all("/tmp/forms5");
+	if (fs::exists("/tmp/index5"))
+		fs::remove_all("/tmp/index5");
+	if (fs::exists("/tmp/forms5"))
+		fs::remove_all("/tmp/forms5");
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.

@@ -19,7 +19,7 @@
 #
 MAKE=gmake
 
-BOOSTDIR := /extra/boost/boost-1.64_gcc-7
+BOOSTDIR := /extra/boost/boost-1.65_gcc-7
 GCCDIR := /extra/gcc/gcc-7
 GTESTDIR := /usr/local/include
 CPP := $(GCCDIR)/bin/g++
@@ -57,8 +57,8 @@ ifeq "$(CFG)" "Debug"
 
 OUTDIR=Debug_e2e
 
-CFG_LIB := -lpthread -L$(BOOSTDIR)/lib -lboost_system-d -lboost_filesystem-d \
-		-lboost_date_time-d -lboost_regex-d -lboost_iostreams \
+CFG_LIB := -lpthread -lstdc++fs -L$(BOOSTDIR)/lib \
+		-lboost_date_time-d -lboost_iostreams \
 		-L/usr/local/lib -lPocoFoundationd -lPocoUtild -lPocoNetSSLd -lPocoNetd -lPocoZipd \
 		-L/usr/local/lib -lgmock_main
 
@@ -68,7 +68,7 @@ OBJS2=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS2)))))
 OBJS=$(OBJS1) $(OBJS2)
 DEPS=$(OBJS:.o=.d)
 
-COMPILE=$(CPP) -c  -x c++  -O0  -g3 -std=c++1z -D NOCERTTEST -D_DEBUG -fPIC -o $@ $(CFG_INC) $< -march=native -MMD -MP
+COMPILE=$(CPP) -c  -x c++  -O0  -g3 -std=c++1z -D NOCERTTEST -D_DEBUG -D_GLIBCXX_DEBUG -fPIC -o $@ $(CFG_INC) $< -march=native -MMD -MP
 LINK := $(CPP)  -g -o $(OUTFILE) $(OBJS) $(CFG_LIB) -Wl,-E $(RPATH_LIB)
 
 endif #	DEBUG configuration
