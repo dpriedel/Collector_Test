@@ -520,16 +520,16 @@ TEST_F(HTTPS_UnitTest, VerifyExceptionWhenDownloadingToFullDisk)
 	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx", "/tmp/ofstream_test/form.20131015.idx"), std::system_error);
 }
 
-TEST_F(HTTPS_UnitTest, DISABLED_VerifyExceptionWhenDownloadingGZFileToFullDisk)
+TEST_F(HTTPS_UnitTest, VerifyExceptionWhenDownloadingGZFileToFullDisk)
 {
 	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
-	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx.gz", "/extra/EDGAR_Info/form.20131015.idx"), std::system_error);
+	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx.gz", "/tmp/ofstream_test/form.20131015.idx"), std::system_error);
 }
 
-TEST_F(HTTPS_UnitTest, DISABLED_VerifyExceptionWhenDownloadingZipFileToFullDisk)
+TEST_F(HTTPS_UnitTest, VerifyExceptionWhenDownloadingZipFileToFullDisk)
 {
 	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
-	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/full-index/2013/QTR4/form.zip", "/extra/EDGAR_Info/form.testfull.idx"), std::system_error);
+	ASSERT_THROW(a_server.DownloadFile("/Archives/edgar/full-index/2013/QTR4/form.zip", "/tmp/ofstream_test/form.testfull.idx"), std::system_error);
 }
 
 class RetrieverUnitTest : public Test
@@ -819,7 +819,7 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName)
  	idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-14"), bg::from_simple_string("2013-10-20"));
  	decltype(auto) results = idxFileRet.GetActualDateRange();
 
- 	ASSERT_THAT(results, Eq(std::make_pair(bg::from_simple_string("2013-Oct-15"), bg::from_simple_string("2013-10-18"))));
+ 	ASSERT_THAT(results, Eq(std::pair(bg::from_simple_string("2013-Oct-15"), bg::from_simple_string("2013-10-18"))));
  }
 
  TEST_F(RetrieverMultipleDailies, VerifyFindsCorrectNumberOfIndexFilesInRange)
