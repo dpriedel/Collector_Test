@@ -95,10 +95,14 @@ bool DirectoryTreeContainsDirectory(const fs::path& tree, const fs::path& direct
 std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDirectory(const fs::path& directory)
 {
 	std::map<std::string, fs::file_time_type> results;
-	for (auto x = fs::directory_iterator(directory); x != fs::directory_iterator(); ++x)
-	{
-		results[x->path().filename().string()] = fs::last_write_time(x->path());
-	}
+
+    auto save_mod_time([&results] (const auto& dir_ent)
+    {
+		if (dir_ent.status().type() == fs::file_type::regular)
+			results[dir_ent.path().filename().string()] = fs::last_write_time(dir_ent.path());
+    });
+
+    std::for_each(fs::directory_iterator(directory), fs::directory_iterator(), save_mod_time);
 
 	return results;
 }
@@ -106,10 +110,14 @@ std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDire
 std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDirectoryTree(const fs::path& directory)
 {
 	std::map<std::string, fs::file_time_type> results;
-	for (auto x = fs::recursive_directory_iterator(directory); x != fs::recursive_directory_iterator(); ++x)
-	{
-		results[x->path().filename().string()] = fs::last_write_time(x->path());
-	}
+
+    auto save_mod_time([&results] (const auto& dir_ent)
+    {
+		if (dir_ent.status().type() == fs::file_type::regular)
+			results[dir_ent.path().filename().string()] = fs::last_write_time(dir_ent.path());
+    });
+
+    std::for_each(fs::recursive_directory_iterator(directory), fs::recursive_directory_iterator(), save_mod_time);
 
 	return results;
 }
@@ -290,7 +298,7 @@ TEST(DailyEndToEndTest, VerifyExceptionsThrownWhenDiskIsFull)
 		myApp.logger().error("Something totally unexpected happened.");
 		throw;
 	}
-	ASSERT_THAT(CountFilesInDirectoryTree("/extra/EDGAR_Info/test_2"), Eq(17));
+	ASSERT_THAT(fs::exists("/tmp/ofstream_test/test_2"), Eq(false));
 }
 
 TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenIndexOnlySpecified)

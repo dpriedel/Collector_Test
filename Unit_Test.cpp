@@ -41,6 +41,7 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
+#include <numeric>
 #include <sstream>
 #include <system_error>
 #include <experimental/filesystem>
@@ -290,12 +291,14 @@ int CountFilesInDirectoryTree(const fs::path& directory)
 std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDirectory(const fs::path& directory)
 {
 	std::map<std::string, fs::file_time_type> results;
-    auto dir_end = fs::directory_iterator();
-	for (auto x = fs::directory_iterator(directory); x != dir_end; ++x)
-	{
-		if (x->status().type() == fs::file_type::regular)
-			results[x->path().filename().string()] = fs::last_write_time(x->path());
-	}
+
+    auto save_mod_time([&results] (const auto& dir_ent)
+    {
+		if (dir_ent.status().type() == fs::file_type::regular)
+			results[dir_ent.path().filename().string()] = fs::last_write_time(dir_ent.path());
+    });
+
+    std::for_each(fs::directory_iterator(directory), fs::directory_iterator(), save_mod_time);
 
 	return results;
 }
@@ -303,12 +306,14 @@ std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDire
 std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDirectoryTree(const fs::path& directory)
 {
 	std::map<std::string, fs::file_time_type> results;
-	auto dir_end = fs::recursive_directory_iterator();
-	for (auto x = fs::recursive_directory_iterator(directory); x != dir_end; ++x)
-	{
-		if (x->status().type() == fs::file_type::regular)
-			results[x->path().filename().string()] = fs::last_write_time(x->path());
-	}
+
+    auto save_mod_time([&results] (const auto& dir_ent)
+    {
+		if (dir_ent.status().type() == fs::file_type::regular)
+			results[dir_ent.path().filename().string()] = fs::last_write_time(dir_ent.path());
+    });
+
+    std::for_each(fs::recursive_directory_iterator(directory), fs::recursive_directory_iterator(), save_mod_time);
 
 	return results;
 }
@@ -316,8 +321,9 @@ std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDire
 int CountTotalFormsFilesFound(const FormFileRetriever::FormsAndFilesList& file_list)
 {
 	int grand_total{0};
-	for (const auto& elem : file_list)
-		grand_total += elem.second.size();
+    // grand_total = std::accumulate(std::begin(file_list), std::end(file_list), 0, [] (auto a, const auto& b) { return a + b.second.size(); });
+	for (const auto& [form_type, form_list] : file_list)
+		grand_total += form_list.size();
 
 	return grand_total;
 }
