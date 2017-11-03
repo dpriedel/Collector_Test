@@ -1400,6 +1400,28 @@ TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterly
 
 }
 
+TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileForMultipleTickersAndForms)
+{
+	if (fs::exists("/tmp/2009/QTR3/form.idx"))
+		fs::remove("/tmp/2009/QTR3/form.idx");
+
+	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2013-09-10"));
+	auto local_quarterly_index_file_name = idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp");
+
+	TickerConverter sym{*THE_LOGGER};
+	std::map<std::string, std::string> ticker_map{
+		{"AAPL", sym.ConvertTickerToCIK("AAPL")},
+		{"DHS", sym.ConvertTickerToCIK("DHS")},
+		{"GOOG", "1288776"},
+	};
+
+	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
+	std::vector<std::string> forms_list{"10-Q", "10-MQ"};
+	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_quarterly_index_file_name, ticker_map);
+	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(2));
+
+}
+
 // /* TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileDateRangeForTicker) */
 // /* { */
 // /* 	idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2009-Sep-10"), bg::from_simple_string("2010-10-21")); */
@@ -1451,34 +1473,31 @@ TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFi
 	auto local_index_files = idxFileRet.CopyIndexFilesForDateRangeTo(index_file_list, "/tmp/daily_index1");
 
 	FormFileRetriever form_file_getter{a_server, *THE_LOGGER};
-	std::vector<std::string> forms_list{"4", "10-K", "10-Q"};
+	std::vector<std::string> forms_list{"4", "10-K", "10-Q", "10-MQ"};
 
 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_index_files);
 
 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(4395));
 }
 
-// /* TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileForMultipleTickers) */
-// /* { */
-// /* 	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2009-09-10")); */
-// /* 	idxFileRet.CopyRemoteIndexFileTo("/tmp"); */
-// /* 	decltype(auto) local_quarterly_index_file_name = idxFileRet.GetLocalIndexFilePath(); */
-//
-// /* 	TickerConverter sym; */
-// /* 	decltype(auto) CIK1 = sym.ConvertTickerToCIK("AAPL"); */
-// /* 	decltype(auto) CIK2 = sym.ConvertTickerToCIK("DHS"); */
-// /* 	decltype(auto) CIK3 = sym.ConvertTickerToCIK("GOOG"); */
-// /* 	std::map<std::string, std::string> ticker_map; */
-// /* 	ticker_map["AAPL"] = CIK1; */
-// /* 	ticker_map["DHS"] = CIK2; */
-// /* 	ticker_map["GOOG"] = CIK3; */
-//
-// /* 	FormFileRetriever form_file_getter{a_server}; */
-// /* 	std::vector<std::string> forms_list{"10-Q"}; */
-// /* 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_quarterly_index_file_name, ticker_map); */
-// /* 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(2)); */
-//
-// /* } */
+ // TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileForMultipleTickers)
+ // {
+ // 	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2009-09-10"));
+ // auto local_quarterly_index_file_name = idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp");
+ //
+ // 	TickerConverter sym;
+ // // 	decltype(auto) CIK1 = sym.ConvertTickerToCIK("AAPL");
+ // // 	decltype(auto) CIK2 = sym.ConvertTickerToCIK("DHS");
+ // // 	decltype(auto) CIK3 = sym.ConvertTickerToCIK("GOOG");
+ // 	std::map<std::string, std::string> ticker_map{{"AAPL", sym.ConvertTickerToCIK("AAPL")}, {"DHS", sym.ConvertTickerToCIK("DHS")}, {"GOOG", sym.ConvertTickerToCIK("GOOG")}};
+ // // 	ticker_map["AAPL"] = CIK1;
+ // // 	ticker_map["DHS"] = CIK2;
+ // // 	ticker_map["GOOG"] = CIK3;
+ //
+ // 	std::vector<std::string> forms_list{"10-Q"};
+ // 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_quarterly_index_file_name, ticker_map);
+ // 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(2));
+ // }
 //
 // /* TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileDateRangeForMultipleTickers) */
 // /* { */

@@ -863,6 +863,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 		"--begin-date", "2013-Oct-09",
 		"--ticker", "AAPL",
 		"--ticker-cache", "/tmp/ticker_to_CIK",
+        "--log-level", "debug",
 		"--form", "4"
     };
 
