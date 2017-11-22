@@ -339,84 +339,76 @@ class PathNameGenerator_UnitTest : public Test
 
 TEST_F(PathNameGenerator_UnitTest, TestSameStartEndDates)
 {
-	int count{0};
-
-	for ([[maybe_unused]] const auto& quarter : DateRange{bg::from_simple_string("2013-Oct-13"), bg::from_simple_string("2013-Oct-13")})
+	DateRange date_range{bg::from_simple_string("2013-Oct-13"), bg::from_simple_string("2013-Oct-13")};
+	int count = 0;
+	for ([[maybe_unused]] auto a_date : date_range)
 		++count;
 
-	ASSERT_THAT(count, Eq(0));
+	ASSERT_THAT(count, Eq(1));
 }
 
 TEST_F(PathNameGenerator_UnitTest, TestSameStartEndDatesQuarterBegin)
 {
+	DateRange range{bg::from_simple_string("2014-01-01"), bg::from_simple_string("2014-01-01")};
 	int count{0};
 
-	for ([[maybe_unused]] const auto& quarter : DateRange{bg::from_simple_string("2014-01-01"), bg::from_simple_string("2014-01-01")})
+	for ([[maybe_unused]] auto a_date : range)
 		++count;
 
 	int count2{0};
-	DateRange range{bg::from_simple_string("2014-01-01"), bg::from_simple_string("2014-01-01")};
 
-	for (auto quarter_begin = std::begin(range); quarter_begin <= std::end(range); ++quarter_begin)
-	{
-		auto remote_file_name = GeneratePath("/tmp", *quarter_begin);
+	for (auto quarter_begin = std::begin(range); quarter_begin < std::end(range); ++quarter_begin)
 		++count2;
-	}
-	ASSERT_TRUE(count == 0 && count2 == 1);
+
+	ASSERT_TRUE(count == 1 && count2 == 1);
 }
 
 TEST_F(PathNameGenerator_UnitTest, TestSameStartEndDatesQuarterEnd)
 {
+	DateRange range{bg::from_simple_string("2014-12-31"), bg::from_simple_string("2014-12-31")};
 	int count{0};
 
-	for ([[maybe_unused]] const auto& quarter : DateRange{bg::from_simple_string("2014-12-31"), bg::from_simple_string("2014-12-31")})
+	for ([[maybe_unused]] auto a_date : range)
 		++count;
 
 	int count2{0};
-	DateRange range{bg::from_simple_string("2014-12-31"), bg::from_simple_string("2014-12-31")};
 
-	for (auto quarter_begin = std::begin(range); quarter_begin <= std::end(range); ++quarter_begin)
-	{
-		auto remote_file_name = GeneratePath("/tmp", *quarter_begin);
+	for (auto quarter_begin = std::begin(range); quarter_begin < std::end(range); ++quarter_begin)
 		++count2;
-	}
-	ASSERT_TRUE(count == 0 && count2 == 1);
+
+	ASSERT_TRUE(count == 1 && count2 == 1);
 }
 
 TEST_F(PathNameGenerator_UnitTest, TestStartEndDatesQuarterBeginEnd)
 {
+	DateRange range{bg::from_simple_string("2014-1-1"), bg::from_simple_string("2014-3-31")};
 	int count{0};
 
-	for ([[maybe_unused]] const auto& quarter : DateRange{bg::from_simple_string("2014-1-1"), bg::from_simple_string("2014-3-31")})
+	for ([[maybe_unused]] auto a_date : range)
 		++count;
 
 	int count2{0};
-	DateRange range{bg::from_simple_string("2014-1-1"), bg::from_simple_string("2014-3-31")};
 
-	for (auto quarter_begin = std::begin(range); quarter_begin <= std::end(range); ++quarter_begin)
-	{
-		auto remote_file_name = GeneratePath("/tmp", *quarter_begin);
+	for (auto quarter_begin = std::begin(range); quarter_begin < std::end(range); ++quarter_begin)
 		++count2;
-	}
-	ASSERT_TRUE(count == 0 && count2 == 1);
+
+	ASSERT_TRUE(count == 1 && count2 == 1);
 }
 
 TEST_F(PathNameGenerator_UnitTest, TestStartEndDatesYearBeginEnd)
 {
+	DateRange range{bg::from_simple_string("2014-1-1"), bg::from_simple_string("2015-1-1")};
 	int count{0};
 
-	for ([[maybe_unused]] const auto& quarter : DateRange{bg::from_simple_string("2014-1-1"), bg::from_simple_string("2015-1-1")})
+	for ([[maybe_unused]] auto a_date : range)
 		++count;
 
 	int count2{0};
-	DateRange range{bg::from_simple_string("2014-1-1"), bg::from_simple_string("2015-1-1")};
 
-	for (auto quarter_begin = std::begin(range); quarter_begin <= std::end(range); ++quarter_begin)
-	{
-		auto remote_file_name = GeneratePath("/tmp", *quarter_begin);
+	for (auto quarter_begin = std::begin(range); quarter_begin < std::end(range); ++quarter_begin)
 		++count2;
-	}
-	ASSERT_TRUE(count == 4 && count2 == 5);
+
+	ASSERT_TRUE(count == 5 && count2 == 5);
 }
 
 TEST_F(PathNameGenerator_UnitTest, TestStartYear1EndYear2)
@@ -431,7 +423,7 @@ TEST_F(PathNameGenerator_UnitTest, TestStartYear1EndYear2)
 	for ([[maybe_unused]] const auto& quarter : DateRange{bg::from_simple_string("2014-7-1"), bg::from_simple_string("2015-7-1")})
 		++count2;
 
-	ASSERT_TRUE(count == 3 && count2 == 4);
+	ASSERT_TRUE(count == 4 && count2 == 5);
 }
 
 TEST_F(PathNameGenerator_UnitTest, TestArbitraryStartEnd)
@@ -441,7 +433,7 @@ TEST_F(PathNameGenerator_UnitTest, TestArbitraryStartEnd)
 	for ([[maybe_unused]] const auto& quarter : DateRange{bg::from_simple_string("2013-12-20"), bg::from_simple_string("2014-5-21")})
 		++count;
 
-	ASSERT_THAT(count, Eq(2));
+	ASSERT_THAT(count, Eq(3));
 }
 
 class HTTPS_UnitTest : public Test
