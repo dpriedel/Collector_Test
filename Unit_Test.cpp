@@ -466,6 +466,7 @@ TEST_F(HTTPS_UnitTest, TestAbilityToConnectToHTTPSServer)
 	HTTPS_Downloader a_server{"https://localhost:8443", *THE_LOGGER};
 	// ASSERT_NO_THROW(a_server.OpenHTTPSConnection());
 	std::string data = a_server.RetrieveDataFromServer("/Archives/test.txt");
+    std::cout << "data: " << data << '\n';
 	ASSERT_THAT(data, Eq(std::string{"Hello, there!\n"}));
 }
 
