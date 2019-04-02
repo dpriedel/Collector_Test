@@ -10,6 +10,7 @@ EndToEnd_Test
 Unit_Test
 
 .tag*
+tags
 
 # our test cert
 
