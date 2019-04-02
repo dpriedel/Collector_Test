@@ -15,20 +15,20 @@
 //
 // =====================================================================================
 
-	/* This file is part of CollectEDGARData. */
+	/* This file is part of Collector. */
 
-	/* CollectEDGARData is free software: you can redistribute it and/or modify */
+	/* Collector is free software: you can redistribute it and/or modify */
 	/* it under the terms of the GNU General Public License as published by */
 	/* the Free Software Foundation, either version 3 of the License, or */
 	/* (at your option) any later version. */
 
-	/* CollectEDGARData is distributed in the hope that it will be useful, */
+	/* Collector is distributed in the hope that it will be useful, */
 	/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
 	/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
 	/* GNU General Public License for more details. */
 
 	/* You should have received a copy of the GNU General Public License */
-	/* along with CollectEDGARData.  If not, see <http://www.gnu.org/licenses/>. */
+	/* along with Collector.  If not, see <http://www.gnu.org/licenses/>. */
 
 
 // =====================================================================================
@@ -37,44 +37,43 @@
 // =====================================================================================
 
 
-#include <string>
 #include <chrono>
-#include <thread>
+#include <filesystem>
 #include <iostream>
 #include <numeric>
 #include <sstream>
+#include <string>
 #include <system_error>
-#include <experimental/filesystem>
+#include <thread>
 
 #include <boost/algorithm/string/predicate.hpp>
 // #include <boost/filesystem.hpp>
 #include <gmock/gmock.h>
 
+#include "Poco/AutoPtr.h"
+#include "Poco/Channel.h"
+#include "Poco/ConsoleChannel.h"
+#include "Poco/Logger.h"
+#include "Poco/Message.h"
+#include "Poco/Net/FTPStreamFactory.h"
+#include "Poco/Net/HTTPSStreamFactory.h"
+#include "Poco/Net/HTTPStreamFactory.h"
+#include "Poco/Util/AbstractConfiguration.h"
 #include "Poco/Util/Application.h"
+#include "Poco/Util/HelpFormatter.h"
 #include "Poco/Util/Option.h"
 #include "Poco/Util/OptionSet.h"
-#include "Poco/Util/HelpFormatter.h"
-#include "Poco/Util/AbstractConfiguration.h"
-#include "Poco/AutoPtr.h"
 #include <Poco/Net/NetException.h>
-#include "Poco/Logger.h"
-#include "Poco/Channel.h"
-#include "Poco/Message.h"
-
-#include "Poco/Net/HTTPStreamFactory.h"
-#include "Poco/Net/HTTPSStreamFactory.h"
-#include "Poco/Net/FTPStreamFactory.h"
-#include "Poco/ConsoleChannel.h"
 // #include "Poco/SimpleFileChannel.h"
 
-#include "HTTPS_Downloader.h"
 #include "DailyIndexFileRetriever.h"
 #include "FormFileRetriever.h"
+#include "HTTPS_Downloader.h"
+#include "PathNameGenerator.h"
 #include "QuarterlyIndexFileRetriever.h"
 #include "TickerConverter.h"
-#include "PathNameGenerator.h"
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 using namespace testing;
 
@@ -99,15 +98,15 @@ Poco::Logger* THE_LOGGER = nullptr;
 
 // using one of the example Poco programs to get going
 
-class EDGAR_UnitTest: public Application
+class Collector_UnitTest: public Application
 	/// This sample demonstrates some of the features of the Util::Application class,
 	/// such as configuration file handling and command line arguments processing.
 	///
-	/// Try EDGAR_UnitTest --help (on Unix platforms) or EDGAR_UnitTest /help (elsewhere) for
+	/// Try Collector_UnitTest --help (on Unix platforms) or Collector_UnitTest /help (elsewhere) for
 	/// more information.
 {
 public:
-	EDGAR_UnitTest(): _helpRequested(false)
+	Collector_UnitTest(): _helpRequested(false)
 	{
 	}
 
@@ -139,28 +138,28 @@ protected:
 			Option("help", "h", "display help information on command line arguments")
 				.required(false)
 				.repeatable(false)
-				.callback(OptionCallback<EDGAR_UnitTest>(this, &EDGAR_UnitTest::handleHelp)));
+				.callback(OptionCallback<Collector_UnitTest>(this, &Collector_UnitTest::handleHelp)));
 
 		options.addOption(
 			Option("gtest_filter", "", "select which tests to run.")
 				.required(false)
 				.repeatable(true)
 				.argument("name=value")
-				.callback(OptionCallback<EDGAR_UnitTest>(this, &EDGAR_UnitTest::handleDefine)));
+				.callback(OptionCallback<Collector_UnitTest>(this, &Collector_UnitTest::handleDefine)));
 
 		/* options.addOption( */
 		/* 	Option("define", "D", "define a configuration property") */
 		/* 		.required(false) */
 		/* 		.repeatable(true) */
 		/* 		.argument("name=value") */
-		/* 		.callback(OptionCallback<EDGAR_UnitTest>(this, &EDGAR_UnitTest::handleDefine))); */
+		/* 		.callback(OptionCallback<Collector_UnitTest>(this, &Collector_UnitTest::handleDefine))); */
 
 		/* options.addOption( */
 		/* 	Option("config-file", "f", "load configuration data from a file") */
 		/* 		.required(false) */
 		/* 		.repeatable(true) */
 		/* 		.argument("file") */
-		/* 		.callback(OptionCallback<EDGAR_UnitTest>(this, &EDGAR_UnitTest::handleConfig))); */
+		/* 		.callback(OptionCallback<Collector_UnitTest>(this, &Collector_UnitTest::handleConfig))); */
 
 		/* options.addOption( */
 		/* 	Option("bind", "b", "bind option value to test.property") */
@@ -809,7 +808,12 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName)
 
  TEST_F(RetrieverMultipleDailies, VerifyRejectsFutureDates)
  {
- 	ASSERT_THROW(idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-13"), bg::from_simple_string("2018-10-18")),
+	// let's make a date in the future
+
+	auto today = bg::day_clock::local_day();
+	auto tomorrow = today + bg::date_duration(1);
+
+ 	ASSERT_THROW(idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-13"), tomorrow),
  			   Poco::AssertionViolationException);
  }
 
@@ -1050,7 +1054,12 @@ TEST_F(QuarterlyUnitTest, VerifyRejectsInvalidDates)
 
  TEST_F(QuarterlyUnitTest, VerifyRejectsFutureDates)
  {
- 	ASSERT_THROW(idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2018-10-13")), Poco::AssertionViolationException);
+	// let's make a date in the future
+
+	auto today = bg::day_clock::local_day();
+	auto tomorrow = today + bg::date_duration(1);
+
+ 	ASSERT_THROW(idxFileRet.MakeQuarterlyIndexPathName(tomorrow), Poco::AssertionViolationException);
  }
 
  TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenFirstDayInQuarter)
@@ -1143,7 +1152,12 @@ public:
 
  TEST_F(QuarterlyRetrieveMultipleFiles, VerifyRejectsFutureDates)
  {
- 	ASSERT_THROW(idxFileRet.MakeIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-13"), bg::from_simple_string("2018-10-18")),
+	// let's make a date in the future
+
+	auto today = bg::day_clock::local_day();
+	auto tomorrow = today + bg::date_duration(1);
+
+ 	ASSERT_THROW(idxFileRet.MakeIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-13"), tomorrow),
  			   Poco::AssertionViolationException);
  }
 
@@ -1314,7 +1328,7 @@ TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistTo
 // /* class TickerConverterStub : public TickerConverter */
 // /* { */
 // /* 	public: */
-// /* 		MOCK_METHOD1(EDGAR_CIK_Lookup, std::string(const std::string&)); */
+// /* 		MOCK_METHOD1(SEC_CIK_Lookup, std::string(const std::string&)); */
 // /* }; */
 //
 // /* //	NOTE: Google Mock needs mocked methods to be virtual !!  Disable this test */
@@ -1324,7 +1338,7 @@ TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistTo
 // /* { */
 // /* 	TickerConverterStub sym_stub; */
 // /* 	std::string apple{"AAPL"}; */
-// /* 	EXPECT_CALL(sym_stub, EDGAR_CIK_Lookup(apple)) */
+// /* 	EXPECT_CALL(sym_stub, SEC_CIK_Lookup(apple)) */
 // /* 		.WillOnce(Return("0000320193")); */
 //
 // /* 	decltype(auto) CIK = sym_stub.ConvertTickerToCIK(apple); */
@@ -1338,7 +1352,7 @@ TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistTo
 // /* { */
 // /* 	TickerConverterStub sym_stub; */
 // /* 	std::string apple{"AAPL"}; */
-// /* 	EXPECT_CALL(sym_stub, EDGAR_CIK_Lookup(_)) */
+// /* 	EXPECT_CALL(sym_stub, SEC_CIK_Lookup(_)) */
 // /* 		.Times(2) */
 // /* 		.WillOnce(Return("0000320193")) */
 // /* 		.WillOnce(Return("")); */
@@ -1358,10 +1372,10 @@ TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistTo
 // /* 	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL"); */
 // /* 	decltype(auto) CIK2 = sym.ConvertTickerToCIK("DHS"); */
 // /* 	decltype(auto) CIK3 = sym.ConvertTickerToCIK("GOOG"); */
-// /* 	sym.UseCacheFile("/tmp/EDGAR_Ticker_CIK.txt"); */
+// /* 	sym.UseCacheFile("/tmp/SEC_Ticker_CIK.txt"); */
 // /* 	sym.SaveCIKDataToFile(); */
 //
-// /* 	ASSERT_THAT(fs::file_size("/tmp/EDGAR_Ticker_CIK.txt"), Gt(0)); */
+// /* 	ASSERT_THAT(fs::file_size("/tmp/SEC_Ticker_CIK.txt"), Gt(0)); */
 //
 // /* } */
 //
@@ -1522,7 +1536,7 @@ int main(int argc, char** argv)
 
     int result = 0;
 
-	EDGAR_UnitTest the_app;
+	Collector_UnitTest the_app;
 	try
 	{
 		the_app.init(argc, argv);

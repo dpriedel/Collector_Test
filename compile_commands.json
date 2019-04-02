@@ -12,17 +12,17 @@
             "NOCERTTEST",
             "-D_DEBUG",
             "-fPIC",
-            "-I/home/dpriedel/projects/github/CollectEDGARData/src",
+            "-I/home/dpriedel/projects/github/Collector/src",
             "-I/usr/local/include",
-            "-I/extra/boost/boost-1.67_gcc-7",
+            "-I/extra/boost/boost-1.69_gcc-8",
             "-I/extra/gcc/cpp-json/include/",
             "-march=native",
             "-o",
-            "Debug_e2e/PathNameGenerator.o",
-            "../CollectEDGARData/src/PathNameGenerator.cpp"
+            "Debug_unit/DailyIndexFileRetriever.o",
+            "../Collector/src/DailyIndexFileRetriever.cpp"
         ],
         "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
-        "file": "../CollectEDGARData/src/PathNameGenerator.cpp"
+        "file": "../Collector/src/DailyIndexFileRetriever.cpp"
     },
     {
         "arguments": [
@@ -37,42 +37,17 @@
             "NOCERTTEST",
             "-D_DEBUG",
             "-fPIC",
-            "-I/home/dpriedel/projects/github/CollectEDGARData/src",
+            "-I/home/dpriedel/projects/github/Collector/src",
             "-I/usr/local/include",
-            "-I/extra/boost/boost-1.67_gcc-7",
-            "-I/extra/gcc/cpp-json/include/",
-            "-march=native",
-            "-o",
-            "Debug_e2e/HTTPS_Downloader.o",
-            "../CollectEDGARData/src/HTTPS_Downloader.cpp"
-        ],
-        "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
-        "file": "../CollectEDGARData/src/HTTPS_Downloader.cpp"
-    },
-    {
-        "arguments": [
-            "c++",
-            "-c",
-            "-x",
-            "c++",
-            "-O0",
-            "-g3",
-            "-std=c++17",
-            "-D",
-            "NOCERTTEST",
-            "-D_DEBUG",
-            "-fPIC",
-            "-I/home/dpriedel/projects/github/CollectEDGARData/src",
-            "-I/usr/local/include",
-            "-I/extra/boost/boost-1.67_gcc-7",
+            "-I/extra/boost/boost-1.69_gcc-8",
             "-I/extra/gcc/cpp-json/include/",
             "-march=native",
             "-o",
             "Debug_e2e/FormFileRetriever.o",
-            "../CollectEDGARData/src/FormFileRetriever.cpp"
+            "../Collector/src/FormFileRetriever.cpp"
         ],
         "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
-        "file": "../CollectEDGARData/src/FormFileRetriever.cpp"
+        "file": "../Collector/src/FormFileRetriever.cpp"
     },
     {
         "arguments": [
@@ -87,17 +62,17 @@
             "NOCERTTEST",
             "-D_DEBUG",
             "-fPIC",
-            "-I/home/dpriedel/projects/github/CollectEDGARData/src",
+            "-I/home/dpriedel/projects/github/Collector/src",
             "-I/usr/local/include",
-            "-I/extra/boost/boost-1.67_gcc-7",
+            "-I/extra/boost/boost-1.69_gcc-8",
             "-I/extra/gcc/cpp-json/include/",
             "-march=native",
             "-o",
-            "Debug_e2e/EndToEnd_Test.o",
-            "EndToEnd_Test.cpp"
+            "Debug_unit/TickerConverter.o",
+            "../Collector/src/TickerConverter.cpp"
         ],
         "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
-        "file": "EndToEnd_Test.cpp"
+        "file": "../Collector/src/TickerConverter.cpp"
     },
     {
         "arguments": [
@@ -112,9 +87,9 @@
             "NOCERTTEST",
             "-D_DEBUG",
             "-fPIC",
-            "-I/home/dpriedel/projects/github/CollectEDGARData/src",
+            "-I/home/dpriedel/projects/github/Collector/src",
             "-I/usr/local/include",
-            "-I/extra/boost/boost-1.67_gcc-7",
+            "-I/extra/boost/boost-1.69_gcc-8",
             "-I/extra/gcc/cpp-json/include/",
             "-march=native",
             "-o",
@@ -137,67 +112,17 @@
             "NOCERTTEST",
             "-D_DEBUG",
             "-fPIC",
-            "-I/home/dpriedel/projects/github/CollectEDGARData/src",
+            "-I/home/dpriedel/projects/github/Collector/src",
             "-I/usr/local/include",
-            "-I/extra/boost/boost-1.67_gcc-7",
-            "-I/extra/gcc/cpp-json/include/",
-            "-march=native",
-            "-o",
-            "Debug_e2e/TickerConverter.o",
-            "../CollectEDGARData/src/TickerConverter.cpp"
-        ],
-        "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
-        "file": "../CollectEDGARData/src/TickerConverter.cpp"
-    },
-    {
-        "arguments": [
-            "c++",
-            "-c",
-            "-x",
-            "c++",
-            "-O0",
-            "-g3",
-            "-std=c++17",
-            "-D",
-            "NOCERTTEST",
-            "-D_DEBUG",
-            "-fPIC",
-            "-I/home/dpriedel/projects/github/CollectEDGARData/src",
-            "-I/usr/local/include",
-            "-I/extra/boost/boost-1.67_gcc-7",
-            "-I/extra/gcc/cpp-json/include/",
-            "-march=native",
-            "-o",
-            "Debug_e2e/CollectEDGARApp.o",
-            "../CollectEDGARData/src/CollectEDGARApp.cpp"
-        ],
-        "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
-        "file": "../CollectEDGARData/src/CollectEDGARApp.cpp"
-    },
-    {
-        "arguments": [
-            "c++",
-            "-c",
-            "-x",
-            "c++",
-            "-O0",
-            "-g3",
-            "-std=c++17",
-            "-D",
-            "NOCERTTEST",
-            "-D_DEBUG",
-            "-fPIC",
-            "-I/home/dpriedel/projects/github/CollectEDGARData/src",
-            "-I/usr/local/include",
-            "-I/extra/boost/boost-1.67_gcc-7",
+            "-I/extra/boost/boost-1.69_gcc-8",
             "-I/extra/gcc/cpp-json/include/",
             "-march=native",
             "-o",
             "Debug_e2e/QuarterlyIndexFileRetriever.o",
-            "../CollectEDGARData/src/QuarterlyIndexFileRetriever.cpp"
+            "../Collector/src/QuarterlyIndexFileRetriever.cpp"
         ],
         "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
-        "file": "../CollectEDGARData/src/QuarterlyIndexFileRetriever.cpp"
+        "file": "../Collector/src/QuarterlyIndexFileRetriever.cpp"
     },
     {
         "arguments": [
@@ -212,16 +137,241 @@
             "NOCERTTEST",
             "-D_DEBUG",
             "-fPIC",
-            "-I/home/dpriedel/projects/github/CollectEDGARData/src",
+            "-I/home/dpriedel/projects/github/Collector/src",
             "-I/usr/local/include",
-            "-I/extra/boost/boost-1.67_gcc-7",
+            "-I/extra/boost/boost-1.69_gcc-8",
+            "-I/extra/gcc/cpp-json/include/",
+            "-march=native",
+            "-o",
+            "Debug_e2e/CollectEDGARApp.o",
+            "../Collector/src/CollectEDGARApp.cpp"
+        ],
+        "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
+        "file": "../Collector/src/CollectEDGARApp.cpp"
+    },
+    {
+        "arguments": [
+            "c++",
+            "-c",
+            "-x",
+            "c++",
+            "-O0",
+            "-g3",
+            "-std=c++17",
+            "-D",
+            "NOCERTTEST",
+            "-D_DEBUG",
+            "-fPIC",
+            "-I/home/dpriedel/projects/github/Collector/src",
+            "-I/usr/local/include",
+            "-I/extra/boost/boost-1.69_gcc-8",
+            "-I/extra/gcc/cpp-json/include/",
+            "-march=native",
+            "-o",
+            "Debug_e2e/PathNameGenerator.o",
+            "../Collector/src/PathNameGenerator.cpp"
+        ],
+        "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
+        "file": "../Collector/src/PathNameGenerator.cpp"
+    },
+    {
+        "arguments": [
+            "c++",
+            "-c",
+            "-x",
+            "c++",
+            "-O0",
+            "-g3",
+            "-std=c++17",
+            "-D",
+            "NOCERTTEST",
+            "-D_DEBUG",
+            "-fPIC",
+            "-I/home/dpriedel/projects/github/Collector/src",
+            "-I/usr/local/include",
+            "-I/extra/boost/boost-1.69_gcc-8",
+            "-I/extra/gcc/cpp-json/include/",
+            "-march=native",
+            "-o",
+            "Debug_e2e/HTTPS_Downloader.o",
+            "../Collector/src/HTTPS_Downloader.cpp"
+        ],
+        "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
+        "file": "../Collector/src/HTTPS_Downloader.cpp"
+    },
+    {
+        "arguments": [
+            "c++",
+            "-c",
+            "-x",
+            "c++",
+            "-O0",
+            "-g3",
+            "-std=c++17",
+            "-D",
+            "NOCERTTEST",
+            "-D_DEBUG",
+            "-fPIC",
+            "-I/home/dpriedel/projects/github/Collector/src",
+            "-I/usr/local/include",
+            "-I/extra/boost/boost-1.69_gcc-8",
+            "-I/extra/gcc/cpp-json/include/",
+            "-march=native",
+            "-o",
+            "Debug_unit/HTTPS_Downloader.o",
+            "../Collector/src/HTTPS_Downloader.cpp"
+        ],
+        "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
+        "file": "../Collector/src/HTTPS_Downloader.cpp"
+    },
+    {
+        "arguments": [
+            "c++",
+            "-c",
+            "-x",
+            "c++",
+            "-O0",
+            "-g3",
+            "-std=c++17",
+            "-D",
+            "NOCERTTEST",
+            "-D_DEBUG",
+            "-fPIC",
+            "-I/home/dpriedel/projects/github/Collector/src",
+            "-I/usr/local/include",
+            "-I/extra/boost/boost-1.69_gcc-8",
+            "-I/extra/gcc/cpp-json/include/",
+            "-march=native",
+            "-o",
+            "Debug_e2e/EndToEnd_Test.o",
+            "EndToEnd_Test.cpp"
+        ],
+        "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
+        "file": "EndToEnd_Test.cpp"
+    },
+    {
+        "arguments": [
+            "c++",
+            "-c",
+            "-x",
+            "c++",
+            "-O0",
+            "-g3",
+            "-std=c++17",
+            "-D",
+            "NOCERTTEST",
+            "-D_DEBUG",
+            "-fPIC",
+            "-I/home/dpriedel/projects/github/Collector/src",
+            "-I/usr/local/include",
+            "-I/extra/boost/boost-1.69_gcc-8",
+            "-I/extra/gcc/cpp-json/include/",
+            "-march=native",
+            "-o",
+            "Debug_e2e/TickerConverter.o",
+            "../Collector/src/TickerConverter.cpp"
+        ],
+        "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
+        "file": "../Collector/src/TickerConverter.cpp"
+    },
+    {
+        "arguments": [
+            "c++",
+            "-c",
+            "-x",
+            "c++",
+            "-O0",
+            "-g3",
+            "-std=c++17",
+            "-D",
+            "NOCERTTEST",
+            "-D_DEBUG",
+            "-fPIC",
+            "-I/home/dpriedel/projects/github/Collector/src",
+            "-I/usr/local/include",
+            "-I/extra/boost/boost-1.69_gcc-8",
+            "-I/extra/gcc/cpp-json/include/",
+            "-march=native",
+            "-o",
+            "Debug_unit/QuarterlyIndexFileRetriever.o",
+            "../Collector/src/QuarterlyIndexFileRetriever.cpp"
+        ],
+        "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
+        "file": "../Collector/src/QuarterlyIndexFileRetriever.cpp"
+    },
+    {
+        "arguments": [
+            "c++",
+            "-c",
+            "-x",
+            "c++",
+            "-O0",
+            "-g3",
+            "-std=c++17",
+            "-D",
+            "NOCERTTEST",
+            "-D_DEBUG",
+            "-fPIC",
+            "-I/home/dpriedel/projects/github/Collector/src",
+            "-I/usr/local/include",
+            "-I/extra/boost/boost-1.69_gcc-8",
+            "-I/extra/gcc/cpp-json/include/",
+            "-march=native",
+            "-o",
+            "Debug_unit/FormFileRetriever.o",
+            "../Collector/src/FormFileRetriever.cpp"
+        ],
+        "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
+        "file": "../Collector/src/FormFileRetriever.cpp"
+    },
+    {
+        "arguments": [
+            "c++",
+            "-c",
+            "-x",
+            "c++",
+            "-O0",
+            "-g3",
+            "-std=c++17",
+            "-D",
+            "NOCERTTEST",
+            "-D_DEBUG",
+            "-fPIC",
+            "-I/home/dpriedel/projects/github/Collector/src",
+            "-I/usr/local/include",
+            "-I/extra/boost/boost-1.69_gcc-8",
             "-I/extra/gcc/cpp-json/include/",
             "-march=native",
             "-o",
             "Debug_e2e/DailyIndexFileRetriever.o",
-            "../CollectEDGARData/src/DailyIndexFileRetriever.cpp"
+            "../Collector/src/DailyIndexFileRetriever.cpp"
         ],
         "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
-        "file": "../CollectEDGARData/src/DailyIndexFileRetriever.cpp"
+        "file": "../Collector/src/DailyIndexFileRetriever.cpp"
+    },
+    {
+        "arguments": [
+            "c++",
+            "-c",
+            "-x",
+            "c++",
+            "-O0",
+            "-g3",
+            "-std=c++17",
+            "-D",
+            "NOCERTTEST",
+            "-D_DEBUG",
+            "-fPIC",
+            "-I/home/dpriedel/projects/github/Collector/src",
+            "-I/usr/local/include",
+            "-I/extra/boost/boost-1.69_gcc-8",
+            "-I/extra/gcc/cpp-json/include/",
+            "-march=native",
+            "-o",
+            "Debug_unit/PathNameGenerator.o",
+            "../Collector/src/PathNameGenerator.cpp"
+        ],
+        "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
+        "file": "../Collector/src/PathNameGenerator.cpp"
     }
 ]

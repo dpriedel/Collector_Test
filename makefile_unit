@@ -1,17 +1,17 @@
-# This file is part of CollectEDGARData.
+# This file is part of CollectorApp.
 
-# CollectEDGARData is free software: you can redistribute it and/or modify
+# CollectorApp is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 
-# CollectEDGARData is distributed in the hope that it will be useful,
+# CollectorApp is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with CollectEDGARData.  If not, see <http://www.gnu.org/licenses/>.
+# along with CollectorApp.  If not, see <http://www.gnu.org/licenses/>.
 
 # see link below for make file dependency magic
 #
@@ -19,8 +19,8 @@
 #
 MAKE=gmake
 
-BOOSTDIR := /extra/boost/boost-1.67_gcc-7
-GCCDIR := /extra/gcc/gcc-7
+BOOSTDIR := /extra/boost/boost-1.69_gcc-8
+GCCDIR := /extra/gcc/gcc-8
 GTESTDIR := /usr/local/include
 CPP := $(GCCDIR)/bin/g++
 
@@ -33,7 +33,7 @@ endif
 
 OUTFILE := Unit_Test
 
-CFG_INC := -I/home/dpriedel/projects/github/CollectEDGARData/src \
+CFG_INC := -I/home/dpriedel/projects/github/Collector/src \
 		-I$(GTESTDIR) -I$(BOOSTDIR) -I/extra/gcc/cpp-json/include/
 
 RPATH_LIB := -Wl,-rpath,$(GCCDIR)/lib64 -Wl,-rpath,$(BOOSTDIR)/lib -Wl,-rpath,/usr/local/lib
@@ -41,7 +41,7 @@ RPATH_LIB := -Wl,-rpath,$(GCCDIR)/lib64 -Wl,-rpath,$(BOOSTDIR)/lib -Wl,-rpath,/u
 SDIR1 := .
 SRCS1 := $(SDIR1)/Unit_Test.cpp
 
-SDIR2 := ../CollectEDGARData/src
+SDIR2 := ../Collector/src
 SRCS2 := $(SDIR2)/HTTPS_Downloader.cpp \
 		$(SDIR2)/QuarterlyIndexFileRetriever.cpp \
 		$(SDIR2)/TickerConverter.cpp \
@@ -61,7 +61,7 @@ ifeq "$(CFG)" "Debug"
 OUTDIR := Debug_unit
 
 CFG_LIB := -lpthread -lstdc++fs -L$(BOOSTDIR)/lib \
-		-lboost_date_time-mt-d -lboost_iostreams-mt-d \
+		-lboost_date_time-mt-d-x64 -lboost_iostreams-mt-d-x64 \
 		-L/usr/local/lib -lPocoNetSSLd -lPocoNetd -lPocoFoundationd -lPocoUtild -lPocoZipd \
 		-L/usr/local/lib -lgmock -lgmock_main -lgtest
 

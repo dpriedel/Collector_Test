@@ -41,7 +41,7 @@
 #include <string>
 #include <chrono>
 #include <thread>
-#include <experimental/filesystem>
+#include <filesystem>
 
 // #include <boost/filesystem.hpp>
 // #include <boost/program_options/parsers.hpp>
@@ -52,14 +52,14 @@
 #include "DailyIndexFileRetriever.h"
 #include "FormFileRetriever.h"
 
-#include "CollectEDGARApp.h"
+#include "CollectorApp.h"
 
-//	need these to feed into CollectEDGARApp.
+//	need these to feed into CollectorApp.
 
 int G_ARGC = 0;
 char** G_ARGV = nullptr;
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 // namespace po = boost::program_options;
 
 using namespace testing;
@@ -151,7 +151,7 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
         "--log-level", "debug"
 	};
 
-    CollectEDGARApp myApp;
+    CollectorApp myApp;
 	try
 	{
         myApp.init(tokens);
@@ -195,7 +195,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
         "--host", "https://localhost:8443",
 		"--index-only"
 	};
-    CollectEDGARApp myApp;
+    CollectorApp myApp;
 	try
 	{
         myApp.init(tokens);
@@ -239,7 +239,7 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 		"--end-date", "2013-Oct-17"
 	};
 
-    CollectEDGARApp myApp;
+    CollectorApp myApp;
 	try
 	{
         myApp.init(tokens);
@@ -277,7 +277,7 @@ TEST(DailyEndToEndTest, VerifyExceptionsThrownWhenDiskIsFull)
 		"--end-date", "2013-Oct-17"
 	};
 
-    CollectEDGARApp myApp;
+    CollectorApp myApp;
 	try
 	{
         myApp.init(tokens);
@@ -321,7 +321,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 		"--index-only"
 	};
 
-    CollectEDGARApp myApp;
+    CollectorApp myApp;
 	try
 	{
         myApp.init(tokens);
@@ -351,14 +351,14 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 // 	fs::remove_all("/tmp/forms2");
 // 	fs::create_directory("/tmp/forms2");
 //
-// 	std::string command_line{"CollectEDGARApp --index-dir /tmp/index2 --form-dir /tmp/forms1 "
+// 	std::string command_line{"CollectorApp --index-dir /tmp/index2 --form-dir /tmp/forms1 "
 //         "--host localhost "
 // 		"--login aaa@bbb.com "
 // 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 --index-only"};
 // 	//std::string command_line{"the_program --index-dir /tmp"};
 // 	std::vector<std::string> tokens =  po::split_unix(command_line);
 //
-// 	CollectEDGARApp myApp;
+// 	CollectorApp myApp;
 //     myApp.init(tokens);
 //
 // 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
@@ -381,7 +381,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 // 	fs::remove_all("/tmp/forms1");
 // 	fs::create_directory("/tmp/forms1");
 //
-// 	std::string command_line{"CollectEDGARApp --index-dir /tmp/index2 --form-dir /tmp/forms1 "
+// 	std::string command_line{"CollectorApp --index-dir /tmp/index2 --form-dir /tmp/forms1 "
 //         "--host localhost "
 // 		"--login aaa@bbb.com "
 // 		"--begin-date 2013-Oct-14 --end-date 2013-Oct-17 "
@@ -389,7 +389,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 // 	//std::string command_line{"the_program --index-dir /tmp"};
 // 	std::vector<std::string> tokens =  po::split_unix(command_line);
 //
-// 	CollectEDGARApp myApp;
+// 	CollectorApp myApp;
 //     myApp.init(tokens);
 //
 // 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
@@ -422,7 +422,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 // 	//std::string command_line{"the_program --index-dir /tmp"};
 // 	std::vector<std::string> tokens =  po::split_unix(command_line);
 //
-// 	CollectEDGARApp myApp;
+// 	CollectorApp myApp;
 //     myApp.init(tokens);
 //
 // 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
@@ -459,7 +459,7 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
 		"--replace-form-files"
 	};
 
-	CollectEDGARApp myApp;
+	CollectorApp myApp;
     myApp.init(tokens);
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
@@ -499,7 +499,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 		"--mode", "quarterly"
 	};
 
-	CollectEDGARApp myApp;
+	CollectorApp myApp;
     myApp.init(tokens);
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
@@ -524,7 +524,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 // 	//std::string command_line{"the_program --index-dir /tmp"};
 // 	std::vector<std::string> tokens =  po::split_unix(command_line);
 //
-// 	CollectEDGARApp myApp;
+// 	CollectorApp myApp;
 //     myApp.init(tokens);
 //
 // 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
@@ -551,7 +551,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 // 	//std::string command_line{"the_program --index-dir /tmp"};
 // 	std::vector<std::string> tokens =  po::split_unix(command_line);
 //
-// 	CollectEDGARApp myApp;
+// 	CollectorApp myApp;
 //     myApp.init(tokens);
 //
 // 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
@@ -583,7 +583,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 		"--mode", "quarterly"
 	};
 
-    CollectEDGARApp myApp;
+    CollectorApp myApp;
 	try
 	{
         myApp.init(tokens);
@@ -626,7 +626,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 // 	//std::string command_line{"the_program --index-dir /tmp"};
 // 	std::vector<std::string> tokens =  po::split_unix(command_line);
 //
-//     CollectEDGARApp myApp;
+//     CollectorApp myApp;
 // 	try
 // 	{
 //         myApp.init(tokens);
@@ -660,7 +660,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 		"--ticker-cache", "/tmp/ticker_to_CIK"
 	};
 
-    CollectEDGARApp myApp;
+    CollectorApp myApp;
 	try
 	{
         myApp.init(tokens);
@@ -695,7 +695,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 // 	//std::string command_line{"the_program --index-dir /tmp"};
 // 	std::vector<std::string> tokens =  po::split_unix(command_line);
 //
-//     CollectEDGARApp myApp;
+//     CollectorApp myApp;
 // 	try
 // 	{
 //         myApp.init(tokens);
@@ -735,7 +735,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 // 	//std::string command_line{"the_program --index-dir /tmp"};
 // 	std::vector<std::string> tokens =  po::split_unix(command_line);
 //
-//     CollectEDGARApp myApp;
+//     CollectorApp myApp;
 // 	try
 // 	{
 //         myApp.init(tokens);
@@ -776,7 +776,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 // 	//std::string command_line{"the_program --index-dir /tmp"};
 // 	std::vector<std::string> tokens =  po::split_unix(command_line);
 //
-//     CollectEDGARApp myApp;
+//     CollectorApp myApp;
 // 	try
 // 	{
 //         myApp.init(tokens);
@@ -820,7 +820,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 // 	//std::string command_line{"the_program --index-dir /tmp"};
 // 	std::vector<std::string> tokens =  po::split_unix(command_line);
 //
-//     CollectEDGARApp myApp;
+//     CollectorApp myApp;
 // 	try
 // 	{
 //         myApp.init(tokens);
@@ -867,7 +867,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 		"--form", "4"
     };
 
-    CollectEDGARApp myApp;
+    CollectorApp myApp;
 	try
 	{
         myApp.init(tokens);
@@ -912,7 +912,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 // 	//std::string command_line{"the_program --index-dir /tmp"};
 // 	std::vector<std::string> tokens =  po::split_unix(command_line);
 //
-//     CollectEDGARApp myApp;
+//     CollectorApp myApp;
 // 	try
 // 	{
 //         myApp.init(tokens);
@@ -954,7 +954,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 // 	//std::string command_line{"the_program --index-dir /tmp"};
 // 	std::vector<std::string> tokens =  po::split_unix(command_line);
 //
-//     CollectEDGARApp myApp;
+//     CollectorApp myApp;
 // 	try
 // 	{
 //         myApp.init(tokens);
