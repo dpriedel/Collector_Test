@@ -147,7 +147,8 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 		"--index-dir", "/tmp",
 		"--begin-date", "2013-Oct-14",
 		"--form-dir", "/tmp/forms",
-        "--host",  "https://localhost:8443",
+        "--host",  "localhost",
+        "--port",  "8443",
         "--log-level", "debug"
 	};
 
@@ -192,7 +193,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 	 	"--index-dir", "/tmp",
 		"--begin-date", "2013-Oct-14",
 		"--form-dir", "/tmp/forms",
-        "--host", "https://localhost:8443",
+        "--host", "localhost",
 		"--index-only"
 	};
     CollectorApp myApp;
@@ -233,7 +234,8 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 	std::vector<std::string> tokens{"the_program",
 	 	"--index-dir", "/tmp/index1",
 		"--form-dir", "/tmp/forms1",
-        "--host", "https://localhost:8443",
+        "--host", "localhost",
+        "--port",  "8443",
         "--max", "17",
 		"--begin-date", "2013-Oct-14",
 		"--end-date", "2013-Oct-17"
@@ -271,7 +273,7 @@ TEST(DailyEndToEndTest, VerifyExceptionsThrownWhenDiskIsFull)
 	std::vector<std::string> tokens{"the_program",
 	 	"--index-dir", "/tmp/ofstream_test/test_2",
 		"--index-only",
-        "--host", "https://localhost:8443",
+        "--host", "localhost",
         "--max", "17",
 		"--begin-date", "2013-Oct-14",
 		"--end-date", "2013-Oct-17"
@@ -315,7 +317,8 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 	std::vector<std::string> tokens{"the_program",
 		"--index-dir", "/tmp/index1",
 		"--form-dir", "/tmp/forms1",
-        "--host", "https://localhost:8443",
+        "--host", "localhost",
+        "--port",  "8443",
 		"--begin-date", "2013-Oct-14",
 		"--end-date", "2013-Oct-17",
 		"--index-only"
@@ -453,7 +456,8 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
 	std::vector<std::string> tokens{"the_program",
 		"--index-dir", "/tmp/index2",
 		"--form-dir", "/tmp/forms2",
-        "--host", "https://localhost:8443",
+        "--host", "localhost",
+        "--port",  "8443",
 		"--begin-date", "2013-Oct-14",
 		"--end-date", "2013-Oct-17",
 		"--replace-form-files"
@@ -493,7 +497,8 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 
 	std::vector<std::string> tokens{"the_program",
 		"--index-dir", "/tmp/index3",
-        "--host", "https://localhost:8443",
+        "--host", "localhost",
+        "--port",  "8443",
 		"--begin-date", "2000-Jan-01",
 		"--index-only",
 		"--mode", "quarterly"
@@ -576,7 +581,8 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 		"--index-dir", "/tmp/index5",
 		"--form-dir", "/tmp/forms5",
         "--max", "10",
-        "--host", "https://www.sec.gov",
+        "--host", "www.sec.gov",
+        "--port",  "443",
 		"--log-level", "debug",
 		"--begin-date", "2009-Sep-01",
 		"--end-date", "2010-Oct-04",
@@ -858,7 +864,8 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 	std::vector<std::string> tokens{"the_program",
         "--index-dir", "/tmp/index9",
         "--form-dir", "/tmp/forms9",
-        "--host", "https://localhost:8443",
+        "--host", "localhost",
+        "--port",  "8443",
 		"--end-date", "2013-Oct-17",
 		"--begin-date", "2013-Oct-09",
 		"--ticker", "AAPL",
