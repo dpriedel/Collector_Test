@@ -218,6 +218,31 @@
             "-I/extra/gcc/cpp-json/include/",
             "-march=native",
             "-o",
+            "Debug_e2e/Collector_Utils.o",
+            "../Collector/src/Collector_Utils.cpp"
+        ],
+        "directory": "/home/dpriedel/projects/github/CollectEDGARData_Test",
+        "file": "../Collector/src/Collector_Utils.cpp"
+    },
+    {
+        "arguments": [
+            "c++",
+            "-c",
+            "-x",
+            "c++",
+            "-O0",
+            "-g3",
+            "-std=c++17",
+            "-D",
+            "NOCERTTEST",
+            "-D_DEBUG",
+            "-fPIC",
+            "-I/home/dpriedel/projects/github/Collector/src",
+            "-I/usr/local/include",
+            "-I/extra/boost/boost-1.70_gcc-8",
+            "-I/extra/gcc/cpp-json/include/",
+            "-march=native",
+            "-o",
             "Debug_unit/HTTPS_Downloader.o",
             "../Collector/src/HTTPS_Downloader.cpp"
         ],
