@@ -60,6 +60,7 @@ OUTDIR=Debug_e2e
 
 CFG_LIB := -lpthread -lstdc++fs -lssl -lcrypto -lzip -L$(BOOSTDIR)/lib \
 		-lboost_date_time-mt-d-x64 -lboost_iostreams-mt-d-x64 \
+		-lboost_regex-mt-d-x64 \
 		-L/usr/local/lib -lPocoFoundationd -lPocoUtild \
 		-L/usr/local/lib -lgmock -lgmock_main -lgtest
 

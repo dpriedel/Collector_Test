@@ -526,8 +526,7 @@ class RetrieverUnitTest : public Test
 {
 public:
 
-	HTTPS_Downloader a_server{"localhost", "8443"};
-	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index"};
+	DailyIndexFileRetriever idxFileRet{"localhost", "8443", "/Archives/edgar/daily-index"};
 };
 
 TEST_F(RetrieverUnitTest, VerifyRejectsInvalidDates)
@@ -661,9 +660,7 @@ TEST_F(RetrieverUnitTest, TestHierarchicalRetrieveIndexFileDoesReplaceWhenReplac
 class ParserUnitTest : public Test
 {
 public:
-	HTTPS_Downloader a_server{"localhost", "8443"};
-	/* FTP_Server a_server{"ftp.sec.gov", "anonymous", "aaa@bbb.net"}; */
-	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index"};
+	DailyIndexFileRetriever idxFileRet{"localhost", "8443", "/Archives/edgar/daily-index"};
 };
 
 //	The following block of tests relate to working with the Index file located above.
@@ -676,7 +673,7 @@ TEST_F(ParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFile)
 	decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
 	auto local_daily_index_file_name = idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{"localhost", "8443"};
 	std::vector<std::string> forms_list{"10-Q"};
 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(25));
@@ -694,7 +691,7 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesListedInIndexFile)
 	decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
 	auto local_daily_index_file_name = idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{"localhost", "8443"};
 	std::vector<std::string> forms_list{"10-Q"};
 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
 
@@ -713,7 +710,7 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName)
 	decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
 	auto local_daily_index_file_name = idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{"localhost", "8443"};
 	std::vector<std::string> forms_list{"10-Q/A"};
 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
 
@@ -732,7 +729,7 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName)
  	decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
  	auto local_daily_index_file_name = idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{"localhost", "8443"};
  	std::vector<std::string> forms_list{"10-Q"};
  	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
 
@@ -758,7 +755,7 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName)
  	decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
  	auto local_daily_index_file_name = idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{"localhost", "8443"};
  	std::vector<std::string> forms_list{"10-Q"};
  	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
 
@@ -783,7 +780,7 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName)
  	auto local_index_files = idxFileRet.CopyIndexFilesForDateRangeTo(results, "/tmp/downloaded_p");
  // 	decltype(auto) index_file_list = idxFileRet.GetfRemoteIndexFileNamesForDateRange();
 
-    FormFileRetriever form_file_getter{a_server};
+    FormFileRetriever form_file_getter{"localhost", "8443"};
  	std::vector<std::string> forms_list{"10-Q"};
  	decltype(auto) form_file_list = form_file_getter.FindFilesForForms(forms_list, local_index_files);
 
@@ -795,7 +792,7 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName)
  {
  public:
 	HTTPS_Downloader a_server{"localhost", "8443"};
-	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index"};
+	DailyIndexFileRetriever idxFileRet{"localhost", "8443", "/Archives/edgar/daily-index"};
  };
 
  TEST_F(RetrieverMultipleDailies, VerifyRejectsFutureDates)
@@ -884,8 +881,7 @@ TEST_F(RetrieverMultipleDailies, VerifyDownloadOfIndexFilesForDateRangeDoesRepla
  class ConcurrentlyRetrieveMultipleDailies : public Test
  {
  public:
-	HTTPS_Downloader a_server{"localhost", "8443"};
-	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index"};
+	DailyIndexFileRetriever idxFileRet{"localhost", "8443", "/Archives/edgar/daily-index"};
  };
 
  TEST_F(ConcurrentlyRetrieveMultipleDailies, VerifyDownloadsCorrectNumberOfIndexFilesForDateRange)
@@ -927,7 +923,7 @@ TEST_F(ConcurrentlyRetrieveMultipleDailies, VerifyDownloadOfFormFilesListedInInd
 	decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
 	auto local_daily_index_file_name = idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{"localhost", "8443"};
 	std::vector<std::string> forms_list{"10-Q"};
 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
 
@@ -946,7 +942,7 @@ TEST_F(ConcurrentlyRetrieveMultipleDailies, VerifyDownloadOfFormFilesListedInInd
  	decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(bg::from_simple_string("2013-10-10"));
  	auto local_daily_index_file_name = idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{"localhost", "8443"};
  	std::vector<std::string> forms_list{"10-Q"};
  	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_daily_index_file_name);
 
@@ -976,7 +972,7 @@ TEST_F(ConcurrentlyRetrieveMultipleDailies, VerifyDownloadOfFormFilesListedInInd
  	decltype(auto) remote_index_files2 = idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-14"), bg::from_simple_string("2013-10-17"));
  	auto index_files2 = idxFileRet.HierarchicalCopyIndexFilesForDateRangeTo(remote_index_files2, "/tmp/index2");
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{"localhost", "8443"};
  	std::vector<std::string> forms_list2{"10-Q"};
  	decltype(auto) remote_form_file_list2 = form_file_getter.FindFilesForForms(forms_list2, index_files2);
 
@@ -996,7 +992,7 @@ TEST_F(ConcurrentlyRetrieveMultipleDailies, VerifyDownloadOfFormFilesListedInInd
  	decltype(auto) remote_index_files4 = idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-14"), bg::from_simple_string("2013-10-17"));
  	auto index_files4 = idxFileRet.ConcurrentlyHierarchicalCopyIndexFilesForDateRangeTo(remote_index_files4, "/tmp/index4", 2);
 
-	FormFileRetriever form_file_getter4{a_server};
+	FormFileRetriever form_file_getter4{"localhost", "8443"};
  	std::vector<std::string> forms_list4{"10-Q"};
  	decltype(auto) remote_form_file_list4 = form_file_getter4.FindFilesForForms(forms_list4, index_files4);
 
@@ -1017,7 +1013,7 @@ class ConcurrentlyRetrieveMultipleQuarterlyFiles : public Test
 {
 public:
 	HTTPS_Downloader a_server{"localhost", "8443"};
-	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
+	QuarterlyIndexFileRetriever idxFileRet{"localhost", "8443", "/Archives/edgar/full-index"};
 };
 
  TEST_F(ConcurrentlyRetrieveMultipleQuarterlyFiles, VerifyDownloadsCorrectNumberOfIndexFilesForDateRange)
@@ -1036,7 +1032,7 @@ class QuarterlyUnitTest : public Test
 {
 public:
 	HTTPS_Downloader a_server{"localhost", "8443"};
-	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
+	QuarterlyIndexFileRetriever idxFileRet{"localhost", "8443", "/Archives/edgar/full-index"};
 };
 
 TEST_F(QuarterlyUnitTest, VerifyRejectsInvalidDates)
@@ -1051,7 +1047,7 @@ TEST_F(QuarterlyUnitTest, VerifyRejectsInvalidDates)
 	auto today = bg::day_clock::local_day();
 	auto tomorrow = today + bg::date_duration(1);
 
- 	ASSERT_THROW(idxFileRet.MakeQuarterlyIndexPathName(tomorrow), Poco::AssertionViolationException);
+ 	ASSERT_THROW(idxFileRet.MakeQuarterlyIndexPathName(tomorrow), Collector::AssertionException);
  }
 
  TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenFirstDayInQuarter)
@@ -1138,8 +1134,7 @@ TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFile)
 class QuarterlyRetrieveMultipleFiles : public Test
 {
 public:
-	HTTPS_Downloader a_server{"localhost", "8443"};
-	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
+	QuarterlyIndexFileRetriever idxFileRet{"localhost", "8443", "/Archives/edgar/full-index"};
 };
 
  TEST_F(QuarterlyRetrieveMultipleFiles, VerifyRejectsFutureDates)
@@ -1150,7 +1145,7 @@ public:
 	auto tomorrow = today + bg::date_duration(1);
 
  	ASSERT_THROW(idxFileRet.MakeIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-13"), tomorrow),
- 			   Poco::AssertionViolationException);
+ 			   Collector::AssertionException);
  }
 
 TEST_F(QuarterlyRetrieveMultipleFiles, VerifyFindsCorrectNumberOfIndexFilesInRange)
@@ -1207,8 +1202,7 @@ TEST_F(QuarterlyRetrieveMultipleFiles, VerifyFindsCorrectNumberOfIndexFilesInRan
 class QuarterlyParserUnitTest : public Test
 {
 public:
-	HTTPS_Downloader a_server{"localhost", "8443"};
-	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
+	QuarterlyIndexFileRetriever idxFileRet{"localhost", "8443", "/Archives/edgar/full-index"};
 };
 
 
@@ -1220,7 +1214,7 @@ TEST_F(QuarterlyParserUnitTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIn
 	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2002-01-01"));
 	auto local_quarterly_index_file_name = idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp");
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{"localhost", "8443"};
 	std::vector<std::string> forms_list{"10-Q"};
 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_quarterly_index_file_name);
 
@@ -1242,7 +1236,7 @@ TEST_F(QuarterlyParserUnitTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIn
  	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2009-10-10"));
 	auto local_quarterly_index_file_name = idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp");
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{"localhost", "8443"};
  	std::vector<std::string> forms_list{"10-Q"};
  	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_quarterly_index_file_name);
 
@@ -1292,7 +1286,7 @@ public:
 
 TEST_F(TickerLookupUnitTest, VerifyConvertsSingleTickerThatExistsToCIK)
 {
-	TickerConverter sym{*THE_LOGGER};
+	TickerConverter sym;
 	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL");
 
 	ASSERT_THAT(CIK == "0000320193", Eq(true));
@@ -1301,7 +1295,7 @@ TEST_F(TickerLookupUnitTest, VerifyConvertsSingleTickerThatExistsToCIK)
 
  TEST_F(TickerLookupUnitTest, DISABLED_VerifyConvertsFileOfTickersToCIKs)
  {
-	TickerConverter sym{*THE_LOGGER};
+	TickerConverter sym;
  	decltype(auto) CIKs = sym.ConvertTickerFileToCIKs("./test_tickers_file", 1);
 
  	ASSERT_THAT(CIKs, Eq(50));
@@ -1310,7 +1304,7 @@ TEST_F(TickerLookupUnitTest, VerifyConvertsSingleTickerThatExistsToCIK)
 
 TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistToCIK)
 {
-	TickerConverter sym{*THE_LOGGER};
+	TickerConverter sym;
 	decltype(auto) CIK = sym.ConvertTickerToCIK("DHS");
 
 	ASSERT_THAT(CIK == "**no_CIK_found**", Eq(true));
@@ -1375,8 +1369,7 @@ TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistTo
 class QuarterlyParserFilterTest : public Test
 {
 public:
-	HTTPS_Downloader a_server{"localhost", "8443"};
-	QuarterlyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/full-index", *THE_LOGGER};
+	QuarterlyIndexFileRetriever idxFileRet{"localhost", "8443", "/Archives/edgar/full-index"};
 };
 
 TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileForTicker)
@@ -1387,12 +1380,12 @@ TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterly
 	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2009-09-10"));
 	auto local_quarterly_index_file_name = idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp");
 
-	TickerConverter sym{*THE_LOGGER};
+	TickerConverter sym;
 	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL");
 	std::map<std::string, std::string> ticker_map;
 	ticker_map["AAPL"] = CIK;
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{"localhost", "8443"};
 	std::vector<std::string> forms_list{"10-Q"};
 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_quarterly_index_file_name, ticker_map);
 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(1));
@@ -1407,14 +1400,14 @@ TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterly
 	decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(bg::from_simple_string("2013-09-10"));
 	auto local_quarterly_index_file_name = idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp");
 
-	TickerConverter sym{*THE_LOGGER};
+	TickerConverter sym;
 	std::map<std::string, std::string> ticker_map{
 		{"AAPL", sym.ConvertTickerToCIK("AAPL")},
 		{"DHS", sym.ConvertTickerToCIK("DHS")},
 		{"GOOG", "1288776"},
 	};
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{"localhost", "8443"};
 	std::vector<std::string> forms_list{"10-Q", "10-MQ"};
 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_quarterly_index_file_name, ticker_map);
 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(2));
@@ -1442,8 +1435,7 @@ TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterly
 class MultipleFormsParserUnitTest : public Test
 {
 public:
-	HTTPS_Downloader a_server{"localhost", "8443"};
-	DailyIndexFileRetriever idxFileRet{a_server, "/Archives/edgar/daily-index"};
+	DailyIndexFileRetriever idxFileRet{"localhost", "8443", "/Archives/edgar/daily-index"};
 };
 
 // //	The following block of tests relate to working with the Index file located above.
@@ -1471,7 +1463,7 @@ TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFi
 	auto index_file_list = idxFileRet.FindRemoteIndexFileNamesForDateRange(bg::from_simple_string("2013-Oct-14"), bg::from_simple_string("2013-10-20"));
 	auto local_index_files = idxFileRet.CopyIndexFilesForDateRangeTo(index_file_list, "/tmp/daily_index1");
 
-	FormFileRetriever form_file_getter{a_server};
+	FormFileRetriever form_file_getter{"localhost", "8443"};
 	std::vector<std::string> forms_list{"4", "10-K", "10-Q", "10-MQ"};
 
 	decltype(auto) file_list = form_file_getter.FindFilesForForms(forms_list, local_index_files);
