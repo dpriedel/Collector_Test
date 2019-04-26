@@ -64,7 +64,6 @@ OUTDIR := Debug_unit
 CFG_LIB := -lpthread -lssl -lcrypto -lstdc++fs -lzip -L$(BOOSTDIR)/lib \
 		-lboost_date_time-mt-d-x64 -lboost_iostreams-mt-d-x64 \
 		-lboost_regex-mt-d-x64 \
-		-L/usr/local/lib -lPocoFoundationd -lPocoUtild \
 		-L/usr/local/lib -lgmock -lgmock_main -lgtest
 
 OBJS1=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS1)))))

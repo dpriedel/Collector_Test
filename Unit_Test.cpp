@@ -1513,31 +1513,26 @@ TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFi
 // /* } */
 
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  InitLogging
+ *  Description:  
+ * =====================================================================================
+ */
+void InitLogging ()
+{
+//    logging::core::get()->set_filter
+//    (
+//        logging::trivial::severity >= logging::trivial::trace
+//    );
+}		/* -----  end of function InitLogging  ----- */
+
 int main(int argc, char** argv)
 {
-	G_ARGC = argc;
-	G_ARGV = argv;
 
-    int result = 0;
+    InitLogging();
 
-	Collector_UnitTest the_app;
-	try
-	{
-		the_app.init(argc, argv);
-
-        THE_LOGGER = &Poco::Logger::get("TestLogger");
-        AutoPtr<Poco::Channel> pChannel(new Poco::ConsoleChannel);
-        // pChannel->setProperty("path", "/tmp/Testing.log");
-        THE_LOGGER->setChannel(pChannel);
-        THE_LOGGER->setLevel(Poco::Message::PRIO_DEBUG);
-
-    	result = the_app.run();
-	}
-	catch (Poco::Exception& exc)
-	{
-		the_app.logger().log(exc);
-		result =  Application::EXIT_CONFIG;
-	}
-
-    return result;
+    InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
+

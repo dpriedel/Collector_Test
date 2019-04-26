@@ -15,20 +15,20 @@
 //
 // =====================================================================================
 
-	/* This file is part of CollectEDGARData. */
+	/* This file is part of CollectorData. */
 
-	/* CollectEDGARData is free software: you can redistribute it and/or modify */
+	/* CollectorData is free software: you can redistribute it and/or modify */
 	/* it under the terms of the GNU General Public License as published by */
 	/* the Free Software Foundation, either version 3 of the License, or */
 	/* (at your option) any later version. */
 
-	/* CollectEDGARData is distributed in the hope that it will be useful, */
+	/* CollectorData is distributed in the hope that it will be useful, */
 	/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
 	/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
 	/* GNU General Public License for more details. */
 
 	/* You should have received a copy of the GNU General Public License */
-	/* along with CollectEDGARData.  If not, see <http://www.gnu.org/licenses/>. */
+	/* along with CollectorData.  If not, see <http://www.gnu.org/licenses/>. */
 
 
 // =====================================================================================
@@ -46,18 +46,17 @@
 // #include <boost/filesystem.hpp>
 // #include <boost/program_options/parsers.hpp>
 
+#include "spdlog/spdlog.h"
+
 #include <gmock/gmock.h>
+
+#include "CollectorApp.h"
 
 #include "HTTPS_Downloader.h"
 #include "DailyIndexFileRetriever.h"
 #include "FormFileRetriever.h"
 
-#include "CollectorApp.h"
-
-//	need these to feed into CollectorApp.
-
-int G_ARGC = 0;
-char** G_ARGV = nullptr;
+#include "Collector_Utils.h"
 
 namespace fs = std::filesystem;
 // namespace po = boost::program_options;
@@ -152,15 +151,24 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
         "--log-level", "debug"
 	};
 
-    CollectorApp myApp;
 	try
 	{
-        myApp.init(tokens);
+        CollectorApp myApp(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
+                test_info->test_case_name(), "\n\n"));
 
-        myApp.run();
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
 	}
 
     // catch any problems trying to setup application
@@ -169,12 +177,12 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 	{
 		// poco_fatal(myApp->logger(), theProblem.what());
 
-		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
-		myApp.logger().error("Something totally unexpected happened.");
+        spdlog::error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(18));
@@ -194,27 +202,37 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 		"--begin-date", "2013-Oct-14",
 		"--form-dir", "/tmp/forms",
         "--host", "localhost",
+        "--port", "8443",
 		"--index-only"
 	};
-    CollectorApp myApp;
 	try
 	{
-        myApp.init(tokens);
+        CollectorApp myApp(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
+                test_info->test_case_name(), "\n\n"));
 
-        myApp.run();
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
 	}
 
 	catch (std::exception& theProblem)
 	{
-		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
-		myApp.logger().error("Something totally unexpected happened.");
+        spdlog::error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(0));
@@ -241,25 +259,34 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 		"--end-date", "2013-Oct-17"
 	};
 
-    CollectorApp myApp;
 	try
 	{
-        myApp.init(tokens);
+        CollectorApp myApp(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
+                test_info->test_case_name(), "\n\n"));
 
-        myApp.run();
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
 	}
 
 	catch (std::exception& theProblem)
 	{
-		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
-		myApp.logger().error("Something totally unexpected happened.");
+        spdlog::error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(17));
@@ -274,30 +301,40 @@ TEST(DailyEndToEndTest, VerifyExceptionsThrownWhenDiskIsFull)
 	 	"--index-dir", "/tmp/ofstream_test/test_2",
 		"--index-only",
         "--host", "localhost",
+        "--port", "8443",
         "--max", "17",
 		"--begin-date", "2013-Oct-14",
 		"--end-date", "2013-Oct-17"
 	};
 
-    CollectorApp myApp;
 	try
 	{
-        myApp.init(tokens);
+        CollectorApp myApp(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
+                test_info->test_case_name(), "\n\n"));
 
-        myApp.run();
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            ASSERT_THROW(myApp.Run(), std::system_error);
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
 	}
 
 	catch (std::exception& theProblem)
 	{
-		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
-		myApp.logger().error("Something totally unexpected happened.");
+        spdlog::error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(fs::exists("/tmp/ofstream_test/test_2"), Eq(false));
@@ -324,25 +361,34 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 		"--index-only"
 	};
 
-    CollectorApp myApp;
 	try
 	{
-        myApp.init(tokens);
+        CollectorApp myApp(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
+                test_info->test_case_name(), "\n\n"));
 
-        myApp.run();
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
 	}
 
 	catch (std::exception& theProblem)
 	{
-		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
-		myApp.logger().error("Something totally unexpected happened.");
+        spdlog::error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(0));
@@ -463,21 +509,39 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
 		"--replace-form-files"
 	};
 
-	CollectorApp myApp;
-    myApp.init(tokens);
+    CollectorApp myApp(tokens);
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
+                test_info->test_case_name(), "\n\n"));
 
-    myApp.run();
+    bool startup_OK = myApp.Startup();
+    if (startup_OK)
+    {
+        myApp.Run();
+        myApp.Shutdown();
+    }
+    else
+    {
+        std::cout << "Problems starting program.  No processing done.\n";
+    }
 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
 
 	std::this_thread::sleep_for(std::chrono::seconds{1});
 
-	myApp.run();
+    startup_OK = myApp.Startup();
+    if (startup_OK)
+    {
+        myApp.Run();
+        myApp.Shutdown();
+    }
+    else
+    {
+        std::cout << "Problems starting program.  No processing done.\n";
+    }
 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
 
-	ASSERT_THAT(x1 == x2, Eq(false));
+	ASSERT_FALSE(x1 == x2);
 }
 
 // // NOTE: the quarterly index tests will run against the actual EDGAR server.
@@ -504,13 +568,22 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 		"--mode", "quarterly"
 	};
 
-	CollectorApp myApp;
-    myApp.init(tokens);
+    CollectorApp myApp(tokens);
 
 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
+                test_info->test_case_name(), "\n\n"));
 
-    myApp.run();
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
 
 	ASSERT_THAT(fs::exists("/tmp/index3/2000/QTR1/form.idx"), Eq(true));
 }
@@ -589,24 +662,33 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 		"--mode", "quarterly"
 	};
 
-    CollectorApp myApp;
 	try
 	{
-        myApp.init(tokens);
+        CollectorApp myApp(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
+                test_info->test_case_name(), "\n\n"));
 
-        myApp.run();
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
 	}
 	catch (std::exception& theProblem)
 	{
-		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
-		myApp.logger().error("Something totally unexpected happened.");
+        spdlog::error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms5"), Eq(10));
@@ -666,24 +748,33 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 		"--ticker-cache", "/tmp/ticker_to_CIK"
 	};
 
-    CollectorApp myApp;
 	try
 	{
-        myApp.init(tokens);
+        CollectorApp myApp(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
+                test_info->test_case_name(), "\n\n"));
 
-        myApp.run();
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
 	}
 	catch (std::exception& theProblem)
 	{
-		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
-		myApp.logger().error("Something totally unexpected happened.");
+        spdlog::error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT((fs::exists("/tmp/ticker_to_CIK") && ! fs::is_empty("/tmp/ticker_to_CIK")), Eq(true));
@@ -874,25 +965,34 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 		"--form", "4"
     };
 
-    CollectorApp myApp;
 	try
 	{
-        myApp.init(tokens);
+        CollectorApp myApp(tokens);
 
 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
+                test_info->test_case_name(), "\n\n"));
 
-        myApp.run();
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
 	}
 
 	catch (std::exception& theProblem)
 	{
-		myApp.logger().error(std::string("Something fundamental went wrong: ") + theProblem.what());
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
 		throw;	//	so test framework will get it too.
 	}
 	catch (...)
 	{		// handle exception: unspecified
-		myApp.logger().error("Something totally unexpected happened.");
+        spdlog::error("Something totally unexpected happened.");
 		throw;
 	}
 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms9"), Eq(5));
@@ -986,9 +1086,26 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 // }
 //
 
-int main(int argc, char** argv) {
-	G_ARGC = argc;
-	G_ARGV = argv;
-	testing::InitGoogleMock(&argc, argv);
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  InitLogging
+ *  Description:  
+ * =====================================================================================
+ */
+void InitLogging ()
+{
+    //    nothing to do for now.
+//    logging::core::get()->set_filter
+//    (
+//        logging::trivial::severity >= logging::trivial::trace
+//    );
+}		/* -----  end of function InitLogging  ----- */
+
+int main(int argc, char** argv)
+{
+
+    InitLogging();
+
+	InitGoogleMock(&argc, argv);
    return RUN_ALL_TESTS();
 }
