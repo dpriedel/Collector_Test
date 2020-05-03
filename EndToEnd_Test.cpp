@@ -148,7 +148,7 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 		"--form-dir", "/tmp/forms",
         "--host",  "localhost",
         "--port",  "8443",
-        "--log-level", "debug"
+        "--log-level", "information"
 	};
 
 	try
@@ -656,7 +656,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
         "--max", "10",
         "--host", "www.sec.gov",
         "--port",  "443",
-		"--log-level", "debug",
+		"--log-level", "information",
 		"--begin-date", "2009-Sep-01",
 		"--end-date", "2010-Oct-04",
 		"--mode", "quarterly"
@@ -961,7 +961,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 		"--begin-date", "2013-Oct-09",
 		"--ticker", "AAPL",
 		"--ticker-cache", "/tmp/ticker_to_CIK",
-        "--log-level", "debug",
+        "--log-level", "information",
 		"--form", "4"
     };
 
@@ -1106,6 +1106,6 @@ int main(int argc, char** argv)
 
     InitLogging();
 
-	InitGoogleMock(&argc, argv);
+	InitGoogleTest(&argc, argv);
    return RUN_ALL_TESTS();
 }

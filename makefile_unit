@@ -19,7 +19,7 @@
 #
 MAKE=gmake
 
-BOOSTDIR := /extra/boost/boost-1.72_gcc-9
+BOOSTDIR := /extra/boost/boost-1.73_gcc-9
 GCCDIR := /extra/gcc/gcc-9
 GTESTDIR := /usr/local/include
 CPP := $(GCCDIR)/bin/g++
@@ -43,9 +43,9 @@ SRCS1 := $(SDIR1)/Unit_Test.cpp
 
 SDIR2 := ../Collector/src
 SRCS2 := $(SDIR2)/HTTPS_Downloader.cpp \
+		$(SDIR2)/PathNameGenerator.cpp \
 		$(SDIR2)/QuarterlyIndexFileRetriever.cpp \
 		$(SDIR2)/TickerConverter.cpp \
-		$(SDIR2)/PathNameGenerator.cpp \
 		$(SDIR2)/DailyIndexFileRetriever.cpp \
 		$(SDIR2)/FormFileRetriever.cpp \
 		$(SDIR2)/Collector_Utils.cpp
@@ -66,11 +66,11 @@ CFG_LIB := -lpthread \
 		-lzip \
 		-L$(GCCDIR)/lib64 \
 		-L$(BOOSTDIR)/lib \
-		-lboost_iostreams-mt-d-x64 \
-		-lboost_regex-mt-d-x64 \
-		-L/usr/local/lib64 \
+		-lboost_iostreams-mt-x64 \
+		-lboost_regex-mt-x64 \
+		-L/usr/local/lib \
 		-lfmt \
-		-lgmock -lgmock_main -lgtest
+		-lgtest -lgtest_main
 
 OBJS1=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS1)))))
 OBJS2=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS2)))))
@@ -78,7 +78,7 @@ OBJS2=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS2)))))
 OBJS=$(OBJS1) $(OBJS2)
 DEPS=$(OBJS:.o=.d)
 
-COMPILE=$(CPP) -c  -x c++  -O0  -g3 -std=c++2a -D NOCERTTEST -DBOOST_ENABLE_ASSERT_HANDLER -D_DEBUG -DSPDLOG_FMT_EXTERNAL -fPIC -o $@ $(CFG_INC) $< -march=native -MMD -MP
+COMPILE=$(CPP) -c  -x c++  -O0  -g3 -std=c++2a -DNOCERTTEST -DCPPHTTPLIB_OPENSSL_SUPPORT -DBOOST_ENABLE_ASSERT_HANDLER -D_DEBUG -DSPDLOG_FMT_EXTERNAL -fconcepts -fPIC -o $@ $(CFG_INC) $< -march=native -MMD -MP
 LINK := $(CPP)  -g -o $(OUTFILE) $(OBJS) $(CFG_LIB) -Wl,-E $(RPATH_LIB)
 
 endif #	DEBUG configuration
