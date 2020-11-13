@@ -1093,6 +1093,8 @@ TEST_F(TickerLookupUnitTest, VerifyConvertsSingleTickerThatExistsToCIK)
 
  TEST_F(TickerLookupUnitTest, DISABLED_VerifyConvertsFileOfTickersToCIKs)
  {
+     // test takes a long time to run
+     //
 	TickerConverter sym;
  	decltype(auto) CIKs = sym.ConvertTickerFileToCIKs("./test_tickers_file", 1);
 
