@@ -34,7 +34,7 @@ endif
 OUTFILE := Unit_Test
 
 CFG_INC := -I/home/dpriedel/projects/github/Collector/src \
-		-I$(GTESTDIR) -I$(BOOSTDIR) -I/extra/gcc/cpp-json/include/
+		-I$(GTESTDIR) -I$(BOOSTDIR)
 
 RPATH_LIB := -Wl,-rpath,$(GCCDIR)/lib64 -Wl,-rpath,$(BOOSTDIR)/lib -Wl,-rpath,/usr/local/lib
 
@@ -67,6 +67,7 @@ CFG_LIB := -lpthread \
 		-L$(BOOSTDIR)/lib \
 		-lboost_iostreams-mt-x64 \
 		-lboost_regex-mt-x64 \
+		-lboost_json-mt-x64 \
 		-L/usr/local/lib \
 		-lfmt \
 		-lhttplib \
