@@ -38,10 +38,10 @@
 
 
 #include <algorithm>
-#include <string>
 #include <chrono>
-#include <thread>
 #include <filesystem>
+#include <string>
+#include <thread>
 
 // #include <boost/filesystem.hpp>
 // #include <boost/program_options/parsers.hpp>
@@ -52,11 +52,10 @@
 
 #include "CollectorApp.h"
 
-#include "HTTPS_Downloader.h"
+#include "Collector_Utils.h"
 #include "DailyIndexFileRetriever.h"
 #include "FormFileRetriever.h"
-
-#include "Collector_Utils.h"
+#include "HTTPS_Downloader.h"
 
 namespace fs = std::filesystem;
 // namespace po = boost::program_options;
@@ -85,7 +84,9 @@ bool DirectoryTreeContainsDirectory(const fs::path& tree, const fs::path& direct
 		if (x->status().type() == fs::file_type::directory)
 		{
 			if (x->path().filename() == directory)
+            {
 				return true;
+            }
 		}
 	}
 	return false;
@@ -98,7 +99,9 @@ std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDire
     auto save_mod_time([&results] (const auto& dir_ent)
     {
 		if (dir_ent.status().type() == fs::file_type::regular)
+        {
 			results[dir_ent.path().filename().string()] = fs::last_write_time(dir_ent.path());
+        }
     });
 
     std::for_each(fs::directory_iterator(directory), fs::directory_iterator(), save_mod_time);
@@ -113,7 +116,9 @@ std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDire
     auto save_mod_time([&results] (const auto& dir_ent)
     {
 		if (dir_ent.status().type() == fs::file_type::regular)
+        {
 			results[dir_ent.path().filename().string()] = fs::last_write_time(dir_ent.path());
+        }
     });
 
     std::for_each(fs::recursive_directory_iterator(directory), fs::recursive_directory_iterator(), save_mod_time);
@@ -133,10 +138,14 @@ class DailyEndToEndTest : public Test
 TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile)
 {
 	if (fs::exists("/tmp/form.20131011.idx"))
+    {
 		fs::remove("/tmp/form.20131011.idx");
+    }
 
 	if (fs::exists("/tmp/forms"))
+    {
 		fs::remove_all("/tmp/forms");
+    }
 	fs::create_directory("/tmp/forms");
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
@@ -155,7 +164,7 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 	{
         CollectorApp myApp(tokens);
 
-		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
                 test_info->test_case_name(), "\n\n"));
 
@@ -191,7 +200,9 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 {
 	if (fs::exists("/tmp/forms"))
+    {
 		fs::remove_all("/tmp/forms");
+    }
 	fs::create_directory("/tmp/forms");
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
@@ -209,7 +220,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 	{
         CollectorApp myApp(tokens);
 
-		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
                 test_info->test_case_name(), "\n\n"));
 
@@ -241,9 +252,13 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFiles)
 {
 	if (fs::exists("/tmp/index1"))
+    {
 		fs::remove_all("/tmp/index1");
+    }
 	if (fs::exists("/tmp/forms1"))
+    {
 		fs::remove_all("/tmp/forms1");
+    }
 	fs::create_directory("/tmp/forms1");
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
@@ -263,7 +278,7 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 	{
         CollectorApp myApp(tokens);
 
-		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
                 test_info->test_case_name(), "\n\n"));
 
@@ -311,7 +326,7 @@ TEST(DailyEndToEndTest, VerifyExceptionsThrownWhenDiskIsFull)
 	{
         CollectorApp myApp(tokens);
 
-		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
                 test_info->test_case_name(), "\n\n"));
 
@@ -343,9 +358,13 @@ TEST(DailyEndToEndTest, VerifyExceptionsThrownWhenDiskIsFull)
 TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenIndexOnlySpecified)
 {
 	if (fs::exists("/tmp/index1"))
+    {
 		fs::remove_all("/tmp/index1");
+    }
 	if (fs::exists("/tmp/forms1"))
+    {
 		fs::remove_all("/tmp/forms1");
+    }
 	fs::create_directory("/tmp/forms1");
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
@@ -365,7 +384,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 	{
         CollectorApp myApp(tokens);
 
-		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
                 test_info->test_case_name(), "\n\n"));
 
@@ -491,9 +510,13 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
 {
 	if (fs::exists("/tmp/index2"))
+    {
 		fs::remove_all("/tmp/index2");
+    }
 	if (fs::exists("/tmp/forms2"))
+    {
 		fs::remove_all("/tmp/forms2");
+    }
 	fs::create_directory("/tmp/forms2");
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
@@ -511,7 +534,7 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
 
     CollectorApp myApp(tokens);
 
-	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+	const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
                 test_info->test_case_name(), "\n\n"));
 
@@ -554,7 +577,9 @@ class QuarterlyEndToEndTest : public Test
 TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQuarter)
 {
 	if (fs::exists("/tmp/index3"))
+    {
 		fs::remove_all("/tmp/index3");
+    }
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
@@ -570,7 +595,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 
     CollectorApp myApp(tokens);
 
-	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+	const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
                 test_info->test_case_name(), "\n\n"));
 
@@ -643,9 +668,13 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange)
 {
 	if (fs::exists("/tmp/index5"))
+    {
 		fs::remove_all("/tmp/index5");
+    }
 	if (fs::exists("/tmp/forms5"))
+    {
 		fs::remove_all("/tmp/forms5");
+    }
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
@@ -666,7 +695,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 	{
         CollectorApp myApp(tokens);
 
-		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
                 test_info->test_case_name(), "\n\n"));
 
@@ -752,7 +781,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 	{
         CollectorApp myApp(tokens);
 
-		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
                 test_info->test_case_name(), "\n\n"));
 
@@ -944,10 +973,14 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateRangeWithTickerFilter)
 {
 	if (fs::exists("/tmp/index9"))
+    {
 		fs::remove_all("/tmp/index9");
+    }
 
 	if (fs::exists("/tmp/forms9"))
+    {
 		fs::remove_all("/tmp/forms9");
+    }
 
 	//	NOTE: the program name 'the_program' in the command line below is ignored in the
 	//	the test program.
@@ -969,7 +1002,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 	{
         CollectorApp myApp(tokens);
 
-		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
+		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
                 test_info->test_case_name(), "\n\n"));
 
