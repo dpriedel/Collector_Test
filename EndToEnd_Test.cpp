@@ -166,7 +166,7 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile
 
 		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                test_info->test_case_name(), "\n\n"));
+                test_info->test_suite_name(), "\n\n"));
 
         bool startup_OK = myApp.Startup();
         if (startup_OK)
@@ -222,7 +222,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
 
 		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                test_info->test_case_name(), "\n\n"));
+                test_info->test_suite_name(), "\n\n"));
 
         bool startup_OK = myApp.Startup();
         if (startup_OK)
@@ -280,7 +280,7 @@ TEST(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFi
 
 		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                test_info->test_case_name(), "\n\n"));
+                test_info->test_suite_name(), "\n\n"));
 
         bool startup_OK = myApp.Startup();
         if (startup_OK)
@@ -328,7 +328,7 @@ TEST(DailyEndToEndTest, VerifyExceptionsThrownWhenDiskIsFull)
 
 		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                test_info->test_case_name(), "\n\n"));
+                test_info->test_suite_name(), "\n\n"));
 
         bool startup_OK = myApp.Startup();
         if (startup_OK)
@@ -386,7 +386,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 
 		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                test_info->test_case_name(), "\n\n"));
+                test_info->test_suite_name(), "\n\n"));
 
         bool startup_OK = myApp.Startup();
         if (startup_OK)
@@ -430,7 +430,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 //     myApp.init(tokens);
 //
 // 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+// 	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_suite_name() + "\n\n");
 //
 //     myApp.run();
 // 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
@@ -461,7 +461,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 //     myApp.init(tokens);
 //
 // 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+// 	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_suite_name() + "\n\n");
 //
 //     myApp.run();
 // 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectory("/tmp/index2");
@@ -494,7 +494,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenI
 //     myApp.init(tokens);
 //
 // 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+// 	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_suite_name() + "\n\n");
 //
 //     myApp.run();
 // 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
@@ -536,7 +536,7 @@ TEST(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed)
 
 	const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                test_info->test_case_name(), "\n\n"));
+                test_info->test_suite_name(), "\n\n"));
 
     bool startup_OK = myApp.Startup();
     if (startup_OK)
@@ -597,7 +597,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 
 	const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                test_info->test_case_name(), "\n\n"));
+                test_info->test_suite_name(), "\n\n"));
 
         bool startup_OK = myApp.Startup();
         if (startup_OK)
@@ -631,7 +631,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 //     myApp.init(tokens);
 //
 // 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+// 	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_suite_name() + "\n\n");
 //
 //     myApp.run();
 //
@@ -658,7 +658,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQu
 //     myApp.init(tokens);
 //
 // 	decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+// 	myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_suite_name() + "\n\n");
 //
 //     myApp.run();
 //
@@ -697,7 +697,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 
 		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                test_info->test_case_name(), "\n\n"));
+                test_info->test_suite_name(), "\n\n"));
 
         bool startup_OK = myApp.Startup();
         if (startup_OK)
@@ -749,7 +749,7 @@ TEST(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange
 //         myApp.init(tokens);
 //
 // 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_suite_name() + "\n\n");
 //
 //         myApp.run();
 // 	}
@@ -783,7 +783,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 
 		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                test_info->test_case_name(), "\n\n"));
+                test_info->test_suite_name(), "\n\n"));
 
         bool startup_OK = myApp.Startup();
         if (startup_OK)
@@ -827,7 +827,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 //         myApp.init(tokens);
 //
 // 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_suite_name() + "\n\n");
 //
 //         myApp.run();
 // 	}
@@ -867,7 +867,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 //         myApp.init(tokens);
 //
 // 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_suite_name() + "\n\n");
 //
 //         myApp.run();
 // 	}
@@ -908,7 +908,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 //         myApp.init(tokens);
 //
 // 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_suite_name() + "\n\n");
 //
 //         myApp.run();
 // 	}
@@ -952,7 +952,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 //         myApp.init(tokens);
 //
 // 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_suite_name() + "\n\n");
 //
 //         myApp.run();
 // 	}
@@ -1004,7 +1004,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 
 		const auto* test_info = UnitTest::GetInstance()->current_test_info();
         spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                test_info->test_case_name(), "\n\n"));
+                test_info->test_suite_name(), "\n\n"));
 
         bool startup_OK = myApp.Startup();
         if (startup_OK)
@@ -1058,7 +1058,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 //         myApp.init(tokens);
 //
 // 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_suite_name() + "\n\n");
 //
 //         myApp.run();
 // 	}
@@ -1100,7 +1100,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 //         myApp.init(tokens);
 //
 // 		decltype(auto) test_info = UnitTest::GetInstance()->current_test_info();
-// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_case_name() + "\n\n");
+// 		myApp.logger().information(std::string("\n\nTest: ") + test_info->name() + " test case: " + test_info->test_suite_name() + "\n\n");
 //
 //         myApp.run();
 // 	}
