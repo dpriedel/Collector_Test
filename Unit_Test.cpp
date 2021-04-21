@@ -60,7 +60,7 @@
 
 namespace fs = std::filesystem;
 
-constexpr int PORT = 8443;
+const std::string PORT = "8443";
 
 using namespace testing;
 

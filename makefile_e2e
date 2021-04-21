@@ -69,7 +69,6 @@ CFG_LIB := -lpthread \
 		-lboost_json-mt-x64 \
 		-L/usr/local/lib \
 		-lfmt \
-		-lhttplib \
 		-ldate-tz \
 		-lgtest -lgtest_main
 
