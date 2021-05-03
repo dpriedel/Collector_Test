@@ -46,6 +46,8 @@
 #include <system_error>
 #include <thread>
 
+#include <spdlog/spdlog.h>
+
 //#include <boost/algorithm/string/predicate.hpp>
 #include <gmock/gmock.h>
 
@@ -1163,33 +1165,35 @@ public:
 
 };
 
+ TEST_F(TickerLookupUnitTest, VerifyDownloadOfTickersToCIKsFile)
+ {
+	TickerConverter sym;
+ 	decltype(auto) CIK_count = sym.DownloadTickerToCIKFile("/tmp/test_tickers_file");
+
+ 	EXPECT_EQ(CIK_count, 11907);         // this is from the file 
+    ASSERT_TRUE(fs::exists("/tmp/test_tickers_file"));
+ }
+
 TEST_F(TickerLookupUnitTest, VerifyConvertsSingleTickerThatExistsToCIK)
 {
 	TickerConverter sym;
+    int CIK_count = sym.UseCacheFile("/tmp/test_tickers_file");
+ 	EXPECT_NE(CIK_count, 11907);         // this can fail because of duplicates in file.
+
 	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL");
 
 	ASSERT_EQ(CIK, "0000320193");
-
 }
-
- TEST_F(TickerLookupUnitTest, DISABLED_VerifyConvertsFileOfTickersToCIKs)
- {
-     // test takes a long time to run
-     //
-	TickerConverter sym;
- 	decltype(auto) CIKs = sym.ConvertTickerFileToCIKs("./test_tickers_file", 1);
-
- 	ASSERT_EQ(CIKs, 50);
-
- }
 
 TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistToCIK)
 {
 	TickerConverter sym;
+    int CIK_count = sym.UseCacheFile("/tmp/test_tickers_file");
+ 	EXPECT_NE(CIK_count, 11907);         // this can fail because of duplicates in file.
+
 	decltype(auto) CIK = sym.ConvertTickerToCIK("DHS");
 
-	ASSERT_EQ(CIK, "**no_CIK_found**");
-
+	ASSERT_EQ(CIK, TickerConverter::NotFound);
 }
 
 // /* class TickerConverterStub : public TickerConverter */
@@ -1405,6 +1409,7 @@ TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFi
  */
 void InitLogging ()
 {
+    spdlog::set_level(spdlog::level::debug);
 //    logging::core::get()->set_filter
 //    (
 //        logging::trivial::severity >= logging::trivial::trace
