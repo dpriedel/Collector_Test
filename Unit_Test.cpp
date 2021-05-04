@@ -1167,10 +1167,15 @@ public:
 
  TEST_F(TickerLookupUnitTest, VerifyDownloadOfTickersToCIKsFile)
  {
+	if (fs::exists("/tmp/test_tickers_file"))
+    {
+		fs::remove("/tmp/test_tickers_file");
+    }
 	TickerConverter sym;
- 	decltype(auto) CIK_count = sym.DownloadTickerToCIKFile("/tmp/test_tickers_file");
+ 	decltype(auto) CIK_count = sym.DownloadTickerToCIKFile("/tmp/test_tickers_file", "localhost", PORT);
+// 	decltype(auto) CIK_count = sym.DownloadTickerToCIKFile("/tmp/test_tickers_file");
 
- 	EXPECT_EQ(CIK_count, 11907);         // this is from the file 
+ 	EXPECT_EQ(CIK_count, 11926);         // this is from the file 
     ASSERT_TRUE(fs::exists("/tmp/test_tickers_file"));
  }
 
@@ -1178,7 +1183,7 @@ TEST_F(TickerLookupUnitTest, VerifyConvertsSingleTickerThatExistsToCIK)
 {
 	TickerConverter sym;
     int CIK_count = sym.UseCacheFile("/tmp/test_tickers_file");
- 	EXPECT_NE(CIK_count, 11907);         // this can fail because of duplicates in file.
+ 	EXPECT_NE(CIK_count, 11926);         // this can fail because of duplicates in file.
 
 	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL");
 
@@ -1189,7 +1194,7 @@ TEST_F(TickerLookupUnitTest, VerifyFailsToConvertsSingleTickerThatDoesNotExistTo
 {
 	TickerConverter sym;
     int CIK_count = sym.UseCacheFile("/tmp/test_tickers_file");
- 	EXPECT_NE(CIK_count, 11907);         // this can fail because of duplicates in file.
+ 	EXPECT_NE(CIK_count, 11926);         // this can fail because of duplicates in file.
 
 	decltype(auto) CIK = sym.ConvertTickerToCIK("DHS");
 
@@ -1267,6 +1272,7 @@ TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterly
 	auto local_quarterly_index_file_name = idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp");
 
 	TickerConverter sym;
+    sym.UseCacheFile("/vol_DA/SEC/files/Ticker2CIK.lst");
 	decltype(auto) CIK = sym.ConvertTickerToCIK("AAPL");
 	std::map<std::string, std::string> ticker_map;
 	ticker_map["AAPL"] = CIK;
@@ -1288,6 +1294,7 @@ TEST_F(QuarterlyParserFilterTest, VerifyFindProperNumberOfFormEntriesInQuarterly
 	auto local_quarterly_index_file_name = idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp");
 
 	TickerConverter sym;
+    sym.UseCacheFile("/vol_DA/SEC/files/Ticker2CIK.lst");
 	std::map<std::string, std::string> ticker_map{
 		{"AAPL", sym.ConvertTickerToCIK("AAPL")},
 		{"DHS", sym.ConvertTickerToCIK("DHS")},
