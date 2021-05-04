@@ -100,6 +100,33 @@
             "-I/extra/boost/boost-1.76_gcc-11",
             "-march=native",
             "-o",
+            "Debug_unit/FinancialStatementsAndNotes.o",
+            "../Collector/src/FinancialStatementsAndNotes.cpp"
+        ],
+        "directory": "/home/dpriedel/projects/github/Collector_Test",
+        "file": "/home/dpriedel/projects/github/Collector_Test/../Collector/src/FinancialStatementsAndNotes.cpp",
+        "output": "/home/dpriedel/projects/github/Collector_Test/Debug_unit/FinancialStatementsAndNotes.o"
+    },
+    {
+        "arguments": [
+            "/extra/gcc/gcc-11/bin/g++",
+            "-c",
+            "-x",
+            "c++",
+            "-O0",
+            "-g3",
+            "-std=c++20",
+            "-DNOCERTTEST",
+            "-DBOOST_ENABLE_ASSERT_HANDLER",
+            "-DBOOST_REGEX_STANDALONE",
+            "-D_DEBUG",
+            "-DSPDLOG_FMT_EXTERNAL",
+            "-fPIC",
+            "-I/home/dpriedel/projects/github/Collector/src",
+            "-I/usr/local/include",
+            "-I/extra/boost/boost-1.76_gcc-11",
+            "-march=native",
+            "-o",
             "Debug_unit/QuarterlyIndexFileRetriever.o",
             "../Collector/src/QuarterlyIndexFileRetriever.cpp"
         ],

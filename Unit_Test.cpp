@@ -57,6 +57,7 @@
 #include "PathNameGenerator.h"
 #include "QuarterlyIndexFileRetriever.h"
 #include "TickerConverter.h"
+#include "FinancialStatementsAndNotes.h"
 
 #include "Collector_Utils.h"
 
@@ -1406,6 +1407,15 @@ TEST_F(MultipleFormsParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFi
 // /* 	ASSERT_THAT(CountTotalFormsFilesFound(file_list), Eq(8));		//	no 10-Q in 1 quarter. */
 //
 // /* } */
+
+class FinancialStatementsAndNotesTest : public Test
+{
+public:
+//	DailyIndexFileRetriever idxFileRet{"localhost", PORT, "/Archives/edgar/daily-index"};
+    // files/dera/data/financial-statement-and-notes-data-sets/
+    // YYYY_MM_notes.zip for monthly
+    // YYYYqN_notes.zip for quarterly
+};
 
 
 /* 
