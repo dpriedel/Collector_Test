@@ -46,6 +46,9 @@
 #include <system_error>
 #include <thread>
 
+#include <range/v3/algorithm/copy.hpp>
+#include <range/v3/iterator.hpp>
+
 #include <spdlog/spdlog.h>
 
 //#include <boost/algorithm/string/predicate.hpp>
@@ -1416,6 +1419,42 @@ public:
     // YYYY_MM_notes.zip for monthly
     // YYYYqN_notes.zip for quarterly
 };
+
+TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesQuarterlyOnly)
+{
+    FinancialStatementsAndNotes_gen file_names(date::year_month_day{2009_y/April/3}, date::year_month_day{2010_y/October/5}); 
+	EXPECT_EQ(*file_names, "2009q2_notes.zip");
+
+    std::vector<std::string> expected_values = {"2009q2_notes.zip", "2009q3_notes.zip", "2009q4_notes.zip", "2010q1_notes.zip", "2010q2_notes.zip", "2010q3_notes.zip"};
+    std::vector<std::string> actual_values;
+    ranges::copy(file_names, FinancialStatementsAndNotes_gen(), ranges::back_inserter(actual_values));
+
+    ASSERT_EQ(actual_values, expected_values);
+}
+
+TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesMonthlyOnly)
+{
+    FinancialStatementsAndNotes_gen file_names(date::year_month_day{2020_y/November/15}, date::year_month_day{2021_y/February/5}); 
+	EXPECT_EQ(*file_names, "2020_11_notes.zip");
+
+    std::vector<std::string> expected_values = {"2020_11_notes.zip", "2020_12_notes.zip", "2021_01_notes.zip"};
+    std::vector<std::string> actual_values;
+    ranges::copy(file_names, FinancialStatementsAndNotes_gen(), ranges::back_inserter(actual_values));
+
+    ASSERT_EQ(actual_values, expected_values);
+}
+
+TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesQuarterlyRolloverToMonthly)
+{
+    FinancialStatementsAndNotes_gen file_names(date::year_month_day{2020_y/August/3}, date::year_month_day{2021_y/February/5}); 
+	EXPECT_EQ(*file_names, "2020q3_notes.zip");
+
+    std::vector<std::string> expected_values = {"2020q3_notes.zip", "2020_10_notes.zip", "2020_11_notes.zip", "2020_12_notes.zip", "2021_01_notes.zip"};
+    std::vector<std::string> actual_values;
+    ranges::copy(file_names, FinancialStatementsAndNotes_gen(), ranges::back_inserter(actual_values));
+
+    ASSERT_EQ(actual_values, expected_values);
+}
 
 
 /* 
