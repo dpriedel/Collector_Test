@@ -46,8 +46,12 @@
 #include <system_error>
 #include <thread>
 
-#include <range/v3/algorithm/copy.hpp>
-#include <range/v3/iterator.hpp>
+#include <ranges>
+
+//#include <range/v3/algorithm/copy.hpp>
+//#include <range/v3/algorithm/for_each.hpp>
+//#include <range/v3/iterator.hpp>
+//#include <range/v3/view/map.hpp>
 
 #include <spdlog/spdlog.h>
 
@@ -134,7 +138,7 @@ int CountTotalFormsFilesFound(const FormFileRetriever::FormsAndFilesList& file_l
 
 // NOTE: for some of these tests, I run an HTTPS server on localhost using
 // a directory structure that mimics part of the SEC server.
-
+//
 class PathNameGeneratorUnitTest : public Test
 {
 
@@ -1422,37 +1426,64 @@ public:
 
 TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesQuarterlyOnly)
 {
-    FinancialStatementsAndNotes_gen file_names(date::year_month_day{2009_y/date::April/3}, date::year_month_day{2010_y/date::October/5}); 
-	EXPECT_EQ(*file_names, "2009q2_notes.zip");
+    FinancialStatementsAndNotes_gen file_names{date::year_month_day{2009_y/date::April/3}, date::year_month_day{2010_y/date::October/5}}; 
+	EXPECT_EQ(file_names->first, "2009q2_notes.zip");
+	EXPECT_EQ(file_names->second, "2009_2");
 
     std::vector<std::string> expected_values = {"2009q2_notes.zip", "2009q3_notes.zip", "2009q4_notes.zip", "2010q1_notes.zip", "2010q2_notes.zip", "2010q3_notes.zip"};
     std::vector<std::string> actual_values;
-    ranges::copy(file_names, FinancialStatementsAndNotes_gen(), ranges::back_inserter(actual_values));
+    FinancialStatementsAndNotes fin_notes{date::year_month_day{2009_y/date::April/3}, date::year_month_day{2010_y/date::October/5}};
 
+    auto only_file_names = fin_notes | std::ranges::views::keys ;
+    std::ranges::copy(only_file_names, std::back_inserter(actual_values));
+    EXPECT_EQ(actual_values, expected_values);
+
+    auto only_directory_names = fin_notes | std::ranges::views::values ;
+    expected_values = {"2009_2", "2009_3", "2009_4", "2010_1", "2010_2", "2010_3"};
+    actual_values.clear();
+    std::ranges::copy(only_directory_names, std::back_inserter(actual_values));
     ASSERT_EQ(actual_values, expected_values);
 }
 
 TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesMonthlyOnly)
 {
-    FinancialStatementsAndNotes_gen file_names(date::year_month_day{2020_y/date::November/15}, date::year_month_day{2021_y/date::February/5}); 
-	EXPECT_EQ(*file_names, "2020_11_notes.zip");
+    FinancialStatementsAndNotes_gen file_names{date::year_month_day{2020_y/date::November/15}, date::year_month_day{2021_y/date::February/5}}; 
+	EXPECT_EQ(file_names->first, "2020_11_notes.zip");
+	EXPECT_EQ(file_names->second, "2020_11");
 
     std::vector<std::string> expected_values = {"2020_11_notes.zip", "2020_12_notes.zip", "2021_01_notes.zip"};
     std::vector<std::string> actual_values;
-    ranges::copy(file_names, FinancialStatementsAndNotes_gen(), ranges::back_inserter(actual_values));
+    FinancialStatementsAndNotes fin_notes{date::year_month_day{2020_y/date::November/15}, date::year_month_day{2021_y/date::February/5}};
 
+    auto only_file_names = fin_notes | std::ranges::views::keys ;
+    std::ranges::copy(only_file_names, std::back_inserter(actual_values));
+    EXPECT_EQ(actual_values, expected_values);
+
+    auto only_directory_names = fin_notes | std::ranges::views::values ;
+    expected_values = {"2020_11", "2020_12", "2021_1"};
+    actual_values.clear();
+    std::ranges::copy(only_directory_names, std::back_inserter(actual_values));
     ASSERT_EQ(actual_values, expected_values);
 }
 
 TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesQuarterlyRolloverToMonthly)
 {
-    FinancialStatementsAndNotes_gen file_names(date::year_month_day{2020_y/date::August/3}, date::year_month_day{2021_y/date::February/5}); 
-	EXPECT_EQ(*file_names, "2020q3_notes.zip");
+    FinancialStatementsAndNotes_gen file_names{date::year_month_day{2020_y/date::August/3}, date::year_month_day{2021_y/date::February/5}}; 
+	EXPECT_EQ(file_names->first, "2020q3_notes.zip");
+	EXPECT_EQ(file_names->second, "2020_3");
 
     std::vector<std::string> expected_values = {"2020q3_notes.zip", "2020_10_notes.zip", "2020_11_notes.zip", "2020_12_notes.zip", "2021_01_notes.zip"};
     std::vector<std::string> actual_values;
-    ranges::copy(file_names, FinancialStatementsAndNotes_gen(), ranges::back_inserter(actual_values));
+    FinancialStatementsAndNotes fin_notes{date::year_month_day{2020_y/date::August/3}, date::year_month_day{2021_y/date::February/5}};
 
+    auto only_file_names = fin_notes | std::ranges::views::keys ;
+    std::ranges::copy(only_file_names, std::back_inserter(actual_values));
+    EXPECT_EQ(actual_values, expected_values);
+
+    auto only_directory_names = fin_notes | std::ranges::views::values ;
+    expected_values = {"2020_3", "2020_10", "2020_11", "2020_12", "2021_1"};
+    actual_values.clear();
+    std::ranges::copy(only_directory_names, std::back_inserter(actual_values));
     ASSERT_EQ(actual_values, expected_values);
 }
 
@@ -1461,6 +1492,8 @@ TEST_F(FinancialStatementsAndNotesTest, TestFinancialStatementsFilesDownload)
     FinancialStatementsAndNotes fin_statement_downloader{date::year_month_day{2020_y/date::August/3}, date::year_month_day{2021_y/date::February/5}};
 
     fin_statement_downloader.download_files("www.sec.gov", "443", "/tmp/fin_stmts_downloads");
+
+    ASSERT_TRUE(fs::exists("/tmp/fin_stmts_downloads"));
 }
 
 /* 
