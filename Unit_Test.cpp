@@ -1489,11 +1489,17 @@ TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesQuarterlyRolloverT
 
 TEST_F(FinancialStatementsAndNotesTest, TestFinancialStatementsFilesDownload)
 {
+    if (fs::exists("/tmp/fin_stmts_downloads"))
+    {
+        fs::remove_all("/tmp/fin_stmts_downloads");
+    }
     FinancialStatementsAndNotes fin_statement_downloader{date::year_month_day{2020_y/date::August/3}, date::year_month_day{2021_y/date::February/5}};
 
-    fin_statement_downloader.download_files("www.sec.gov", "443", "/tmp/fin_stmts_downloads");
+    fin_statement_downloader.download_files("localhost", "8443", "/tmp/fin_stmts_downloads");
 
-    ASSERT_TRUE(fs::exists("/tmp/fin_stmts_downloads"));
+    EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads"));
+    EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2021_1/2021_01_notes.zip"));
+    ASSERT_FALSE(fs::exists("/tmp/fin_stmts_downloads/2021_2/2021_02_notes.zip"));
 }
 
 /* 
