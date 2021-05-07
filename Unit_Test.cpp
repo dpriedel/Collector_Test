@@ -1487,7 +1487,7 @@ TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesQuarterlyRolloverT
     ASSERT_EQ(actual_values, expected_values);
 }
 
-TEST_F(FinancialStatementsAndNotesTest, TestFinancialStatementsFilesDownload)
+TEST_F(FinancialStatementsAndNotesTest, TestFinancialStatementsFilesDownloadWithReplace)
 {
     if (fs::exists("/tmp/fin_stmts_downloads"))
     {
@@ -1495,12 +1495,37 @@ TEST_F(FinancialStatementsAndNotesTest, TestFinancialStatementsFilesDownload)
     }
     FinancialStatementsAndNotes fin_statement_downloader{date::year_month_day{2020_y/date::August/3}, date::year_month_day{2021_y/date::February/5}};
 
-    fin_statement_downloader.download_files("localhost", "8443", "/tmp/fin_stmts_downloads");
+    fin_statement_downloader.download_files("localhost", "8443", "/tmp/fin_stmts_downloads", true);
 
     EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads"));
     EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2021_1/2021_01_notes.zip"));
     ASSERT_FALSE(fs::exists("/tmp/fin_stmts_downloads/2021_2/2021_02_notes.zip"));
 }
+
+TEST_F(FinancialStatementsAndNotesTest, TestFinancialStatementsFilesDownloadWithNoReplace)
+{
+    if (fs::exists("/tmp/fin_stmts_downloads"))
+    {
+        fs::remove_all("/tmp/fin_stmts_downloads");
+    }
+    FinancialStatementsAndNotes fin_statement_downloader{date::year_month_day{2020_y/date::August/3}, date::year_month_day{2021_y/date::February/5}};
+
+    fin_statement_downloader.download_files("localhost", "8443", "/tmp/fin_stmts_downloads", true);
+
+    EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads"));
+    EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2021_1/2021_01_notes.zip"));
+    EXPECT_FALSE(fs::exists("/tmp/fin_stmts_downloads/2021_2/2021_02_notes.zip"));
+
+ 	decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/fin_stmts_downloads");
+
+ 	std::this_thread::sleep_for(std::chrono::seconds{1});
+
+    fin_statement_downloader.download_files("localhost", "8443", "/tmp/fin_stmts_downloads", false);
+ 	decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/fin_stmts_downloads");
+
+ 	ASSERT_EQ(x1, x2);
+}
+
 
 /* 
  * ===  FUNCTION  ======================================================================
