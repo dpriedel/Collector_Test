@@ -774,7 +774,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 	std::vector<std::string> tokens{"the_program",
 		"--mode", "ticker-only",
 		"--ticker", "AAPL",
-		"--ticker-cache", "/tmp/ticker_to_CIK"
+		"--ticker-cache", "/vol_DA/SEC/Ticker2CIK_CacheFile"
 	};
 
 	try
@@ -817,7 +817,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 // 	std::string command_line{"the_program  "
 // 		"--login aaa@bbb.com "
 // 		" --mode ticker-only --ticker-file ./test_tickers_file "
-// 		" --log-path /tmp/the_log --ticker-cache /tmp/tickers_to_CIK"};
+// 		" --log-path /tmp/the_log --ticker-cache /vol_DA/SEC/Ticker2CIK_CacheFile"};
 // 	//std::string command_line{"the_program --index-dir /tmp"};
 // 	std::vector<std::string> tokens =  po::split_unix(command_line);
 //
@@ -843,7 +843,7 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
 // 	}
 // 	ASSERT_THAT(fs::exists("/tmp/tickers_to_CIK"), Eq(true));
 // }
-//
+
 // TEST(QuarterlyEndToEndTest, VerifyDownloadFiltersByTickerForQuaterlyFormFilesForSingleQuarter)
 // {
 // 	fs::remove_all("/tmp/forms6");
@@ -993,7 +993,7 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 		"--end-date", "2013-Oct-17",
 		"--begin-date", "2013-Oct-09",
 		"--ticker", "AAPL",
-		"--ticker-cache", "/tmp/ticker_to_CIK",
+		"--ticker-cache", "/vol_DA/SEC/Ticker2CIK_CacheFile",
         "--log-level", "information",
 		"--form", "4"
     };
@@ -1118,6 +1118,59 @@ TEST(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateR
 // 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms11"), Eq(4));
 // }
 //
+
+TEST(EndToEndTestFinancialNotes, VerifyDownloadAndExtractionOfSpecifiedData)
+{
+    if (fs::exists("/tmp/fin_stmts_downloads"))
+    {
+        fs::remove_all("/tmp/fin_stmts_downloads");
+    }
+
+	//	NOTE: the program name 'the_program' in the command line below is ignored in the
+	//	the test program.
+
+	std::vector<std::string> tokens{"the_program",
+        "--host", "localhost",
+        "--port",  "8443",
+		"--end-date", "2021-Feb-17",
+		"--begin-date", "2020-Aug-09",
+        "--log-level", "debug",
+        "--mode", "notes",
+        "--notes-directory", "/tmp/fin_stmts_downloads"
+    };
+
+	try
+	{
+        CollectorApp myApp(tokens);
+
+		const auto* test_info = UnitTest::GetInstance()->current_test_info();
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
+                test_info->test_suite_name(), "\n\n"));
+
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
+	}
+
+	catch (std::exception& theProblem)
+	{
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
+		throw;	//	so test framework will get it too.
+	}
+	catch (...)
+	{		// handle exception: unspecified
+        spdlog::error("Something totally unexpected happened.");
+		throw;
+	}
+	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/fin_stmts_downloads"), Eq(55));
+}
 
 /* 
  * ===  FUNCTION  ======================================================================
