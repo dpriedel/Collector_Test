@@ -69,6 +69,8 @@
 #include "Collector_Utils.h"
 
 namespace fs = std::filesystem;
+namespace rng = std::ranges;
+
 
 const std::string PORT = "8443";
 
@@ -1434,14 +1436,14 @@ TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesQuarterlyOnly)
     std::vector<std::string> actual_values;
     FinancialStatementsAndNotes fin_notes{date::year_month_day{2009_y/date::April/3}, date::year_month_day{2010_y/date::October/5}};
 
-    auto only_file_names = fin_notes | std::ranges::views::keys ;
-    std::ranges::copy(only_file_names, std::back_inserter(actual_values));
+    auto only_file_names = fin_notes | rng::views::keys ;
+    rng::copy(only_file_names, std::back_inserter(actual_values));
     EXPECT_EQ(actual_values, expected_values);
 
-    auto only_directory_names = fin_notes | std::ranges::views::values ;
+    auto only_directory_names = fin_notes | rng::views::values ;
     expected_values = {"2009_2", "2009_3", "2009_4", "2010_1", "2010_2", "2010_3"};
     actual_values.clear();
-    std::ranges::copy(only_directory_names, std::back_inserter(actual_values));
+    rng::copy(only_directory_names, std::back_inserter(actual_values));
     ASSERT_EQ(actual_values, expected_values);
 }
 
@@ -1455,14 +1457,14 @@ TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesMonthlyOnly)
     std::vector<std::string> actual_values;
     FinancialStatementsAndNotes fin_notes{date::year_month_day{2020_y/date::November/15}, date::year_month_day{2021_y/date::February/5}};
 
-    auto only_file_names = fin_notes | std::ranges::views::keys ;
-    std::ranges::copy(only_file_names, std::back_inserter(actual_values));
+    auto only_file_names = fin_notes | rng::views::keys ;
+    rng::copy(only_file_names, std::back_inserter(actual_values));
     EXPECT_EQ(actual_values, expected_values);
 
-    auto only_directory_names = fin_notes | std::ranges::views::values ;
+    auto only_directory_names = fin_notes | rng::views::values ;
     expected_values = {"2020_11", "2020_12", "2021_1"};
     actual_values.clear();
-    std::ranges::copy(only_directory_names, std::back_inserter(actual_values));
+    rng::copy(only_directory_names, std::back_inserter(actual_values));
     ASSERT_EQ(actual_values, expected_values);
 }
 
@@ -1476,14 +1478,14 @@ TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesQuarterlyRolloverT
     std::vector<std::string> actual_values;
     FinancialStatementsAndNotes fin_notes{date::year_month_day{2020_y/date::August/3}, date::year_month_day{2021_y/date::February/5}};
 
-    auto only_file_names = fin_notes | std::ranges::views::keys ;
-    std::ranges::copy(only_file_names, std::back_inserter(actual_values));
+    auto only_file_names = fin_notes | rng::views::keys ;
+    rng::copy(only_file_names, std::back_inserter(actual_values));
     EXPECT_EQ(actual_values, expected_values);
 
-    auto only_directory_names = fin_notes | std::ranges::views::values ;
+    auto only_directory_names = fin_notes | rng::views::values ;
     expected_values = {"2020_3", "2020_10", "2020_11", "2020_12", "2021_1"};
     actual_values.clear();
-    std::ranges::copy(only_directory_names, std::back_inserter(actual_values));
+    rng::copy(only_directory_names, std::back_inserter(actual_values));
     ASSERT_EQ(actual_values, expected_values);
 }
 
