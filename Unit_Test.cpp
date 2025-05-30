@@ -311,7 +311,7 @@ TEST_F(HTTPSUnitTest, TestAbilityToConnectToHTTPSServer) {
 TEST_F(HTTPSUnitTest, TestAbilityToListDirectoryContents) {
   HTTPS_Downloader a_server{"localhost", PORT};
   decltype(auto) directory_list =
-      a_server.ListDirectoryContents("/Archives/edgar/full-index/2013/QTR4");
+      a_server.ListDirectoryContents("/edgar/full-index/2013/QTR4");
   ASSERT_TRUE(std::find(directory_list.begin(), directory_list.end(),
                         "company.gz") != directory_list.end());
 }
@@ -322,9 +322,8 @@ TEST_F(HTTPSUnitTest, VerifyAbilityToDownloadFileWhichExists) {
   }
 
   HTTPS_Downloader a_server{"localhost", PORT};
-  a_server.DownloadFile(
-      "/Archives/edgar/daily-index/2013/QTR4/form.20131010.idx.gz",
-      "/tmp/form.20131010.idx");
+  a_server.DownloadFile("/edgar/daily-index/2013/QTR4/form.20131010.idx.gz",
+                        "/tmp/form.20131010.idx");
   ASSERT_TRUE(fs::exists("/tmp/form.20131010.idx"));
 }
 
@@ -333,42 +332,40 @@ TEST_F(HTTPSUnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist) {
     fs::remove("/tmp/form.20131008.idx");
   }
   HTTPS_Downloader a_server{"localhost", PORT};
-  ASSERT_THROW(a_server.DownloadFile(
-                   "/Archives/edgar/daily-index/2013/QTR4/form.20131008.idx",
-                   "/tmp/form.20131008.idx"),
-               std::runtime_error);
+  ASSERT_THROW(
+      a_server.DownloadFile("/edgar/daily-index/2013/QTR4/form.20131008.idx",
+                            "/tmp/form.20131008.idx"),
+      std::runtime_error);
 }
 
 TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingToFullDisk) {
   HTTPS_Downloader a_server{"localhost", PORT};
-  ASSERT_THROW(a_server.DownloadFile(
-                   "/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx",
-                   "/tmp/ofstream_test/form.20131015.idx"),
-               std::system_error);
+  ASSERT_THROW(
+      a_server.DownloadFile("/edgar/daily-index/2013/QTR4/form.20131015.idx",
+                            "/tmp/ofstream_test/form.20131015.idx"),
+      std::system_error);
 }
 
 TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingGZFileToFullDisk) {
   HTTPS_Downloader a_server{"localhost", PORT};
-  ASSERT_THROW(a_server.DownloadFile(
-                   "/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx.gz",
-                   "/tmp/ofstream_test/form.20131015.idx"),
-               std::system_error);
+  ASSERT_THROW(
+      a_server.DownloadFile("/edgar/daily-index/2013/QTR4/form.20131015.idx.gz",
+                            "/tmp/ofstream_test/form.20131015.idx"),
+      std::system_error);
 }
 
 TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingZipFileToFullDisk) {
   HTTPS_Downloader a_server{"localhost", PORT};
-  ASSERT_THROW(
-      a_server.DownloadFile("/Archives/edgar/full-index/2013/QTR4/form.zip",
-                            "/tmp/ofstream_test/form.idx"),
-      std::system_error);
-  //	a_server.DownloadFile("/Archives/edgar/full-index/2013/QTR4/form.zip",
+  ASSERT_THROW(a_server.DownloadFile("/edgar/full-index/2013/QTR4/form.zip",
+                                     "/tmp/ofstream_test/form.idx"),
+               std::system_error);
+  //	a_server.DownloadFile("/edgar/full-index/2013/QTR4/form.zip",
   //"/tmp/ofstream_test/form.idx");
 }
 
 class RetrieverUnitTest : public Test {
 public:
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                     "/Archives/edgar/daily-index"};
+  DailyIndexFileRetriever idxFileRet{"localhost", PORT, "/edgar/daily-index"};
 };
 
 TEST_F(RetrieverUnitTest, VerifyRejectsInvalidDates) {
@@ -520,12 +517,11 @@ TEST_F(RetrieverUnitTest,
 
 class ParserUnitTest : public Test {
 public:
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                     "/Archives/edgar/daily-index"};
+  DailyIndexFileRetriever idxFileRet{"localhost", PORT, "/edgar/daily-index"};
 };
 
 //	The following block of tests relate to working with the Index file
-//located above.
+// located above.
 
 TEST_F(ParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFile) {
   if (fs::exists("/tmp/form.20131010.idx")) {
@@ -675,8 +671,7 @@ TEST_F(ParserUnitTest,
 class RetrieverMultipleDailies : public Test {
 public:
   HTTPS_Downloader a_server{"localhost", PORT};
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                     "/Archives/edgar/daily-index"};
+  DailyIndexFileRetriever idxFileRet{"localhost", PORT, "/edgar/daily-index"};
 };
 
 TEST_F(RetrieverMultipleDailies, VerifyRejectsFutureDates) {
@@ -784,8 +779,7 @@ TEST_F(
 
 class ConcurrentlyRetrieveMultipleDailies : public Test {
 public:
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                     "/Archives/edgar/daily-index"};
+  DailyIndexFileRetriever idxFileRet{"localhost", PORT, "/edgar/daily-index"};
 };
 
 TEST_F(ConcurrentlyRetrieveMultipleDailies,
@@ -955,7 +949,7 @@ class ConcurrentlyRetrieveMultipleQuarterlyFiles : public Test {
 public:
   HTTPS_Downloader a_server{"localhost", PORT};
   QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                         "/Archives/edgar/full-index"};
+                                         "/edgar/full-index"};
 };
 
 TEST_F(ConcurrentlyRetrieveMultipleQuarterlyFiles,
@@ -976,7 +970,7 @@ class QuarterlyUnitTest : public Test {
 public:
   HTTPS_Downloader a_server{"localhost", PORT};
   QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                         "/Archives/edgar/full-index"};
+                                         "/edgar/full-index"};
 };
 
 TEST_F(QuarterlyUnitTest, VerifyRejectsInvalidDates) {
@@ -998,13 +992,13 @@ TEST_F(QuarterlyUnitTest, VerifyRejectsFutureDates) {
 TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenFirstDayInQuarter) {
   decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(
       StringToDateYMD("%F", "2000-01-01"));
-  ASSERT_TRUE(file_name == "/Archives/edgar/full-index/2000/QTR1/form.zip");
+  ASSERT_TRUE(file_name == "/edgar/full-index/2000/QTR1/form.zip");
 }
 
 TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenLastDayInQuarter) {
   decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(
       StringToDateYMD("%F", "2002-06-30"));
-  ASSERT_TRUE(file_name == "/Archives/edgar/full-index/2002/QTR2/form.zip");
+  ASSERT_TRUE(file_name == "/edgar/full-index/2002/QTR2/form.zip");
 }
 
 TEST_F(QuarterlyUnitTest, TestFindAllQuarterlyIndexFilesForAYear) {
@@ -1096,7 +1090,7 @@ TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFile) {
 class QuarterlyRetrieveMultipleFiles : public Test {
 public:
   QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                         "/Archives/edgar/full-index"};
+                                         "/edgar/full-index"};
 };
 
 TEST_F(QuarterlyRetrieveMultipleFiles, VerifyRejectsFutureDates) {
@@ -1185,7 +1179,7 @@ TEST_F(
 class QuarterlyParserUnitTest : public Test {
 public:
   QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                         "/Archives/edgar/full-index"};
+                                         "/edgar/full-index"};
 };
 
 TEST_F(QuarterlyParserUnitTest,
@@ -1377,7 +1371,7 @@ TEST_F(TickerLookupUnitTest,
 class QuarterlyParserFilterTest : public Test {
 public:
   QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                         "/Archives/edgar/full-index"};
+                                         "/edgar/full-index"};
 };
 
 TEST_F(QuarterlyParserFilterTest,
@@ -1456,8 +1450,7 @@ TEST_F(
 //
 class MultipleFormsParserUnitTest : public Test {
 public:
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                     "/Archives/edgar/daily-index"};
+  DailyIndexFileRetriever idxFileRet{"localhost", PORT, "/edgar/daily-index"};
 };
 
 // //	The following block of tests relate to working with the Index file
@@ -1468,8 +1461,9 @@ public:
 // {
 // 	decltype(auto) file_name =
 // idxFileRet.FindRemoteIndexFileNameNearestDate(StringToDateYMD("%F",
-// "2013-10-10")); 	idxFileRet.CopyRemoteIndexFileTo("/tmp"); 	decltype(auto)
-// local_daily_index_file_name = idxFileRet.GetLocalIndexFilePath();
+// "2013-10-10")); 	idxFileRet.CopyRemoteIndexFileTo("/tmp");
+// decltype(auto) local_daily_index_file_name =
+// idxFileRet.GetLocalIndexFilePath();
 //
 // 	FormFileRetriever form_file_getter{a_server};
 // 	std::vector<std::string> forms_list{"4", "10-K", "10-Q"};
@@ -1560,7 +1554,7 @@ TEST_F(MultipleFormsParserUnitTest,
 class FinancialStatementsAndNotesTest : public Test {
 public:
   //	DailyIndexFileRetriever idxFileRet{"localhost", PORT,
-  //"/Archives/edgar/daily-index"};
+  //"/edgar/daily-index"};
   // files/dera/data/financial-statement-and-notes-data-sets/
   // YYYY_MM_notes.zip for monthly
   // YYYYqN_notes.zip for quarterly
@@ -1595,24 +1589,24 @@ TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesQuarterlyOnly) {
 
 TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesMonthlyOnly) {
   FinancialStatementsAndNotes_gen file_names{
-      date::year_month_day{2020_y / date::November / 15},
-      date::year_month_day{2021_y / date::February / 5}};
-  EXPECT_EQ(file_names->first, "2020_11_notes.zip");
-  EXPECT_EQ(file_names->second, "2020_11");
+      date::year_month_day{2024_y / date::November / 15},
+      date::year_month_day{2025_y / date::February / 5}};
+  EXPECT_EQ(file_names->first, "2024_11_notes.zip");
+  EXPECT_EQ(file_names->second, "2024_11");
 
   std::vector<std::string> expected_values = {
-      "2020_11_notes.zip", "2020_12_notes.zip", "2021_01_notes.zip"};
+      "2024_11_notes.zip", "2024_12_notes.zip", "2025_01_notes.zip"};
   std::vector<std::string> actual_values;
   FinancialStatementsAndNotes fin_notes{
-      date::year_month_day{2020_y / date::November / 15},
-      date::year_month_day{2021_y / date::February / 5}};
+      date::year_month_day{2024_y / date::November / 15},
+      date::year_month_day{2025_y / date::February / 5}};
 
   auto only_file_names = fin_notes | rng::views::keys;
   rng::copy(only_file_names, std::back_inserter(actual_values));
   EXPECT_EQ(actual_values, expected_values);
 
   auto only_directory_names = fin_notes | rng::views::values;
-  expected_values = {"2020_11", "2020_12", "2021_1"};
+  expected_values = {"2024_11", "2024_12", "2025_01"};
   actual_values.clear();
   rng::copy(only_directory_names, std::back_inserter(actual_values));
   ASSERT_EQ(actual_values, expected_values);
@@ -1621,25 +1615,25 @@ TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesMonthlyOnly) {
 TEST_F(FinancialStatementsAndNotesTest,
        TestGeneratesFileNamesQuarterlyRolloverToMonthly) {
   FinancialStatementsAndNotes_gen file_names{
-      date::year_month_day{2020_y / date::August / 3},
-      date::year_month_day{2021_y / date::February / 5}};
-  EXPECT_EQ(file_names->first, "2020q3_notes.zip");
-  EXPECT_EQ(file_names->second, "2020_3");
+      date::year_month_day{2023_y / date::August / 3},
+      date::year_month_day{2024_y / date::March / 5}};
+  EXPECT_EQ(file_names->first, "2023q3_notes.zip");
+  EXPECT_EQ(file_names->second, "2023_3");
 
   std::vector<std::string> expected_values = {
-      "2020q3_notes.zip", "2020_10_notes.zip", "2020_11_notes.zip",
-      "2020_12_notes.zip", "2021_01_notes.zip"};
+      "2023q3_notes.zip", "2023q4_notes.zip", "2024_01_notes.zip",
+      "2024_02_notes.zip"};
   std::vector<std::string> actual_values;
   FinancialStatementsAndNotes fin_notes{
-      date::year_month_day{2020_y / date::August / 3},
-      date::year_month_day{2021_y / date::February / 5}};
+      date::year_month_day{2023_y / date::August / 3},
+      date::year_month_day{2024_y / date::March / 5}};
 
   auto only_file_names = fin_notes | rng::views::keys;
   rng::copy(only_file_names, std::back_inserter(actual_values));
   EXPECT_EQ(actual_values, expected_values);
 
   auto only_directory_names = fin_notes | rng::views::values;
-  expected_values = {"2020_3", "2020_10", "2020_11", "2020_12", "2021_1"};
+  expected_values = {"2023_3", "2023_4", "2024_01", "2024_02"};
   actual_values.clear();
   rng::copy(only_directory_names, std::back_inserter(actual_values));
   ASSERT_EQ(actual_values, expected_values);
@@ -1658,8 +1652,8 @@ TEST_F(FinancialStatementsAndNotesTest,
                                           "/tmp/fin_stmts_downloads", true);
 
   EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads"));
-  EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2021_1/2021_01_notes.zip"));
-  ASSERT_FALSE(fs::exists("/tmp/fin_stmts_downloads/2021_2/2021_02_notes.zip"));
+  EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2020_3/2020q3_notes.zip"));
+  ASSERT_FALSE(fs::exists("/tmp/fin_stmts_downloads/2021_1/2021q1_notes.zip"));
 }
 
 TEST_F(FinancialStatementsAndNotesTest,
