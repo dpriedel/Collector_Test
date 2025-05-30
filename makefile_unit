@@ -68,6 +68,7 @@ CFG_LIB := -lpthread \
 		-L$(BOOSTDIR)/lib \
 		-lboost_iostreams-mt-x64 \
 		-lboost_json-mt-x64 \
+		-lboost_process-mt-x64 \
 		-L/usr/local/lib \
 		-lz \
 		-lzip \
