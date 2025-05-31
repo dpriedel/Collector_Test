@@ -311,7 +311,7 @@ TEST_F(HTTPSUnitTest, TestAbilityToConnectToHTTPSServer) {
 TEST_F(HTTPSUnitTest, TestAbilityToListDirectoryContents) {
   HTTPS_Downloader a_server{"localhost", PORT};
   decltype(auto) directory_list =
-      a_server.ListDirectoryContents("/edgar/full-index/2013/QTR4");
+      a_server.ListDirectoryContents("/Archives/edgar/full-index/2013/QTR4");
   ASSERT_TRUE(std::find(directory_list.begin(), directory_list.end(),
                         "company.gz") != directory_list.end());
 }
@@ -322,8 +322,9 @@ TEST_F(HTTPSUnitTest, VerifyAbilityToDownloadFileWhichExists) {
   }
 
   HTTPS_Downloader a_server{"localhost", PORT};
-  a_server.DownloadFile("/edgar/daily-index/2013/QTR4/form.20131010.idx.gz",
-                        "/tmp/form.20131010.idx");
+  a_server.DownloadFile(
+      "/Archives/edgar/daily-index/2013/QTR4/form.20131010.idx.gz",
+      "/tmp/form.20131010.idx");
   ASSERT_TRUE(fs::exists("/tmp/form.20131010.idx"));
 }
 
@@ -332,40 +333,42 @@ TEST_F(HTTPSUnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist) {
     fs::remove("/tmp/form.20131008.idx");
   }
   HTTPS_Downloader a_server{"localhost", PORT};
-  ASSERT_THROW(
-      a_server.DownloadFile("/edgar/daily-index/2013/QTR4/form.20131008.idx",
-                            "/tmp/form.20131008.idx"),
-      std::runtime_error);
+  ASSERT_THROW(a_server.DownloadFile(
+                   "/Archives/edgar/daily-index/2013/QTR4/form.20131008.idx",
+                   "/tmp/form.20131008.idx"),
+               std::runtime_error);
 }
 
 TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingToFullDisk) {
   HTTPS_Downloader a_server{"localhost", PORT};
-  ASSERT_THROW(
-      a_server.DownloadFile("/edgar/daily-index/2013/QTR4/form.20131015.idx",
-                            "/tmp/ofstream_test/form.20131015.idx"),
-      std::system_error);
+  ASSERT_THROW(a_server.DownloadFile(
+                   "/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx",
+                   "/tmp/ofstream_test/form.20131015.idx"),
+               std::system_error);
 }
 
 TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingGZFileToFullDisk) {
   HTTPS_Downloader a_server{"localhost", PORT};
-  ASSERT_THROW(
-      a_server.DownloadFile("/edgar/daily-index/2013/QTR4/form.20131015.idx.gz",
-                            "/tmp/ofstream_test/form.20131015.idx"),
-      std::system_error);
+  ASSERT_THROW(a_server.DownloadFile(
+                   "/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx.gz",
+                   "/tmp/ofstream_test/form.20131015.idx"),
+               std::system_error);
 }
 
 TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingZipFileToFullDisk) {
   HTTPS_Downloader a_server{"localhost", PORT};
-  ASSERT_THROW(a_server.DownloadFile("/edgar/full-index/2013/QTR4/form.zip",
-                                     "/tmp/ofstream_test/form.idx"),
-               std::system_error);
-  //	a_server.DownloadFile("/edgar/full-index/2013/QTR4/form.zip",
+  ASSERT_THROW(
+      a_server.DownloadFile("/Archives/edgar/full-index/2013/QTR4/form.zip",
+                            "/tmp/ofstream_test/form.idx"),
+      std::system_error);
+  //	a_server.DownloadFile("/Archives/edgar/full-index/2013/QTR4/form.zip",
   //"/tmp/ofstream_test/form.idx");
 }
 
 class RetrieverUnitTest : public Test {
 public:
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT, "/edgar/daily-index"};
+  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
+                                     "/Archives/edgar/daily-index"};
 };
 
 TEST_F(RetrieverUnitTest, VerifyRejectsInvalidDates) {
@@ -517,7 +520,8 @@ TEST_F(RetrieverUnitTest,
 
 class ParserUnitTest : public Test {
 public:
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT, "/edgar/daily-index"};
+  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
+                                     "/Archives/edgar/daily-index"};
 };
 
 //	The following block of tests relate to working with the Index file
@@ -671,7 +675,8 @@ TEST_F(ParserUnitTest,
 class RetrieverMultipleDailies : public Test {
 public:
   HTTPS_Downloader a_server{"localhost", PORT};
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT, "/edgar/daily-index"};
+  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
+                                     "/Archives/edgar/daily-index"};
 };
 
 TEST_F(RetrieverMultipleDailies, VerifyRejectsFutureDates) {
@@ -779,7 +784,8 @@ TEST_F(
 
 class ConcurrentlyRetrieveMultipleDailies : public Test {
 public:
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT, "/edgar/daily-index"};
+  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
+                                     "/Archives/edgar/daily-index"};
 };
 
 TEST_F(ConcurrentlyRetrieveMultipleDailies,
@@ -949,7 +955,7 @@ class ConcurrentlyRetrieveMultipleQuarterlyFiles : public Test {
 public:
   HTTPS_Downloader a_server{"localhost", PORT};
   QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                         "/edgar/full-index"};
+                                         "/Archives/edgar/full-index"};
 };
 
 TEST_F(ConcurrentlyRetrieveMultipleQuarterlyFiles,
@@ -970,7 +976,7 @@ class QuarterlyUnitTest : public Test {
 public:
   HTTPS_Downloader a_server{"localhost", PORT};
   QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                         "/edgar/full-index"};
+                                         "/Archives/edgar/full-index"};
 };
 
 TEST_F(QuarterlyUnitTest, VerifyRejectsInvalidDates) {
@@ -992,13 +998,13 @@ TEST_F(QuarterlyUnitTest, VerifyRejectsFutureDates) {
 TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenFirstDayInQuarter) {
   decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(
       StringToDateYMD("%F", "2000-01-01"));
-  ASSERT_TRUE(file_name == "/edgar/full-index/2000/QTR1/form.zip");
+  ASSERT_TRUE(file_name == "/Archives/edgar/full-index/2000/QTR1/form.zip");
 }
 
 TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenLastDayInQuarter) {
   decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(
       StringToDateYMD("%F", "2002-06-30"));
-  ASSERT_TRUE(file_name == "/edgar/full-index/2002/QTR2/form.zip");
+  ASSERT_TRUE(file_name == "/Archives/edgar/full-index/2002/QTR2/form.zip");
 }
 
 TEST_F(QuarterlyUnitTest, TestFindAllQuarterlyIndexFilesForAYear) {
@@ -1090,7 +1096,7 @@ TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFile) {
 class QuarterlyRetrieveMultipleFiles : public Test {
 public:
   QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                         "/edgar/full-index"};
+                                         "/Archives/edgar/full-index"};
 };
 
 TEST_F(QuarterlyRetrieveMultipleFiles, VerifyRejectsFutureDates) {
@@ -1179,7 +1185,7 @@ TEST_F(
 class QuarterlyParserUnitTest : public Test {
 public:
   QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                         "/edgar/full-index"};
+                                         "/Archives/edgar/full-index"};
 };
 
 TEST_F(QuarterlyParserUnitTest,
@@ -1371,7 +1377,7 @@ TEST_F(TickerLookupUnitTest,
 class QuarterlyParserFilterTest : public Test {
 public:
   QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
-                                         "/edgar/full-index"};
+                                         "/Archives/edgar/full-index"};
 };
 
 TEST_F(QuarterlyParserFilterTest,
@@ -1450,7 +1456,8 @@ TEST_F(
 //
 class MultipleFormsParserUnitTest : public Test {
 public:
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT, "/edgar/daily-index"};
+  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
+                                     "/Archives/edgar/daily-index"};
 };
 
 // //	The following block of tests relate to working with the Index file
@@ -1554,7 +1561,7 @@ TEST_F(MultipleFormsParserUnitTest,
 class FinancialStatementsAndNotesTest : public Test {
 public:
   //	DailyIndexFileRetriever idxFileRet{"localhost", PORT,
-  //"/edgar/daily-index"};
+  //"/Archives/edgar/daily-index"};
   // files/dera/data/financial-statement-and-notes-data-sets/
   // YYYY_MM_notes.zip for monthly
   // YYYYqN_notes.zip for quarterly
@@ -1669,8 +1676,8 @@ TEST_F(FinancialStatementsAndNotesTest,
                                           "/tmp/fin_stmts_downloads", true);
 
   EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads"));
-  EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2021_1/2021_01_notes.zip"));
-  EXPECT_FALSE(fs::exists("/tmp/fin_stmts_downloads/2021_2/2021_02_notes.zip"));
+  EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2020_3/2020q3_notes.zip"));
+  ASSERT_FALSE(fs::exists("/tmp/fin_stmts_downloads/2021_1/2021q1_notes.zip"));
 
   decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree(
       "/tmp/fin_stmts_downloads");
@@ -1692,7 +1699,7 @@ TEST_F(FinancialStatementsAndNotesTest,
  * =====================================================================================
  */
 void InitLogging() {
-  spdlog::set_level(spdlog::level::debug);
+  spdlog::set_level(spdlog::level::info);
   //    logging::core::get()->set_filter
   //    (
   //        logging::trivial::severity >= logging::trivial::trace
