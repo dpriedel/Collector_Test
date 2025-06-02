@@ -144,7 +144,7 @@ TEST(DailyEndToEndTest,
   fs::create_directory("/tmp/forms");
 
   //	NOTE: the program name 'the_program' in the command line below is
-  //ignored in the 	the test program.
+  // ignored in the 	the test program.
 
   std::vector<std::string> tokens{
       "the_program", "--index-dir", "/tmp",       "--begin-date", "2013-Oct-14",
@@ -189,7 +189,7 @@ TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified) {
   fs::create_directory("/tmp/forms");
 
   //	NOTE: the program name 'the_program' in the command line below is
-  //ignored in the 	the test program.
+  // ignored in the 	the test program.
 
   std::vector<std::string> tokens{
       "the_program", "--index-dir", "/tmp",       "--begin-date",
@@ -233,7 +233,7 @@ TEST(DailyEndToEndTest,
   fs::create_directory("/tmp/forms1");
 
   //	NOTE: the program name 'the_program' in the command line below is
-  //ignored in the 	the test program.
+  // ignored in the 	the test program.
 
   std::vector<std::string> tokens{"the_program", "--index-dir", "/tmp/index1",
                                   "--form-dir",  "/tmp/forms1", "--host",
@@ -270,7 +270,7 @@ TEST(DailyEndToEndTest,
 
 TEST(DailyEndToEndTest, VerifyExceptionsThrownWhenDiskIsFull) {
   //	NOTE: the program name 'the_program' in the command line below is
-  //ignored in the 	the test program.
+  // ignored in the 	the test program.
 
   std::vector<std::string> tokens{
       "the_program",  "--index-dir",  "/tmp/ofstream_test/test_2",
@@ -318,7 +318,7 @@ TEST(
   fs::create_directory("/tmp/forms1");
 
   //	NOTE: the program name 'the_program' in the command line below is
-  //ignored in the 	the test program.
+  // ignored in the 	the test program.
 
   std::vector<std::string> tokens{"the_program",  "--index-dir", "/tmp/index1",
                                   "--form-dir",   "/tmp/forms1", "--host",
@@ -474,7 +474,7 @@ TEST(DailyEndToEndTest,
   fs::create_directory("/tmp/forms2");
 
   //	NOTE: the program name 'the_program' in the command line below is
-  //ignored in the 	the test program.
+  // ignored in the 	the test program.
 
   std::vector<std::string> tokens{"the_program", "--index-dir",
                                   "/tmp/index2", "--form-dir",
@@ -528,7 +528,7 @@ TEST(QuarterlyEndToEndTest,
   }
 
   //	NOTE: the program name 'the_program' in the command line below is
-  //ignored in the 	the test program.
+  // ignored in the 	the test program.
 
   std::vector<std::string> tokens{"the_program",  "--index-dir",  "/tmp/index3",
                                   "--host",       "localhost",    "--port",
@@ -621,7 +621,7 @@ TEST(QuarterlyEndToEndTest,
   }
 
   //	NOTE: the program name 'the_program' in the command line below is
-  //ignored in the 	the test program.
+  // ignored in the 	the test program.
 
   std::vector<std::string> tokens{
       "the_program", "--index-dir",  "/tmp/index5", "--form-dir",
@@ -691,8 +691,8 @@ TEST(QuarterlyEndToEndTest,
 // 	catch (std::exception& theProblem)
 // 	{
 // 		myApp.logger().error(std::string("Something fundamental went
-// wrong: ") + theProblem.what()); 		throw;	//	so test framework will
-// get it too.
+// wrong: ") + theProblem.what()); 		throw;	//	so test
+// framework will get it too.
 // 	}
 // 	catch (...)
 // 	{		// handle exception: unspecified
@@ -705,15 +705,12 @@ TEST(QuarterlyEndToEndTest,
 //
 TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker) {
   //	NOTE: the program name 'the_program' in the command line below is
-  //ignored in the 	the test program.
+  // ignored in the 	the test program.
 
-  std::vector<std::string> tokens{"the_program",
-                                  "--mode",
-                                  "ticker-only",
-                                  "--ticker",
-                                  "AAPL",
-                                  "--ticker-cache",
-                                  "/vol_DA/SEC/Ticker2CIK_CacheFile"};
+  std::vector<std::string> tokens{
+      "the_program", "--log-level",    "debug",
+      "--mode",      "ticker-only",    "--ticker",
+      "AAPL",        "--ticker-cache", "/vol_DA/SEC/Ticker2CIK_CacheFile"};
 
   try {
     CollectorApp myApp(tokens);
@@ -737,9 +734,9 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker) {
     spdlog::error("Something totally unexpected happened.");
     throw;
   }
-  ASSERT_THAT(
-      (fs::exists("/tmp/ticker_to_CIK") && !fs::is_empty("/tmp/ticker_to_CIK")),
-      Eq(true));
+  ASSERT_THAT((fs::exists("/vol_DA/SEC/Ticker2CIK_CacheFile") &&
+               !fs::is_empty("/vol_DA/SEC/Ticker2CIK_CacheFile")),
+              Eq(true));
 }
 
 // TEST(TickerEndToEndTest, VerifyTickerLookupForFileOfTickers)
@@ -771,8 +768,8 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker) {
 // 	catch (std::exception& theProblem)
 // 	{
 // 		myApp.logger().error(std::string("Something fundamental went
-// wrong: ") + theProblem.what()); 		throw;	//	so test framework will
-// get it too.
+// wrong: ") + theProblem.what()); 		throw;	//	so test
+// framework will get it too.
 // 	}
 // 	catch (...)
 // 	{		// handle exception: unspecified
@@ -817,8 +814,8 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker) {
 // 	catch (std::exception& theProblem)
 // 	{
 // 		myApp.logger().error(std::string("Something fundamental went
-// wrong: ") + theProblem.what()); 		throw;	//	so test framework will
-// get it too.
+// wrong: ") + theProblem.what()); 		throw;	//	so test
+// framework will get it too.
 // 	}
 // 	catch (...)
 // 	{		// handle exception: unspecified
@@ -864,8 +861,8 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker) {
 // 	catch (std::exception& theProblem)
 // 	{
 // 		myApp.logger().error(std::string("Something fundamental went
-// wrong: ") + theProblem.what()); 		throw;	//	so test framework will
-// get it too.
+// wrong: ") + theProblem.what()); 		throw;	//	so test
+// framework will get it too.
 // 	}
 // 	catch (...)
 // 	{		// handle exception: unspecified
@@ -915,8 +912,8 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker) {
 // 	catch (std::exception& theProblem)
 // 	{
 // 		myApp.logger().error(std::string("Something fundamental went
-// wrong: ") + theProblem.what()); 		throw;	//	so test framework will
-// get it too.
+// wrong: ") + theProblem.what()); 		throw;	//	so test
+// framework will get it too.
 // 	}
 // 	catch (...)
 // 	{		// handle exception: unspecified
@@ -937,7 +934,7 @@ TEST(DailyEndToEndTestWithTicker,
   }
 
   //	NOTE: the program name 'the_program' in the command line below is
-  //ignored in the 	the test program.
+  // ignored in the 	the test program.
 
   std::vector<std::string> tokens{"the_program",
                                   "--index-dir",
@@ -1028,8 +1025,8 @@ TEST(DailyEndToEndTestWithTicker,
 // 	catch (std::exception& theProblem)
 // 	{
 // 		myApp.logger().error(std::string("Something fundamental went
-// wrong: ") + theProblem.what()); 		throw;	//	so test framework will
-// get it too.
+// wrong: ") + theProblem.what()); 		throw;	//	so test
+// framework will get it too.
 // 	}
 // 	catch (...)
 // 	{		// handle exception: unspecified
@@ -1078,8 +1075,8 @@ TEST(DailyEndToEndTestWithTicker,
 // 	catch (std::exception& theProblem)
 // 	{
 // 		myApp.logger().error(std::string("Something fundamental went
-// wrong: ") + theProblem.what()); 		throw;	//	so test framework will
-// get it too.
+// wrong: ") + theProblem.what()); 		throw;	//	so test
+// framework will get it too.
 // 	}
 // 	catch (...)
 // 	{		// handle exception: unspecified
@@ -1096,17 +1093,17 @@ TEST(EndToEndTestFinancialNotes, VerifyDownloadAndExtractionOfSpecifiedData) {
   }
 
   //	NOTE: the program name 'the_program' in the command line below is
-  //ignored in the 	the test program.
+  // ignored in the 	the test program.
 
   std::vector<std::string> tokens{"the_program",
                                   "--host",
-                                  "localhost",
+                                  "www.sec.gov",
                                   "--port",
-                                  "8443",
+                                  "443",
                                   "--end-date",
-                                  "2021-Feb-17",
+                                  "2024-Feb-17",
                                   "--begin-date",
-                                  "2020-Aug-09",
+                                  "2023-Aug-09",
                                   "--log-level",
                                   "debug",
                                   "--mode",
@@ -1138,7 +1135,7 @@ TEST(EndToEndTestFinancialNotes, VerifyDownloadAndExtractionOfSpecifiedData) {
     spdlog::error("Something totally unexpected happened.");
     throw;
   }
-  ASSERT_THAT(CountFilesInDirectoryTree("/tmp/fin_stmts_downloads"), Eq(55));
+  ASSERT_THAT(CountFilesInDirectoryTree("/tmp/fin_stmts_downloads"), Eq(33));
 }
 
 /*
