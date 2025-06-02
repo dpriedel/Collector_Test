@@ -1651,15 +1651,20 @@ TEST_F(FinancialStatementsAndNotesTest,
   if (fs::exists("/tmp/fin_stmts_downloads")) {
     fs::remove_all("/tmp/fin_stmts_downloads");
   }
+  if (fs::exists("/tmp/fin_stmts_files")) {
+    fs::remove_all("/tmp/fin_stmts_files");
+  }
   FinancialStatementsAndNotes fin_statement_downloader{
       date::year_month_day{2020_y / date::August / 3},
       date::year_month_day{2021_y / date::February / 5}};
 
   fin_statement_downloader.download_files("localhost", "8443",
-                                          "/tmp/fin_stmts_downloads", true);
+                                          "/tmp/fin_stmts_downloads",
+                                          "/tmp/fin_stmts_files", true);
 
   EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads"));
   EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2020_3/2020q3_notes.zip"));
+  EXPECT_TRUE(fs::exists("/tmp/fin_stmts_files/2020_3/sub.tsv"));
   ASSERT_FALSE(fs::exists("/tmp/fin_stmts_downloads/2021_1/2021q1_notes.zip"));
 }
 
@@ -1668,15 +1673,20 @@ TEST_F(FinancialStatementsAndNotesTest,
   if (fs::exists("/tmp/fin_stmts_downloads")) {
     fs::remove_all("/tmp/fin_stmts_downloads");
   }
+  if (fs::exists("/tmp/fin_stmts_files")) {
+    fs::remove_all("/tmp/fin_stmts_files");
+  }
   FinancialStatementsAndNotes fin_statement_downloader{
       date::year_month_day{2020_y / date::August / 3},
       date::year_month_day{2021_y / date::February / 5}};
 
   fin_statement_downloader.download_files("localhost", "8443",
-                                          "/tmp/fin_stmts_downloads", true);
+                                          "/tmp/fin_stmts_downloads",
+                                          "/tmp/fin_stmts_files", true);
 
   EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads"));
   EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2020_3/2020q3_notes.zip"));
+  EXPECT_TRUE(fs::exists("/tmp/fin_stmts_files/2020_3/sub.tsv"));
   ASSERT_FALSE(fs::exists("/tmp/fin_stmts_downloads/2021_1/2021q1_notes.zip"));
 
   decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree(
@@ -1685,7 +1695,8 @@ TEST_F(FinancialStatementsAndNotesTest,
   std::this_thread::sleep_for(std::chrono::seconds{1});
 
   fin_statement_downloader.download_files("localhost", "8443",
-                                          "/tmp/fin_stmts_downloads", false);
+                                          "/tmp/fin_stmts_downloads",
+                                          "/tmp/fin_stmts_files", false);
   decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree(
       "/tmp/fin_stmts_downloads");
 
