@@ -1663,9 +1663,9 @@ TEST_F(FinancialStatementsAndNotesTest,
                                           "/tmp/fin_stmts_files", true);
 
   EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads"));
-  EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2020_3/2020q3_notes.zip"));
+  EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2020q3_notes.zip"));
   EXPECT_TRUE(fs::exists("/tmp/fin_stmts_files/2020_3/sub.tsv"));
-  ASSERT_FALSE(fs::exists("/tmp/fin_stmts_downloads/2021_1/2021q1_notes.zip"));
+  ASSERT_FALSE(fs::exists("/tmp/fin_stmts_downloads/2021q1_notes.zip"));
 }
 
 TEST_F(FinancialStatementsAndNotesTest,
@@ -1685,9 +1685,9 @@ TEST_F(FinancialStatementsAndNotesTest,
                                           "/tmp/fin_stmts_files", true);
 
   EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads"));
-  EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2020_3/2020q3_notes.zip"));
+  EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2020q3_notes.zip"));
   EXPECT_TRUE(fs::exists("/tmp/fin_stmts_files/2020_3/sub.tsv"));
-  ASSERT_FALSE(fs::exists("/tmp/fin_stmts_downloads/2021_1/2021q1_notes.zip"));
+  ASSERT_FALSE(fs::exists("/tmp/fin_stmts_downloads/2021q1_notes.zip"));
 
   decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree(
       "/tmp/fin_stmts_downloads");
