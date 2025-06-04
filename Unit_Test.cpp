@@ -38,8 +38,6 @@
 #include <chrono>
 #include <filesystem>
 #include <iostream>
-#include <numeric>
-#include <sstream>
 #include <string>
 #include <system_error>
 #include <thread>
@@ -70,6 +68,8 @@ namespace fs = std::filesystem;
 namespace rng = std::ranges;
 
 const std::string PORT = "8443";
+
+using namespace std::chrono_literals;
 
 using namespace testing;
 
@@ -380,8 +380,8 @@ TEST_F(RetrieverUnitTest, VerifyRejectsInvalidDates) {
 TEST_F(RetrieverUnitTest, VerifyRejectsFutureDates) {
   // let's make a date in the future
 
-  auto today = floor<date::days>(std::chrono::system_clock::now());
-  auto tomorrow = today + date::days(1);
+  auto today = floor<std::chrono::days>(std::chrono::system_clock::now());
+  auto tomorrow = today + std::chrono::days(1);
 
   ASSERT_THROW(idxFileRet.FindRemoteIndexFileNameNearestDate(tomorrow),
                Collector::AssertionException);
@@ -392,8 +392,8 @@ TEST_F(RetrieverUnitTest, VerifyRejectsFutureDates) {
 TEST_F(RetrieverUnitTest, TestFindIndexFileDateNearestWhereDateExists) {
   decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(
       StringToDateYMD("%F", "2013-10-11"));
-  ASSERT_TRUE(idxFileRet.GetActualIndexFileDate() ==
-              StringToDateYMD("%F", "2013-10-11"));
+  ASSERT_EQ(idxFileRet.GetActualIndexFileDate(),
+            StringToDateYMD("%F", "2013-10-11"));
 }
 
 TEST_F(RetrieverUnitTest, TestFindIndexFileDateNearestWhereDateDoesNotExist) {
@@ -682,8 +682,8 @@ public:
 TEST_F(RetrieverMultipleDailies, VerifyRejectsFutureDates) {
   // let's make a date in the future
 
-  auto today = floor<date::days>(std::chrono::system_clock::now());
-  auto tomorrow = today + date::days(1);
+  auto today = floor<std::chrono::days>(std::chrono::system_clock::now());
+  auto tomorrow = today + std::chrono::days(1);
 
   ASSERT_THROW(idxFileRet.FindRemoteIndexFileNamesForDateRange(
                    StringToDateYMD("%Y-%b-%d", "2013-Oct-13"), tomorrow),
@@ -988,8 +988,8 @@ TEST_F(QuarterlyUnitTest, VerifyRejectsInvalidDates) {
 TEST_F(QuarterlyUnitTest, VerifyRejectsFutureDates) {
   // let's make a date in the future
 
-  auto today = floor<date::days>(std::chrono::system_clock::now());
-  auto tomorrow = today + date::days(1);
+  auto today = floor<std::chrono::days>(std::chrono::system_clock::now());
+  auto tomorrow = today + std::chrono::days(1);
 
   ASSERT_THROW(idxFileRet.MakeQuarterlyIndexPathName(tomorrow),
                Collector::AssertionException);
@@ -1102,8 +1102,8 @@ public:
 TEST_F(QuarterlyRetrieveMultipleFiles, VerifyRejectsFutureDates) {
   // let's make a date in the future
 
-  auto today = floor<date::days>(std::chrono::system_clock::now());
-  auto tomorrow = today + date::days(1);
+  auto today = floor<std::chrono::days>(std::chrono::system_clock::now());
+  auto tomorrow = today + std::chrono::days(1);
 
   ASSERT_THROW(idxFileRet.MakeIndexFileNamesForDateRange(
                    StringToDateYMD("%Y-%b-%d", "2013-Oct-13"), tomorrow),
@@ -1569,8 +1569,8 @@ public:
 
 TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesQuarterlyOnly) {
   FinancialStatementsAndNotes_gen file_names{
-      date::year_month_day{2009_y / date::April / 3},
-      date::year_month_day{2010_y / date::October / 5}};
+      std::chrono::year_month_day{2009y / std::chrono::April / 3},
+      std::chrono::year_month_day{2010y / std::chrono::October / 5}};
   EXPECT_EQ(file_names->first, "2009q2_notes.zip");
   EXPECT_EQ(file_names->second, "2009_2");
 
@@ -1579,8 +1579,8 @@ TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesQuarterlyOnly) {
       "2010q1_notes.zip", "2010q2_notes.zip", "2010q3_notes.zip"};
   std::vector<std::string> actual_values;
   FinancialStatementsAndNotes fin_notes{
-      date::year_month_day{2009_y / date::April / 3},
-      date::year_month_day{2010_y / date::October / 5}};
+      std::chrono::year_month_day{2009y / std::chrono::April / 3},
+      std::chrono::year_month_day{2010y / std::chrono::October / 5}};
 
   auto only_file_names = fin_notes | rng::views::keys;
   rng::copy(only_file_names, std::back_inserter(actual_values));
@@ -1596,8 +1596,8 @@ TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesQuarterlyOnly) {
 
 TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesMonthlyOnly) {
   FinancialStatementsAndNotes_gen file_names{
-      date::year_month_day{2024_y / date::November / 15},
-      date::year_month_day{2025_y / date::February / 5}};
+      std::chrono::year_month_day{2024y / std::chrono::November / 15},
+      std::chrono::year_month_day{2025y / std::chrono::February / 5}};
   EXPECT_EQ(file_names->first, "2024_11_notes.zip");
   EXPECT_EQ(file_names->second, "2024_11");
 
@@ -1605,8 +1605,8 @@ TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesMonthlyOnly) {
       "2024_11_notes.zip", "2024_12_notes.zip", "2025_01_notes.zip"};
   std::vector<std::string> actual_values;
   FinancialStatementsAndNotes fin_notes{
-      date::year_month_day{2024_y / date::November / 15},
-      date::year_month_day{2025_y / date::February / 5}};
+      std::chrono::year_month_day{2024y / std::chrono::November / 15},
+      std::chrono::year_month_day{2025y / std::chrono::February / 5}};
 
   auto only_file_names = fin_notes | rng::views::keys;
   rng::copy(only_file_names, std::back_inserter(actual_values));
@@ -1622,8 +1622,8 @@ TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesMonthlyOnly) {
 TEST_F(FinancialStatementsAndNotesTest,
        TestGeneratesFileNamesQuarterlyRolloverToMonthly) {
   FinancialStatementsAndNotes_gen file_names{
-      date::year_month_day{2023_y / date::August / 3},
-      date::year_month_day{2024_y / date::March / 5}};
+      std::chrono::year_month_day{2023y / std::chrono::August / 3},
+      std::chrono::year_month_day{2024y / std::chrono::March / 5}};
   EXPECT_EQ(file_names->first, "2023q3_notes.zip");
   EXPECT_EQ(file_names->second, "2023_3");
 
@@ -1632,8 +1632,8 @@ TEST_F(FinancialStatementsAndNotesTest,
       "2024_02_notes.zip"};
   std::vector<std::string> actual_values;
   FinancialStatementsAndNotes fin_notes{
-      date::year_month_day{2023_y / date::August / 3},
-      date::year_month_day{2024_y / date::March / 5}};
+      std::chrono::year_month_day{2023y / std::chrono::August / 3},
+      std::chrono::year_month_day{2024y / std::chrono::March / 5}};
 
   auto only_file_names = fin_notes | rng::views::keys;
   rng::copy(only_file_names, std::back_inserter(actual_values));
@@ -1655,8 +1655,8 @@ TEST_F(FinancialStatementsAndNotesTest,
     fs::remove_all("/tmp/fin_stmts_files");
   }
   FinancialStatementsAndNotes fin_statement_downloader{
-      date::year_month_day{2020_y / date::August / 3},
-      date::year_month_day{2021_y / date::February / 5}};
+      std::chrono::year_month_day{2020y / std::chrono::August / 3},
+      std::chrono::year_month_day{2021y / std::chrono::February / 5}};
 
   fin_statement_downloader.download_files("localhost", "8443",
                                           "/tmp/fin_stmts_downloads",
@@ -1677,8 +1677,8 @@ TEST_F(FinancialStatementsAndNotesTest,
     fs::remove_all("/tmp/fin_stmts_files");
   }
   FinancialStatementsAndNotes fin_statement_downloader{
-      date::year_month_day{2020_y / date::August / 3},
-      date::year_month_day{2021_y / date::February / 5}};
+      std::chrono::year_month_day{2020y / std::chrono::August / 3},
+      std::chrono::year_month_day{2021y / std::chrono::February / 5}};
 
   fin_statement_downloader.download_files("localhost", "8443",
                                           "/tmp/fin_stmts_downloads",
