@@ -71,9 +71,7 @@ CFG_LIB := -lpthread \
 		-lboost_process-mt-x64 \
 		-L/usr/local/lib \
 		-ldate-tz \
-		-lgtest -lgtest_main \
-		-L/usr/lib \
-		-lfmt
+		-lgtest -lgtest_main 
 
 OBJS1=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS1)))))
 OBJS2=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS2)))))

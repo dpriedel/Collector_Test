@@ -72,9 +72,7 @@ CFG_LIB := -lpthread \
 		-L/usr/local/lib \
 		-lz \
 		-lzip \
-		-lgtest -lgtest_main \
-		-L/usr/lib \
-		-lfmt
+		-lgtest -lgtest_main 
 
 OBJS1=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS1)))))
 OBJS2=$(addprefix $(OUTDIR)/, $(addsuffix .o, $(basename $(notdir $(SRCS2)))))
