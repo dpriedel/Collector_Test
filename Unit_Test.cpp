@@ -68,6 +68,7 @@ namespace fs = std::filesystem;
 namespace rng = std::ranges;
 
 const std::string PORT = "8443";
+const std::string SERVER = "localhost";
 
 using namespace std::chrono_literals;
 
@@ -282,7 +283,7 @@ TEST_F(HTTPSUnitTest, TestExceptionOnFailureToConnectToHTTPSServer) {
 }
 
 TEST_F(HTTPSUnitTest, TestAbilityToConnectToHTTPSServer) {
-  HTTPS_Downloader a_server{"localhost", PORT};
+  HTTPS_Downloader a_server{SERVER, PORT};
   // ASSERT_NO_THROW(a_server.OpenHTTPSConnection());
   std::string data = a_server.RetrieveDataFromServer("/Archives/test.txt");
   std::cout << "data: " << data << '\n';
@@ -291,7 +292,7 @@ TEST_F(HTTPSUnitTest, TestAbilityToConnectToHTTPSServer) {
 
 // /* TEST_F(FTP_UnitTest, TestAbilityToChangeWorkingDirectory) */
 // /* { */
-// /* 	FTP_Server a_server{"localhost", "anonymous",
+// /* 	FTP_Server a_server{SERVER, "anonymous",
 // index_file_name"aaa@bbb.net"}; */
 // /* 	a_server.OpenFTPConnection(); */
 // /* 	a_server.ChangeWorkingDirectoryTo("edgar/daily-index"); */
@@ -301,7 +302,7 @@ TEST_F(HTTPSUnitTest, TestAbilityToConnectToHTTPSServer) {
 //
 // TEST_F(FTP_UnitTest, TestExceptionOnFailureToChangeWorkingDirectory)
 // {
-// 	FTP_Server a_server{"localhost", "anonymous", "aaa@bbb.net"};
+// 	FTP_Server a_server{SERVER, "anonymous", "aaa@bbb.net"};
 // 	a_server.OpenFTPConnection();
 // 	ASSERT_THROW(a_server.ChangeWorkingDirectoryTo("edgar/xxxxy-index"),
 // Poco::Net::FTPException);
@@ -309,7 +310,7 @@ TEST_F(HTTPSUnitTest, TestAbilityToConnectToHTTPSServer) {
 // }
 //
 TEST_F(HTTPSUnitTest, TestAbilityToListDirectoryContents) {
-  HTTPS_Downloader a_server{"localhost", PORT};
+  HTTPS_Downloader a_server{SERVER, PORT};
   decltype(auto) directory_list =
       a_server.ListDirectoryContents("/Archives/edgar/full-index/2013/QTR4");
   ASSERT_TRUE(std::find(directory_list.begin(), directory_list.end(),
@@ -321,7 +322,7 @@ TEST_F(HTTPSUnitTest, VerifyAbilityToDownloadFileWhichExists) {
     fs::remove("/tmp/form.20131010.idx");
   }
 
-  HTTPS_Downloader a_server{"localhost", PORT};
+  HTTPS_Downloader a_server{SERVER, PORT};
   a_server.DownloadFile(
       "/Archives/edgar/daily-index/2013/QTR4/form.20131010.idx.gz",
       "/tmp/form.20131010.idx");
@@ -332,7 +333,7 @@ TEST_F(HTTPSUnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist) {
   if (fs::exists("/tmp/form.20131008.idx")) {
     fs::remove("/tmp/form.20131008.idx");
   }
-  HTTPS_Downloader a_server{"localhost", PORT};
+  HTTPS_Downloader a_server{SERVER, PORT};
   ASSERT_THROW(a_server.DownloadFile(
                    "/Archives/edgar/daily-index/2013/QTR4/form.20131008.idx",
                    "/tmp/form.20131008.idx"),
@@ -340,7 +341,7 @@ TEST_F(HTTPSUnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist) {
 }
 
 TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingToFullDisk) {
-  HTTPS_Downloader a_server{"localhost", PORT};
+  HTTPS_Downloader a_server{SERVER, PORT};
   ASSERT_THROW(a_server.DownloadFile(
                    "/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx",
                    "/tmp/ofstream_test/form.20131015.idx"),
@@ -348,7 +349,7 @@ TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingToFullDisk) {
 }
 
 TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingGZFileToFullDisk) {
-  HTTPS_Downloader a_server{"localhost", PORT};
+  HTTPS_Downloader a_server{SERVER, PORT};
   ASSERT_THROW(a_server.DownloadFile(
                    "/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx.gz",
                    "/tmp/ofstream_test/form.20131015.idx"),
@@ -356,7 +357,7 @@ TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingGZFileToFullDisk) {
 }
 
 TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingZipFileToFullDisk) {
-  HTTPS_Downloader a_server{"localhost", PORT};
+  HTTPS_Downloader a_server{SERVER, PORT};
   ASSERT_THROW(
       a_server.DownloadFile("/Archives/edgar/full-index/2013/QTR4/form.zip",
                             "/tmp/ofstream_test/form.idx"),
@@ -367,7 +368,7 @@ TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingZipFileToFullDisk) {
 
 class RetrieverUnitTest : public Test {
 public:
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
+  DailyIndexFileRetriever idxFileRet{SERVER, PORT,
                                      "/Archives/edgar/daily-index"};
 };
 
@@ -520,7 +521,7 @@ TEST_F(RetrieverUnitTest,
 
 class ParserUnitTest : public Test {
 public:
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
+  DailyIndexFileRetriever idxFileRet{SERVER, PORT,
                                      "/Archives/edgar/daily-index"};
 };
 
@@ -536,7 +537,7 @@ TEST_F(ParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFile) {
   auto local_daily_index_file_name =
       idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
 
-  FormFileRetriever form_file_getter{"localhost", PORT};
+  FormFileRetriever form_file_getter{SERVER, PORT};
   std::vector<std::string> forms_list{"10-Q"};
   decltype(auto) file_list = form_file_getter.FindFilesForForms(
       forms_list, local_daily_index_file_name);
@@ -555,7 +556,7 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesListedInIndexFile) {
   auto local_daily_index_file_name =
       idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
 
-  FormFileRetriever form_file_getter{"localhost", PORT};
+  FormFileRetriever form_file_getter{SERVER, PORT};
   std::vector<std::string> forms_list{"10-Q"};
   decltype(auto) file_list = form_file_getter.FindFilesForForms(
       forms_list, local_daily_index_file_name);
@@ -577,7 +578,7 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName) {
   auto local_daily_index_file_name =
       idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
 
-  FormFileRetriever form_file_getter{"localhost", PORT};
+  FormFileRetriever form_file_getter{SERVER, PORT};
   std::vector<std::string> forms_list{"10-Q/A"};
   decltype(auto) file_list = form_file_getter.FindFilesForForms(
       forms_list, local_daily_index_file_name);
@@ -600,7 +601,7 @@ TEST_F(ParserUnitTest,
   auto local_daily_index_file_name =
       idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
 
-  FormFileRetriever form_file_getter{"localhost", PORT};
+  FormFileRetriever form_file_getter{SERVER, PORT};
   std::vector<std::string> forms_list{"10-Q"};
   decltype(auto) file_list = form_file_getter.FindFilesForForms(
       forms_list, local_daily_index_file_name);
@@ -631,7 +632,7 @@ TEST_F(ParserUnitTest,
   auto local_daily_index_file_name =
       idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
 
-  FormFileRetriever form_file_getter{"localhost", PORT};
+  FormFileRetriever form_file_getter{SERVER, PORT};
   std::vector<std::string> forms_list{"10-Q"};
   decltype(auto) file_list = form_file_getter.FindFilesForForms(
       forms_list, local_daily_index_file_name);
@@ -664,7 +665,7 @@ TEST_F(ParserUnitTest,
   // 	decltype(auto) index_file_list =
   // idxFileRet.GetfRemoteIndexFileNamesForDateRange();
 
-  FormFileRetriever form_file_getter{"localhost", PORT};
+  FormFileRetriever form_file_getter{SERVER, PORT};
   std::vector<std::string> forms_list{"10-Q"};
   decltype(auto) form_file_list =
       form_file_getter.FindFilesForForms(forms_list, local_index_files);
@@ -674,8 +675,8 @@ TEST_F(ParserUnitTest,
 
 class RetrieverMultipleDailies : public Test {
 public:
-  HTTPS_Downloader a_server{"localhost", PORT};
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
+  HTTPS_Downloader a_server{SERVER, PORT};
+  DailyIndexFileRetriever idxFileRet{SERVER, PORT,
                                      "/Archives/edgar/daily-index"};
 };
 
@@ -784,7 +785,7 @@ TEST_F(
 
 class ConcurrentlyRetrieveMultipleDailies : public Test {
 public:
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
+  DailyIndexFileRetriever idxFileRet{SERVER, PORT,
                                      "/Archives/edgar/daily-index"};
 };
 
@@ -840,7 +841,7 @@ TEST_F(ConcurrentlyRetrieveMultipleDailies,
   auto local_daily_index_file_name =
       idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
 
-  FormFileRetriever form_file_getter{"localhost", PORT};
+  FormFileRetriever form_file_getter{SERVER, PORT};
   std::vector<std::string> forms_list{"10-Q"};
   decltype(auto) file_list = form_file_getter.FindFilesForForms(
       forms_list, local_daily_index_file_name);
@@ -864,7 +865,7 @@ TEST_F(ConcurrentlyRetrieveMultipleDailies,
   auto local_daily_index_file_name =
       idxFileRet.CopyRemoteIndexFileTo(file_name, "/tmp");
 
-  FormFileRetriever form_file_getter{"localhost", PORT};
+  FormFileRetriever form_file_getter{SERVER, PORT};
   std::vector<std::string> forms_list{"10-Q"};
   decltype(auto) file_list = form_file_getter.FindFilesForForms(
       forms_list, local_daily_index_file_name);
@@ -902,7 +903,7 @@ TEST_F(ConcurrentlyRetrieveMultipleDailies,
   auto index_files2 = idxFileRet.HierarchicalCopyIndexFilesForDateRangeTo(
       remote_index_files2, "/tmp/index2");
 
-  FormFileRetriever form_file_getter{"localhost", PORT};
+  FormFileRetriever form_file_getter{SERVER, PORT};
   std::vector<std::string> forms_list2{"10-Q"};
   decltype(auto) remote_form_file_list2 =
       form_file_getter.FindFilesForForms(forms_list2, index_files2);
@@ -931,7 +932,7 @@ TEST_F(ConcurrentlyRetrieveMultipleDailies,
       idxFileRet.ConcurrentlyHierarchicalCopyIndexFilesForDateRangeTo(
           remote_index_files4, "/tmp/index4", 2);
 
-  FormFileRetriever form_file_getter4{"localhost", PORT};
+  FormFileRetriever form_file_getter4{SERVER, PORT};
   std::vector<std::string> forms_list4{"10-Q"};
   decltype(auto) remote_form_file_list4 =
       form_file_getter4.FindFilesForForms(forms_list4, index_files4);
@@ -953,8 +954,8 @@ TEST_F(ConcurrentlyRetrieveMultipleDailies,
 
 class ConcurrentlyRetrieveMultipleQuarterlyFiles : public Test {
 public:
-  HTTPS_Downloader a_server{"localhost", PORT};
-  QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
+  HTTPS_Downloader a_server{SERVER, PORT};
+  QuarterlyIndexFileRetriever idxFileRet{SERVER, PORT,
                                          "/Archives/edgar/full-index"};
 };
 
@@ -974,8 +975,8 @@ TEST_F(ConcurrentlyRetrieveMultipleQuarterlyFiles,
 
 class QuarterlyUnitTest : public Test {
 public:
-  HTTPS_Downloader a_server{"localhost", PORT};
-  QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
+  HTTPS_Downloader a_server{SERVER, PORT};
+  QuarterlyIndexFileRetriever idxFileRet{SERVER, PORT,
                                          "/Archives/edgar/full-index"};
 };
 
@@ -1095,7 +1096,7 @@ TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFile) {
 //
 class QuarterlyRetrieveMultipleFiles : public Test {
 public:
-  QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
+  QuarterlyIndexFileRetriever idxFileRet{SERVER, PORT,
                                          "/Archives/edgar/full-index"};
 };
 
@@ -1184,7 +1185,7 @@ TEST_F(
 
 class QuarterlyParserUnitTest : public Test {
 public:
-  QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
+  QuarterlyIndexFileRetriever idxFileRet{SERVER, PORT,
                                          "/Archives/edgar/full-index"};
 };
 
@@ -1198,7 +1199,7 @@ TEST_F(QuarterlyParserUnitTest,
   auto local_quarterly_index_file_name =
       idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp");
 
-  FormFileRetriever form_file_getter{"localhost", PORT};
+  FormFileRetriever form_file_getter{SERVER, PORT};
   std::vector<std::string> forms_list{"10-Q"};
   decltype(auto) file_list = form_file_getter.FindFilesForForms(
       forms_list, local_quarterly_index_file_name);
@@ -1222,7 +1223,7 @@ TEST_F(QuarterlyParserUnitTest,
   auto local_quarterly_index_file_name =
       idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp");
 
-  FormFileRetriever form_file_getter{"localhost", PORT};
+  FormFileRetriever form_file_getter{SERVER, PORT};
   std::vector<std::string> forms_list{"10-Q"};
   decltype(auto) file_list = form_file_getter.FindFilesForForms(
       forms_list, local_quarterly_index_file_name);
@@ -1286,7 +1287,7 @@ TEST_F(TickerLookupUnitTest, VerifyDownloadOfTickersToCIKsFile) {
   }
   TickerConverter sym;
   decltype(auto) CIK_count =
-      sym.DownloadTickerToCIKFile("/tmp/test_tickers_file", "localhost", PORT);
+      sym.DownloadTickerToCIKFile("/tmp/test_tickers_file", SERVER, PORT);
   // 	decltype(auto) CIK_count =
   // sym.DownloadTickerToCIKFile("/tmp/test_tickers_file");
 
@@ -1376,7 +1377,7 @@ TEST_F(TickerLookupUnitTest,
 //
 class QuarterlyParserFilterTest : public Test {
 public:
-  QuarterlyIndexFileRetriever idxFileRet{"localhost", PORT,
+  QuarterlyIndexFileRetriever idxFileRet{SERVER, PORT,
                                          "/Archives/edgar/full-index"};
 };
 
@@ -1396,7 +1397,7 @@ TEST_F(QuarterlyParserFilterTest,
   std::map<std::string, std::string> ticker_map;
   ticker_map["AAPL"] = CIK;
 
-  FormFileRetriever form_file_getter{"localhost", PORT};
+  FormFileRetriever form_file_getter{SERVER, PORT};
   std::vector<std::string> forms_list{"10-Q"};
   decltype(auto) file_list = form_file_getter.FindFilesForForms(
       forms_list, local_quarterly_index_file_name, ticker_map);
@@ -1422,7 +1423,7 @@ TEST_F(
       {"GOOG", "1288776"},
   };
 
-  FormFileRetriever form_file_getter{"localhost", PORT};
+  FormFileRetriever form_file_getter{SERVER, PORT};
   std::vector<std::string> forms_list{"10-Q", "10-MQ"};
   decltype(auto) file_list = form_file_getter.FindFilesForForms(
       forms_list, local_quarterly_index_file_name, ticker_map);
@@ -1456,7 +1457,7 @@ TEST_F(
 //
 class MultipleFormsParserUnitTest : public Test {
 public:
-  DailyIndexFileRetriever idxFileRet{"localhost", PORT,
+  DailyIndexFileRetriever idxFileRet{SERVER, PORT,
                                      "/Archives/edgar/daily-index"};
 };
 
@@ -1493,7 +1494,7 @@ TEST_F(MultipleFormsParserUnitTest,
   auto local_index_files = idxFileRet.CopyIndexFilesForDateRangeTo(
       index_file_list, "/tmp/daily_index1");
 
-  FormFileRetriever form_file_getter{"localhost", PORT};
+  FormFileRetriever form_file_getter{SERVER, PORT};
   std::vector<std::string> forms_list{"4", "10-K", "10-Q", "10-MQ"};
 
   decltype(auto) file_list =
@@ -1560,7 +1561,7 @@ TEST_F(MultipleFormsParserUnitTest,
 
 class FinancialStatementsAndNotesTest : public Test {
 public:
-  //	DailyIndexFileRetriever idxFileRet{"localhost", PORT,
+  //	DailyIndexFileRetriever idxFileRet{SERVER, PORT,
   //"/Archives/edgar/daily-index"};
   // files/dera/data/financial-statement-and-notes-data-sets/
   // YYYY_MM_notes.zip for monthly
@@ -1658,9 +1659,8 @@ TEST_F(FinancialStatementsAndNotesTest,
       std::chrono::year_month_day{2020y / std::chrono::August / 3},
       std::chrono::year_month_day{2021y / std::chrono::February / 5}};
 
-  fin_statement_downloader.download_files("localhost", "8443",
-                                          "/tmp/fin_stmts_downloads",
-                                          "/tmp/fin_stmts_files", true);
+  fin_statement_downloader.download_files(
+      SERVER, "8443", "/tmp/fin_stmts_downloads", "/tmp/fin_stmts_files", true);
 
   EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads"));
   EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2020q3_notes.zip"));
@@ -1680,9 +1680,8 @@ TEST_F(FinancialStatementsAndNotesTest,
       std::chrono::year_month_day{2020y / std::chrono::August / 3},
       std::chrono::year_month_day{2021y / std::chrono::February / 5}};
 
-  fin_statement_downloader.download_files("localhost", "8443",
-                                          "/tmp/fin_stmts_downloads",
-                                          "/tmp/fin_stmts_files", true);
+  fin_statement_downloader.download_files(
+      SERVER, "8443", "/tmp/fin_stmts_downloads", "/tmp/fin_stmts_files", true);
 
   EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads"));
   EXPECT_TRUE(fs::exists("/tmp/fin_stmts_downloads/2020q3_notes.zip"));
@@ -1694,7 +1693,7 @@ TEST_F(FinancialStatementsAndNotesTest,
 
   std::this_thread::sleep_for(std::chrono::seconds{1});
 
-  fin_statement_downloader.download_files("localhost", "8443",
+  fin_statement_downloader.download_files(SERVER, "8443",
                                           "/tmp/fin_stmts_downloads",
                                           "/tmp/fin_stmts_files", false);
   decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree(
