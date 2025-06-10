@@ -131,8 +131,8 @@ public:
 
 TEST(DailyEndToEndTest,
      VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile) {
-  if (fs::exists("/tmp/form.20131011.idx")) {
-    fs::remove("/tmp/form.20131011.idx");
+  if (fs::exists("/tmp/master.20131011.idx")) {
+    fs::remove("/tmp/master.20131011.idx");
   }
 
   if (fs::exists("/tmp/forms")) {
@@ -546,7 +546,7 @@ TEST(QuarterlyEndToEndTest,
     std::cout << "Problems starting program.  No processing done.\n";
   }
 
-  ASSERT_THAT(fs::exists("/tmp/index3/2000/QTR1/form.idx"), Eq(true));
+  ASSERT_THAT(fs::exists("/tmp/index3/2000/QTR1/master.idx"), Eq(true));
 }
 
 // TEST(QuarterlyEndToEndTest,
