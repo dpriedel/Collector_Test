@@ -318,52 +318,53 @@ TEST_F(HTTPSUnitTest, TestAbilityToListDirectoryContents) {
 }
 
 TEST_F(HTTPSUnitTest, VerifyAbilityToDownloadFileWhichExists) {
-  if (fs::exists("/tmp/form.20131010.idx")) {
-    fs::remove("/tmp/form.20131010.idx");
+  if (fs::exists("/tmp/master.20131010.idx")) {
+    fs::remove("/tmp/master.20131010.idx");
   }
 
   HTTPS_Downloader a_server{SERVER, PORT};
   a_server.DownloadFile(
-      "/Archives/edgar/daily-index/2013/QTR4/form.20131010.idx.gz",
-      "/tmp/form.20131010.idx");
-  ASSERT_TRUE(fs::exists("/tmp/form.20131010.idx"));
+      "/Archives/edgar/daily-index/2013/QTR4/master.20131010.idx.gz",
+      "/tmp/master.20131010.idx");
+  ASSERT_TRUE(fs::exists("/tmp/master.20131010.idx"));
 }
 
 TEST_F(HTTPSUnitTest, VerifyThrowsExceptionWhenTryToDownloadFileDoesntExist) {
-  if (fs::exists("/tmp/form.20131008.idx")) {
-    fs::remove("/tmp/form.20131008.idx");
+  if (fs::exists("/tmp/master.20131008.idx")) {
+    fs::remove("/tmp/master.20131008.idx");
   }
   HTTPS_Downloader a_server{SERVER, PORT};
   ASSERT_THROW(a_server.DownloadFile(
-                   "/Archives/edgar/daily-index/2013/QTR4/form.20131008.idx",
-                   "/tmp/form.20131008.idx"),
+                   "/Archives/edgar/daily-index/2013/QTR4/master.20131008.idx",
+                   "/tmp/master.20131008.idx"),
                std::runtime_error);
 }
 
 TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingToFullDisk) {
   HTTPS_Downloader a_server{SERVER, PORT};
   ASSERT_THROW(a_server.DownloadFile(
-                   "/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx",
-                   "/tmp/ofstream_test/form.20131015.idx"),
+                   "/Archives/edgar/daily-index/2013/QTR4/master.20131015.idx",
+                   "/tmp/ofstream_test/master.20131015.idx"),
                std::system_error);
 }
 
 TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingGZFileToFullDisk) {
   HTTPS_Downloader a_server{SERVER, PORT};
-  ASSERT_THROW(a_server.DownloadFile(
-                   "/Archives/edgar/daily-index/2013/QTR4/form.20131015.idx.gz",
-                   "/tmp/ofstream_test/form.20131015.idx"),
-               std::system_error);
+  ASSERT_THROW(
+      a_server.DownloadFile(
+          "/Archives/edgar/daily-index/2013/QTR4/master.20131015.idx.gz",
+          "/tmp/ofstream_test/master.20131015.idx"),
+      std::system_error);
 }
 
 TEST_F(HTTPSUnitTest, VerifyExceptionWhenDownloadingZipFileToFullDisk) {
   HTTPS_Downloader a_server{SERVER, PORT};
   ASSERT_THROW(
-      a_server.DownloadFile("/Archives/edgar/full-index/2013/QTR4/form.zip",
-                            "/tmp/ofstream_test/form.idx"),
+      a_server.DownloadFile("/Archives/edgar/full-index/2013/QTR4/master.zip",
+                            "/tmp/ofstream_test/master.idx"),
       std::system_error);
-  //	a_server.DownloadFile("/Archives/edgar/full-index/2013/QTR4/form.zip",
-  //"/tmp/ofstream_test/form.idx");
+  //	a_server.DownloadFile("/Archives/edgar/full-index/2013/QTR4/master.zip",
+  //"/tmp/ofstream_test/master.idx");
 }
 
 class RetrieverUnitTest : public Test {
@@ -411,8 +412,8 @@ TEST_F(RetrieverUnitTest, TestFindIndexFileDateNearestWhereDateDoesNotExist) {
 // }
 //
 TEST_F(RetrieverUnitTest, TestRetrieveIndexFileWhereDateExists) {
-  if (fs::exists("/tmp/form.20131011.idx")) {
-    fs::remove("/tmp/form.20131011.idx");
+  if (fs::exists("/tmp/master.20131011.idx")) {
+    fs::remove("/tmp/master.20131011.idx");
   }
 
   decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(
@@ -424,8 +425,8 @@ TEST_F(RetrieverUnitTest, TestRetrieveIndexFileWhereDateExists) {
 }
 
 TEST_F(RetrieverUnitTest, TestHierarchicalRetrieveIndexFileWhereDateExists) {
-  if (fs::exists("/tmp/2013/QTR4/form.20131011.idx")) {
-    fs::remove("/tmp/2013/QTR4/form.20131011.idx");
+  if (fs::exists("/tmp/2013/QTR4/master.20131011.idx")) {
+    fs::remove("/tmp/2013/QTR4/master.20131011.idx");
   }
 
   decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(
@@ -438,8 +439,8 @@ TEST_F(RetrieverUnitTest, TestHierarchicalRetrieveIndexFileWhereDateExists) {
 
 TEST_F(RetrieverUnitTest,
        TestRetrieveIndexFileDoesNotReplaceWhenReplaceNotSpecified) {
-  if (fs::exists("/tmp/form.20131011.idx")) {
-    fs::remove("/tmp/form.20131011.idx");
+  if (fs::exists("/tmp/master.20131011.idx")) {
+    fs::remove("/tmp/master.20131011.idx");
   }
 
   decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(
@@ -459,8 +460,8 @@ TEST_F(RetrieverUnitTest,
 
 TEST_F(RetrieverUnitTest,
        TestHierarchicalRetrieveIndexFileDoesNotReplaceWhenReplaceNotSpecified) {
-  if (fs::exists("/tmp/2013/QTR4/form.20131011.idx")) {
-    fs::remove("/tmp/2013/QTR4/form.20131011.idx");
+  if (fs::exists("/tmp/2013/QTR4/master.20131011.idx")) {
+    fs::remove("/tmp/2013/QTR4/master.20131011.idx");
   }
 
   decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(
@@ -480,8 +481,8 @@ TEST_F(RetrieverUnitTest,
 
 TEST_F(RetrieverUnitTest,
        TestRetrieveIndexFileDoesReplaceWhenReplaceIsSpecified) {
-  if (fs::exists("/tmp/form.20131011.idx")) {
-    fs::remove("/tmp/form.20131011.idx");
+  if (fs::exists("/tmp/master.20131011.idx")) {
+    fs::remove("/tmp/master.20131011.idx");
   }
 
   decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(
@@ -501,8 +502,8 @@ TEST_F(RetrieverUnitTest,
 
 TEST_F(RetrieverUnitTest,
        TestHierarchicalRetrieveIndexFileDoesReplaceWhenReplaceIsSpecified) {
-  if (fs::exists("/tmp/2013/QTR4/form.20131011.idx")) {
-    fs::remove("/tmp/2013/QTR4/form.20131011.idx");
+  if (fs::exists("/tmp/2013/QTR4/master.20131011.idx")) {
+    fs::remove("/tmp/2013/QTR4/master.20131011.idx");
   }
   decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(
       StringToDateYMD("%F", "2013-10-11"));
@@ -529,8 +530,8 @@ public:
 // located above.
 
 TEST_F(ParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFile) {
-  if (fs::exists("/tmp/form.20131010.idx")) {
-    fs::remove("/tmp/form.20131010.idx");
+  if (fs::exists("/tmp/master.20131010.idx")) {
+    fs::remove("/tmp/master.20131010.idx");
   }
   decltype(auto) file_name = idxFileRet.FindRemoteIndexFileNameNearestDate(
       StringToDateYMD("%F", "2013-10-10"));
@@ -545,8 +546,8 @@ TEST_F(ParserUnitTest, VerifyFindProperNumberOfFormEntriesInIndexFile) {
 }
 
 TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesListedInIndexFile) {
-  if (fs::exists("/tmp/form.20131010.idx")) {
-    fs::remove("/tmp/form.20131010.idx");
+  if (fs::exists("/tmp/master.20131010.idx")) {
+    fs::remove("/tmp/master.20131010.idx");
   }
   if (fs::exists("/tmp/forms_unit")) {
     fs::remove_all("/tmp/forms_unit");
@@ -567,8 +568,8 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesListedInIndexFile) {
 }
 
 TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName) {
-  if (fs::exists("/tmp/form.20131010.idx")) {
-    fs::remove("/tmp/form.20131010.idx");
+  if (fs::exists("/tmp/master.20131010.idx")) {
+    fs::remove("/tmp/master.20131010.idx");
   }
   if (fs::exists("/tmp/forms_unit")) {
     fs::remove_all("/tmp/forms_unit");
@@ -590,8 +591,8 @@ TEST_F(ParserUnitTest, VerifyDownloadOfFormFilesWithSlashInName) {
 
 TEST_F(ParserUnitTest,
        VerifyDownloadOfFormFilesDoesNotReplaceWhenReplaceNotSpecified) {
-  if (fs::exists("/tmp/form.20131010.idx")) {
-    fs::remove("/tmp/form.20131010.idx");
+  if (fs::exists("/tmp/master.20131010.idx")) {
+    fs::remove("/tmp/master.20131010.idx");
   }
   if (fs::exists("/tmp/forms_unit2")) {
     fs::remove_all("/tmp/forms_unit2");
@@ -621,8 +622,8 @@ TEST_F(ParserUnitTest,
 
 TEST_F(ParserUnitTest,
        VerifyDownloadOfFormFilesDoesReplaceWhenReplaceIsSpecified) {
-  if (fs::exists("/tmp/form.20131010.idx")) {
-    fs::remove("/tmp/form.20131010.idx");
+  if (fs::exists("/tmp/master.20131010.idx")) {
+    fs::remove("/tmp/master.20131010.idx");
   }
   if (fs::exists("/tmp/forms_unit3")) {
     fs::remove_all("/tmp/forms_unit3");
@@ -714,7 +715,8 @@ TEST_F(RetrieverMultipleDailies,
   decltype(auto) results = idxFileRet.FindRemoteIndexFileNamesForDateRange(
       StringToDateYMD("%Y-%b-%d", "2013-Dec-20"),
       StringToDateYMD("%F", "2014-05-21"));
-  ASSERT_EQ(results.size(), 98);
+  // based on manual count of entries in index.json files
+  ASSERT_EQ(results.size(), 105);
 }
 
 TEST_F(RetrieverMultipleDailies, VerifyThrowsWhenNoIndexFilesInRange) {
@@ -830,8 +832,8 @@ TEST_F(
 
 TEST_F(ConcurrentlyRetrieveMultipleDailies,
        VerifyDownloadOfFormFilesListedInIndexFile) {
-  if (fs::exists("/tmp/form.20131010.idx")) {
-    fs::remove("/tmp/form.20131010.idx");
+  if (fs::exists("/tmp/master.20131010.idx")) {
+    fs::remove("/tmp/master.20131010.idx");
   }
   if (fs::exists("/tmp/forms_unit")) {
     fs::remove_all("/tmp/forms_unit");
@@ -854,8 +856,8 @@ TEST_F(ConcurrentlyRetrieveMultipleDailies,
 
 TEST_F(ConcurrentlyRetrieveMultipleDailies,
        VerifyDownloadOfFormFilesDoesReplaceWhenReplaceIsSpecified) {
-  if (fs::exists("/tmp/form.20131010.idx")) {
-    fs::remove("/tmp/form.20131010.idx");
+  if (fs::exists("/tmp/master.20131010.idx")) {
+    fs::remove("/tmp/master.20131010.idx");
   }
   if (fs::exists("/tmp/forms_unit3")) {
     fs::remove_all("/tmp/forms_unit3");
@@ -999,13 +1001,13 @@ TEST_F(QuarterlyUnitTest, VerifyRejectsFutureDates) {
 TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenFirstDayInQuarter) {
   decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(
       StringToDateYMD("%F", "2000-01-01"));
-  ASSERT_TRUE(file_name == "/Archives/edgar/full-index/2000/QTR1/form.zip");
+  ASSERT_TRUE(file_name == "/Archives/edgar/full-index/2000/QTR1/master.zip");
 }
 
 TEST_F(QuarterlyUnitTest, TestFindIndexFileGivenLastDayInQuarter) {
   decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(
       StringToDateYMD("%F", "2002-06-30"));
-  ASSERT_TRUE(file_name == "/Archives/edgar/full-index/2002/QTR2/form.zip");
+  ASSERT_TRUE(file_name == "/Archives/edgar/full-index/2002/QTR2/master.zip");
 }
 
 TEST_F(QuarterlyUnitTest, TestFindAllQuarterlyIndexFilesForAYear) {
@@ -1016,15 +1018,15 @@ TEST_F(QuarterlyUnitTest, TestFindAllQuarterlyIndexFilesForAYear) {
 }
 
 TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFile) {
-  if (fs::exists("/tmp/2000/QTR1/form.idx")) {
-    fs::remove("/tmp/2000/QTR1/form.idx");
+  if (fs::exists("/tmp/2000/QTR1/master.idx")) {
+    fs::remove("/tmp/2000/QTR1/master.idx");
   }
   decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(
-      StringToDateYMD("%F", "2000-01-01"));
+      StringToDateYMD("%F", "2025-01-01"));
   auto local_daily_index_file_name =
       idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp", true);
 
-  ASSERT_TRUE(fs::exists("/tmp/2000/QTR1/form.idx"));
+  ASSERT_TRUE(fs::exists("/tmp/2025/QTR1/master.idx"));
   // ASSERT_THAT(fs::exists(idxFileRet.GetLocalIndexFilePath()), Eq(true));
 }
 
@@ -1035,7 +1037,7 @@ TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFile) {
 // */
 // /* 	idxFileRet.CopyRemoteIndexFileTo("/tmp", true); */
 //
-// /* 	ASSERT_THAT(fs::exists("/tmp/2000/QTR1/form.idx"), Eq(true)); */
+// /* 	ASSERT_THAT(fs::exists("/tmp/2000/QTR1/master.idx"), Eq(true)); */
 // /* } */
 //
 // /* TEST_F(QuarterlyUnitTest,
@@ -1046,8 +1048,8 @@ TEST_F(QuarterlyUnitTest, TestDownloadQuarterlyIndexFile) {
 // */
 // /* 	idxFileRet.CopyRemoteIndexFileTo("/tmp", true); */
 //
-// /* 	ASSERT_THAT(fs::exists("/tmp/2000/QTR1/form.idx"), Eq(true)); */
-// /* 	ASSERT_THAT(fs::exists("/tmp/2000/QTR1/form.zip"), Eq(false)); */
+// /* 	ASSERT_THAT(fs::exists("/tmp/2000/QTR1/master.idx"), Eq(true)); */
+// /* 	ASSERT_THAT(fs::exists("/tmp/2000/QTR1/master.zip"), Eq(false)); */
 // /* } */
 //
 // /* TEST_F(QuarterlyUnitTest,
@@ -1191,8 +1193,8 @@ public:
 
 TEST_F(QuarterlyParserUnitTest,
        VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFile) {
-  if (fs::exists("/tmp/2002/QTR1/form.idx")) {
-    fs::remove("/tmp/2002/QTR1/form.idx");
+  if (fs::exists("/tmp/2002/QTR1/master.idx")) {
+    fs::remove("/tmp/2002/QTR1/master.idx");
   }
   decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(
       StringToDateYMD("%F", "2002-01-01"));
@@ -1212,8 +1214,8 @@ TEST_F(QuarterlyParserUnitTest,
 
 TEST_F(QuarterlyParserUnitTest,
        VerifyDownloadOfFormFilesListedInQuarterlyIndexFile) {
-  if (fs::exists("/tmp/2002/QTR1/form.idx")) {
-    fs::remove("/tmp/2002/QTR1/form.idx");
+  if (fs::exists("/tmp/2009/QTR4/master.idx")) {
+    fs::remove("/tmp/2009/QTR4/master.idx");
   }
   if (fs::exists("/tmp/forms_unit4")) {
     fs::remove_all("/tmp/forms_unit4");
@@ -1223,7 +1225,10 @@ TEST_F(QuarterlyParserUnitTest,
   auto local_quarterly_index_file_name =
       idxFileRet.HierarchicalCopyRemoteIndexFileTo(file_name, "/tmp");
 
+  std::cout << std::format("qtrly index file name: {}\n", file_name);
+
   FormFileRetriever form_file_getter{SERVER, PORT};
+  // FormFileRetriever form_file_getter{"www.sec.gov", "443"};
   std::vector<std::string> forms_list{"10-Q"};
   decltype(auto) file_list = form_file_getter.FindFilesForForms(
       forms_list, local_quarterly_index_file_name);
@@ -1383,8 +1388,8 @@ public:
 
 TEST_F(QuarterlyParserFilterTest,
        VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileForTicker) {
-  if (fs::exists("/tmp/2009/QTR3/form.idx")) {
-    fs::remove("/tmp/2009/QTR3/form.idx");
+  if (fs::exists("/tmp/2009/QTR3/master.idx")) {
+    fs::remove("/tmp/2009/QTR3/master.idx");
   }
   decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(
       StringToDateYMD("%F", "2009-09-10"));
@@ -1407,8 +1412,8 @@ TEST_F(QuarterlyParserFilterTest,
 TEST_F(
     QuarterlyParserFilterTest,
     VerifyFindProperNumberOfFormEntriesInQuarterlyIndexFileForMultipleTickersAndForms) {
-  if (fs::exists("/tmp/2009/QTR3/form.idx")) {
-    fs::remove("/tmp/2009/QTR3/form.idx");
+  if (fs::exists("/tmp/2009/QTR3/master.idx")) {
+    fs::remove("/tmp/2009/QTR3/master.idx");
   }
   decltype(auto) file_name = idxFileRet.MakeQuarterlyIndexPathName(
       StringToDateYMD("%F", "2013-09-10"));
