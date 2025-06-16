@@ -62,6 +62,8 @@ OUTDIR=Debug_e2e
 CFG_LIB := -lpthread \
 		-lssl -lcrypto \
 		-L$(GCCDIR)/lib64 \
+		-lstdc++ \
+		-lstdc++exp \
 		-L$(BOOSTDIR)/lib \
 		-lboost_iostreams-mt-x64 \
 		-lboost_program_options-mt-x64 \
