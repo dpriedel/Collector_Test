@@ -41,10 +41,8 @@
 #include <string>
 #include <thread>
 
-// #include <boost/filesystem.hpp>
-// #include <boost/program_options/parsers.hpp>
-
-#include "spdlog/spdlog.h"
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
 #include <gmock/gmock.h>
 
@@ -66,288 +64,314 @@ using namespace testing;
 // me see that an attempt was made and what file was to be downloaded which is
 // all I need for these tests.
 
-int CountFilesInDirectoryTree(const fs::path &directory) {
-  int count = std::count_if(
-      fs::recursive_directory_iterator(directory),
-      fs::recursive_directory_iterator(), [](const fs::directory_entry &entry) {
-        return entry.status().type() == fs::file_type::regular;
-      });
-  return count;
+int CountFilesInDirectoryTree(const fs::path &directory)
+{
+    int count =
+        std::count_if(fs::recursive_directory_iterator(directory), fs::recursive_directory_iterator(),
+                      [](const fs::directory_entry &entry) { return entry.status().type() == fs::file_type::regular; });
+    return count;
 }
 
-bool DirectoryTreeContainsDirectory(const fs::path &tree,
-                                    const fs::path &directory) {
-  for (auto x = fs::recursive_directory_iterator(tree);
-       x != fs::recursive_directory_iterator(); ++x) {
-    if (x->status().type() == fs::file_type::directory) {
-      if (x->path().filename() == directory) {
-        return true;
-      }
+bool DirectoryTreeContainsDirectory(const fs::path &tree, const fs::path &directory)
+{
+    for (auto x = fs::recursive_directory_iterator(tree); x != fs::recursive_directory_iterator(); ++x)
+    {
+        if (x->status().type() == fs::file_type::directory)
+        {
+            if (x->path().filename() == directory)
+            {
+                return true;
+            }
+        }
     }
-  }
-  return false;
+    return false;
 }
 
-std::map<std::string, fs::file_time_type>
-CollectLastModifiedTimesForFilesInDirectory(const fs::path &directory) {
-  std::map<std::string, fs::file_time_type> results;
+std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDirectory(const fs::path &directory)
+{
+    std::map<std::string, fs::file_time_type> results;
 
-  auto save_mod_time([&results](const auto &dir_ent) {
-    if (dir_ent.status().type() == fs::file_type::regular) {
-      results[dir_ent.path().filename().string()] =
-          fs::last_write_time(dir_ent.path());
-    }
-  });
+    auto save_mod_time([&results](const auto &dir_ent) {
+        if (dir_ent.status().type() == fs::file_type::regular)
+        {
+            results[dir_ent.path().filename().string()] = fs::last_write_time(dir_ent.path());
+        }
+    });
 
-  std::for_each(fs::directory_iterator(directory), fs::directory_iterator(),
-                save_mod_time);
+    std::for_each(fs::directory_iterator(directory), fs::directory_iterator(), save_mod_time);
 
-  return results;
+    return results;
 }
 
-std::map<std::string, fs::file_time_type>
-CollectLastModifiedTimesForFilesInDirectoryTree(const fs::path &directory) {
-  std::map<std::string, fs::file_time_type> results;
+std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDirectoryTree(const fs::path &directory)
+{
+    std::map<std::string, fs::file_time_type> results;
 
-  auto save_mod_time([&results](const auto &dir_ent) {
-    if (dir_ent.status().type() == fs::file_type::regular) {
-      results[dir_ent.path().filename().string()] =
-          fs::last_write_time(dir_ent.path());
-    }
-  });
+    auto save_mod_time([&results](const auto &dir_ent) {
+        if (dir_ent.status().type() == fs::file_type::regular)
+        {
+            results[dir_ent.path().filename().string()] = fs::last_write_time(dir_ent.path());
+        }
+    });
 
-  std::for_each(fs::recursive_directory_iterator(directory),
-                fs::recursive_directory_iterator(), save_mod_time);
+    std::for_each(fs::recursive_directory_iterator(directory), fs::recursive_directory_iterator(), save_mod_time);
 
-  return results;
+    return results;
 }
 
 // NOTE: I'm going to run all these daily index tests against my local FTP
 // server.
 
-class DailyEndToEndTest : public Test {
+class DailyEndToEndTest : public Test
+{
 public:
 };
 
-TEST(DailyEndToEndTest,
-     VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile) {
-  if (fs::exists("/tmp/master.20131011.idx")) {
-    fs::remove("/tmp/master.20131011.idx");
-  }
-
-  if (fs::exists("/tmp/forms")) {
-    fs::remove_all("/tmp/forms");
-  }
-  fs::create_directory("/tmp/forms");
-
-  //	NOTE: the program name 'the_program' in the command line below is
-  // ignored in the 	the test program.
-
-  std::vector<std::string> tokens{
-      "the_program", "--index-dir", "/tmp",       "--begin-date", "2013-Oct-14",
-      "--form-dir",  "/tmp/forms",  "--host",     "localhost",    "--port",
-      "8443",        "--log-level", "information"};
-
-  try {
-    CollectorApp myApp(tokens);
-
-    const auto *test_info = UnitTest::GetInstance()->current_test_info();
-    spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                          test_info->test_suite_name(), "\n\n"));
-
-    bool startup_OK = myApp.Startup();
-    if (startup_OK) {
-      myApp.Run();
-      myApp.Shutdown();
-    } else {
-      std::cout << "Problems starting program.  No processing done.\n";
+TEST_F(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFile)
+{
+    if (fs::exists("/tmp/master.20131011.idx"))
+    {
+        fs::remove("/tmp/master.20131011.idx");
     }
-  }
 
-  // catch any problems trying to setup application
+    if (fs::exists("/tmp/forms"))
+    {
+        fs::remove_all("/tmp/forms");
+    }
+    fs::create_directory("/tmp/forms");
 
-  catch (const std::exception &theProblem) {
-    // poco_fatal(myApp->logger(), theProblem.what());
+    //	NOTE: the program name 'the_program' in the command line below is
+    // ignored in the 	the test program.
 
-    spdlog::error(
-        catenate("Something fundamental went wrong: ", theProblem.what()));
-    throw;        //	so test framework will get it too.
-  } catch (...) { // handle exception: unspecified
-    spdlog::error("Something totally unexpected happened.");
-    throw;
-  }
-  ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(18));
+    std::vector<std::string> tokens{"the_program", "--index-dir", "/tmp",       "--begin-date", "2013-Oct-14",
+                                    "--form-dir",  "/tmp/forms",  "--host",     "localhost",    "--port",
+                                    "8443",        "--log-level", "information"};
+
+    try
+    {
+        CollectorApp myApp(tokens);
+
+        const auto *test_info = UnitTest::GetInstance()->current_test_info();
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
+
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
+    }
+
+    // catch any problems trying to setup application
+
+    catch (const std::exception &theProblem)
+    {
+        // poco_fatal(myApp->logger(), theProblem.what());
+
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
+        throw; //	so test framework will get it too.
+    }
+    catch (...)
+    { // handle exception: unspecified
+        spdlog::error("Something totally unexpected happened.");
+        throw;
+    }
+    ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(18));
 }
 
-TEST(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified) {
-  if (fs::exists("/tmp/forms")) {
-    fs::remove_all("/tmp/forms");
-  }
-  fs::create_directory("/tmp/forms");
-
-  //	NOTE: the program name 'the_program' in the command line below is
-  // ignored in the 	the test program.
-
-  std::vector<std::string> tokens{
-      "the_program", "--index-dir", "/tmp",       "--begin-date",
-      "2013-Oct-14", "--form-dir",  "/tmp/forms", "--host",
-      "localhost",   "--port",      "8443",       "--index-only"};
-  try {
-    CollectorApp myApp(tokens);
-
-    const auto *test_info = UnitTest::GetInstance()->current_test_info();
-    spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                          test_info->test_suite_name(), "\n\n"));
-
-    bool startup_OK = myApp.Startup();
-    if (startup_OK) {
-      myApp.Run();
-      myApp.Shutdown();
-    } else {
-      std::cout << "Problems starting program.  No processing done.\n";
+TEST_F(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
+{
+    if (fs::exists("/tmp/forms"))
+    {
+        fs::remove_all("/tmp/forms");
     }
-  }
+    fs::create_directory("/tmp/forms");
 
-  catch (std::exception &theProblem) {
-    spdlog::error(
-        catenate("Something fundamental went wrong: ", theProblem.what()));
-    throw;        //	so test framework will get it too.
-  } catch (...) { // handle exception: unspecified
-    spdlog::error("Something totally unexpected happened.");
-    throw;
-  }
-  ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(0));
+    //	NOTE: the program name 'the_program' in the command line below is
+    // ignored in the 	the test program.
+
+    std::vector<std::string> tokens{"the_program", "--index-dir", "/tmp",       "--begin-date",
+                                    "2013-Oct-14", "--form-dir",  "/tmp/forms", "--host",
+                                    "localhost",   "--port",      "8443",       "--index-only"};
+    try
+    {
+        CollectorApp myApp(tokens);
+
+        const auto *test_info = UnitTest::GetInstance()->current_test_info();
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
+
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
+    }
+
+    catch (std::exception &theProblem)
+    {
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
+        throw; //	so test framework will get it too.
+    }
+    catch (...)
+    { // handle exception: unspecified
+        spdlog::error("Something totally unexpected happened.");
+        throw;
+    }
+    ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(0));
 }
 
-TEST(DailyEndToEndTest,
-     VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFiles) {
-  if (fs::exists("/tmp/index1")) {
-    fs::remove_all("/tmp/index1");
-  }
-  if (fs::exists("/tmp/forms1")) {
-    fs::remove_all("/tmp/forms1");
-  }
-  fs::create_directory("/tmp/forms1");
-
-  //	NOTE: the program name 'the_program' in the command line below is
-  // ignored in the 	the test program.
-
-  std::vector<std::string> tokens{"the_program", "--index-dir", "/tmp/index1",
-                                  "--form-dir",  "/tmp/forms1", "--host",
-                                  "localhost",   "--port",      "8443",
-                                  "--max",       "17",          "--begin-date",
-                                  "2013-Oct-14", "--end-date",  "2013-Oct-17"};
-
-  try {
-    CollectorApp myApp(tokens);
-
-    const auto *test_info = UnitTest::GetInstance()->current_test_info();
-    spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                          test_info->test_suite_name(), "\n\n"));
-
-    bool startup_OK = myApp.Startup();
-    if (startup_OK) {
-      myApp.Run();
-      myApp.Shutdown();
-    } else {
-      std::cout << "Problems starting program.  No processing done.\n";
+TEST_F(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndexFiles)
+{
+    if (fs::exists("/tmp/index1"))
+    {
+        fs::remove_all("/tmp/index1");
     }
-  }
+    if (fs::exists("/tmp/forms1"))
+    {
+        fs::remove_all("/tmp/forms1");
+    }
+    fs::create_directory("/tmp/forms1");
 
-  catch (std::exception &theProblem) {
-    spdlog::error(
-        catenate("Something fundamental went wrong: ", theProblem.what()));
-    throw;        //	so test framework will get it too.
-  } catch (...) { // handle exception: unspecified
-    spdlog::error("Something totally unexpected happened.");
-    throw;
-  }
-  ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(17));
+    //	NOTE: the program name 'the_program' in the command line below is
+    // ignored in the 	the test program.
+
+    std::vector<std::string> tokens{"the_program", "--index-dir",  "/tmp/index1", "--form-dir", "/tmp/forms1",
+                                    "--host",      "localhost",    "--port",      "8443",       "--max",
+                                    "17",          "--begin-date", "2013-Oct-14", "--end-date", "2013-Oct-17"};
+
+    try
+    {
+        CollectorApp myApp(tokens);
+
+        const auto *test_info = UnitTest::GetInstance()->current_test_info();
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
+
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
+    }
+
+    catch (std::exception &theProblem)
+    {
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
+        throw; //	so test framework will get it too.
+    }
+    catch (...)
+    { // handle exception: unspecified
+        spdlog::error("Something totally unexpected happened.");
+        throw;
+    }
+    ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(17));
 }
 
-TEST(DailyEndToEndTest, VerifyExceptionsThrownWhenDiskIsFull) {
-  //	NOTE: the program name 'the_program' in the command line below is
-  // ignored in the 	the test program.
+TEST_F(DailyEndToEndTest, VerifyExceptionsThrownWhenDiskIsFull)
+{
+    //	NOTE: the program name 'the_program' in the command line below is
+    // ignored in the 	the test program.
 
-  std::vector<std::string> tokens{
-      "the_program",  "--index-dir",  "/tmp/ofstream_test/test_2",
-      "--index-only", "--host",       "localhost",
-      "--port",       "8443",         "--max",
-      "17",           "--begin-date", "2013-Oct-14",
-      "--end-date",   "2013-Oct-17"};
+    std::vector<std::string> tokens{"the_program",  "--index-dir",  "/tmp/ofstream_test/test_2",
+                                    "--index-only", "--host",       "localhost",
+                                    "--port",       "8443",         "--max",
+                                    "17",           "--begin-date", "2013-Oct-14",
+                                    "--end-date",   "2013-Oct-17"};
 
-  try {
-    CollectorApp myApp(tokens);
+    try
+    {
+        CollectorApp myApp(tokens);
 
-    const auto *test_info = UnitTest::GetInstance()->current_test_info();
-    spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                          test_info->test_suite_name(), "\n\n"));
+        const auto *test_info = UnitTest::GetInstance()->current_test_info();
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
 
-    bool startup_OK = myApp.Startup();
-    if (startup_OK) {
-      ASSERT_THROW(myApp.Run(), std::system_error);
-      myApp.Shutdown();
-    } else {
-      std::cout << "Problems starting program.  No processing done.\n";
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            ASSERT_THROW(myApp.Run(), std::system_error);
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
     }
-  }
 
-  catch (std::exception &theProblem) {
-    spdlog::error(
-        catenate("Something fundamental went wrong: ", theProblem.what()));
-    throw;        //	so test framework will get it too.
-  } catch (...) { // handle exception: unspecified
-    spdlog::error("Something totally unexpected happened.");
-    throw;
-  }
-  ASSERT_THAT(fs::exists("/tmp/ofstream_test/test_2"), Eq(false));
+    catch (std::exception &theProblem)
+    {
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
+        throw; //	so test framework will get it too.
+    }
+    catch (...)
+    { // handle exception: unspecified
+        spdlog::error("Something totally unexpected happened.");
+        throw;
+    }
+    ASSERT_THAT(fs::exists("/tmp/ofstream_test/test_2"), Eq(false));
 }
 
-TEST(
-    DailyEndToEndTest,
-    VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenIndexOnlySpecified) {
-  if (fs::exists("/tmp/index1")) {
-    fs::remove_all("/tmp/index1");
-  }
-  if (fs::exists("/tmp/forms1")) {
-    fs::remove_all("/tmp/forms1");
-  }
-  fs::create_directory("/tmp/forms1");
-
-  //	NOTE: the program name 'the_program' in the command line below is
-  // ignored in the 	the test program.
-
-  std::vector<std::string> tokens{"the_program",  "--index-dir", "/tmp/index1",
-                                  "--form-dir",   "/tmp/forms1", "--host",
-                                  "localhost",    "--port",      "8443",
-                                  "--begin-date", "2013-Oct-14", "--end-date",
-                                  "2013-Oct-17",  "--index-only"};
-
-  try {
-    CollectorApp myApp(tokens);
-
-    const auto *test_info = UnitTest::GetInstance()->current_test_info();
-    spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                          test_info->test_suite_name(), "\n\n"));
-
-    bool startup_OK = myApp.Startup();
-    if (startup_OK) {
-      myApp.Run();
-      myApp.Shutdown();
-    } else {
-      std::cout << "Problems starting program.  No processing done.\n";
+TEST_F(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhenIndexOnlySpecified)
+{
+    if (fs::exists("/tmp/index1"))
+    {
+        fs::remove_all("/tmp/index1");
     }
-  }
+    if (fs::exists("/tmp/forms1"))
+    {
+        fs::remove_all("/tmp/forms1");
+    }
+    fs::create_directory("/tmp/forms1");
 
-  catch (std::exception &theProblem) {
-    spdlog::error(
-        catenate("Something fundamental went wrong: ", theProblem.what()));
-    throw;        //	so test framework will get it too.
-  } catch (...) { // handle exception: unspecified
-    spdlog::error("Something totally unexpected happened.");
-    throw;
-  }
-  ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(0));
+    //	NOTE: the program name 'the_program' in the command line below is
+    // ignored in the 	the test program.
+
+    std::vector<std::string> tokens{"the_program", "--index-dir", "/tmp/index1", "--form-dir",  "/tmp/forms1",
+                                    "--host",      "localhost",   "--port",      "8443",        "--begin-date",
+                                    "2013-Oct-14", "--end-date",  "2013-Oct-17", "--index-only"};
+
+    try
+    {
+        CollectorApp myApp(tokens);
+
+        const auto *test_info = UnitTest::GetInstance()->current_test_info();
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
+
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
+    }
+
+    catch (std::exception &theProblem)
+    {
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
+        throw; //	so test framework will get it too.
+    }
+    catch (...)
+    { // handle exception: unspecified
+        spdlog::error("Something totally unexpected happened.");
+        throw;
+    }
+    ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms1"), Eq(0));
 }
 
 // TEST(DailyEndToEndTest,
@@ -460,93 +484,101 @@ TEST(
 // 	ASSERT_THAT(x1 == x2, Eq(true));
 // }
 //
-TEST(DailyEndToEndTest,
-     VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifed) {
-  if (fs::exists("/tmp/index2")) {
-    fs::remove_all("/tmp/index2");
-  }
-  if (fs::exists("/tmp/forms2")) {
-    fs::remove_all("/tmp/forms2");
-  }
-  fs::create_directory("/tmp/forms2");
+TEST_F(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecified)
+{
+    if (fs::exists("/tmp/index2"))
+    {
+        fs::remove_all("/tmp/index2");
+    }
+    if (fs::exists("/tmp/forms2"))
+    {
+        fs::remove_all("/tmp/forms2");
+    }
+    fs::create_directory("/tmp/forms2");
 
-  //	NOTE: the program name 'the_program' in the command line below is
-  // ignored in the 	the test program.
+    //	NOTE: the program name 'the_program' in the command line below is
+    // ignored in the 	the test program.
 
-  std::vector<std::string> tokens{"the_program", "--index-dir",
-                                  "/tmp/index2", "--form-dir",
-                                  "/tmp/forms2", "--host",
-                                  "localhost",   "--port",
-                                  "8443",        "--begin-date",
-                                  "2013-Oct-14", "--end-date",
-                                  "2013-Oct-17", "--replace-form-files"};
+    std::vector<std::string> tokens{"the_program", "--index-dir",
+                                    "/tmp/index2", "--form-dir",
+                                    "/tmp/forms2", "--host",
+                                    "localhost",   "--port",
+                                    "8443",        "--begin-date",
+                                    "2013-Oct-14", "--end-date",
+                                    "2013-Oct-17", "--replace-form-files"};
 
-  CollectorApp myApp(tokens);
+    CollectorApp myApp(tokens);
 
-  const auto *test_info = UnitTest::GetInstance()->current_test_info();
-  spdlog::info(catenate("\n\nTest: ", test_info->name(),
-                        " test case: ", test_info->test_suite_name(), "\n\n"));
+    const auto *test_info = UnitTest::GetInstance()->current_test_info();
+    spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
 
-  bool startup_OK = myApp.Startup();
-  if (startup_OK) {
-    myApp.Run();
-    myApp.Shutdown();
-  } else {
-    std::cout << "Problems starting program.  No processing done.\n";
-  }
-  decltype(auto) x1 =
-      CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
+    bool startup_OK = myApp.Startup();
+    if (startup_OK)
+    {
+        myApp.Run();
+        myApp.Shutdown();
+    }
+    else
+    {
+        std::cout << "Problems starting program.  No processing done.\n";
+    }
+    decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
 
-  std::this_thread::sleep_for(std::chrono::seconds{1});
+    std::this_thread::sleep_for(std::chrono::seconds{1});
 
-  startup_OK = myApp.Startup();
-  if (startup_OK) {
-    myApp.Run();
-    myApp.Shutdown();
-  } else {
-    std::cout << "Problems starting program.  No processing done.\n";
-  }
-  decltype(auto) x2 =
-      CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
+    startup_OK = myApp.Startup();
+    if (startup_OK)
+    {
+        myApp.Run();
+        myApp.Shutdown();
+    }
+    else
+    {
+        std::cout << "Problems starting program.  No processing done.\n";
+    }
+    decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
 
-  ASSERT_FALSE(x1 == x2);
+    ASSERT_FALSE(x1 == x2);
 }
 
 // // NOTE: the quarterly index tests will run against the actual EDGAR server.
 
-class QuarterlyEndToEndTest : public Test {
+class QuarterlyEndToEndTest : public Test
+{
 public:
 };
 
-TEST(QuarterlyEndToEndTest,
-     VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQuarter) {
-  if (fs::exists("/tmp/index3")) {
-    fs::remove_all("/tmp/index3");
-  }
+TEST_F(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingleQuarter)
+{
+    if (fs::exists("/tmp/index3"))
+    {
+        fs::remove_all("/tmp/index3");
+    }
 
-  //	NOTE: the program name 'the_program' in the command line below is
-  // ignored in the 	the test program.
+    //	NOTE: the program name 'the_program' in the command line below is
+    // ignored in the 	the test program.
 
-  std::vector<std::string> tokens{"the_program",  "--index-dir",  "/tmp/index3",
-                                  "--host",       "localhost",    "--port",
-                                  "8443",         "--begin-date", "2000-Jan-01",
-                                  "--index-only", "--mode",       "quarterly"};
+    std::vector<std::string> tokens{"the_program", "--index-dir",  "/tmp/index3", "--host",
+                                    "localhost",   "--port",       "8443",        "--begin-date",
+                                    "2000-Jan-01", "--index-only", "--mode",      "quarterly"};
 
-  CollectorApp myApp(tokens);
+    CollectorApp myApp(tokens);
 
-  const auto *test_info = UnitTest::GetInstance()->current_test_info();
-  spdlog::info(catenate("\n\nTest: ", test_info->name(),
-                        " test case: ", test_info->test_suite_name(), "\n\n"));
+    const auto *test_info = UnitTest::GetInstance()->current_test_info();
+    spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
 
-  bool startup_OK = myApp.Startup();
-  if (startup_OK) {
-    myApp.Run();
-    myApp.Shutdown();
-  } else {
-    std::cout << "Problems starting program.  No processing done.\n";
-  }
+    bool startup_OK = myApp.Startup();
+    if (startup_OK)
+    {
+        myApp.Run();
+        myApp.Shutdown();
+    }
+    else
+    {
+        std::cout << "Problems starting program.  No processing done.\n";
+    }
 
-  ASSERT_THAT(fs::exists("/tmp/index3/2000/QTR1/master.idx"), Eq(true));
+    ASSERT_THAT(fs::exists("/tmp/index3/2000/QTR1/master.idx"), Eq(true));
 }
 
 // TEST(QuarterlyEndToEndTest,
@@ -608,55 +640,61 @@ TEST(QuarterlyEndToEndTest,
 // 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms4"), Eq(9));
 // }
 //
-TEST(QuarterlyEndToEndTest,
-     VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange) {
-  if (fs::exists("/tmp/index5")) {
-    fs::remove_all("/tmp/index5");
-  }
-  if (fs::exists("/tmp/forms5")) {
-    fs::remove_all("/tmp/forms5");
-  }
-
-  //	NOTE: the program name 'the_program' in the command line below is
-  // ignored in the 	the test program.
-
-  std::vector<std::string> tokens{
-      "the_program", "--index-dir",  "/tmp/index5", "--form-dir",
-      "/tmp/forms5", "--max",        "10",          "--host",
-      "www.sec.gov", "--port",       "443",         "--log-level",
-      "information", "--begin-date", "2009-Sep-01", "--end-date",
-      "2010-Oct-04", "--mode",       "quarterly"};
-
-  try {
-    CollectorApp myApp(tokens);
-
-    const auto *test_info = UnitTest::GetInstance()->current_test_info();
-    spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                          test_info->test_suite_name(), "\n\n"));
-
-    bool startup_OK = myApp.Startup();
-    if (startup_OK) {
-      myApp.Run();
-      myApp.Shutdown();
-    } else {
-      std::cout << "Problems starting program.  No processing done.\n";
+TEST_F(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRange)
+{
+    if (fs::exists("/tmp/index5"))
+    {
+        fs::remove_all("/tmp/index5");
     }
-  } catch (std::exception &theProblem) {
-    spdlog::error(
-        catenate("Something fundamental went wrong: ", theProblem.what()));
-    throw;        //	so test framework will get it too.
-  } catch (...) { // handle exception: unspecified
-    spdlog::error("Something totally unexpected happened.");
-    throw;
-  }
-  ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms5"), Eq(10));
+    if (fs::exists("/tmp/forms5"))
+    {
+        fs::remove_all("/tmp/forms5");
+    }
+
+    //	NOTE: the program name 'the_program' in the command line below is
+    // ignored in the 	the test program.
+
+    std::vector<std::string> tokens{"the_program", "--index-dir", "/tmp/index5", "--form-dir",   "/tmp/forms5",
+                                    "--max",       "10",          "--host",      "www.sec.gov",  "--port",
+                                    "443",         "--log-level", "information", "--begin-date", "2009-Sep-01",
+                                    "--end-date",  "2010-Oct-04", "--mode",      "quarterly"};
+
+    try
+    {
+        CollectorApp myApp(tokens);
+
+        const auto *test_info = UnitTest::GetInstance()->current_test_info();
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
+
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
+    }
+    catch (std::exception &theProblem)
+    {
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
+        throw; //	so test framework will get it too.
+    }
+    catch (...)
+    { // handle exception: unspecified
+        spdlog::error("Something totally unexpected happened.");
+        throw;
+    }
+    ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms5"), Eq(10));
 }
 
-// class TickerEndToEndTest : public Test
-// {
-// 	public:
-// };
-//
+class TickerEndToEndTest : public Test
+{
+public:
+};
+
 // TEST(TickerEndToEndTest, VerifyWritesToLogFile)
 // {
 //     if (fs::exists("/tmp/the_log"))
@@ -700,40 +738,45 @@ TEST(QuarterlyEndToEndTest,
 // fs::is_empty("/tmp/the_log")), Eq(true));
 // }
 //
-TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker) {
-  //	NOTE: the program name 'the_program' in the command line below is
-  // ignored in the 	the test program.
+TEST_F(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
+{
+    //	NOTE: the program name 'the_program' in the command line below is
+    // ignored in the 	the test program.
 
-  std::vector<std::string> tokens{
-      "the_program", "--log-level",    "debug",
-      "--mode",      "ticker-only",    "--ticker",
-      "AAPL",        "--ticker-cache", "/vol_DA/SEC/Ticker2CIK_CacheFile"};
+    std::vector<std::string> tokens{"the_program", "--log-level",    "debug",
+                                    "--mode",      "ticker-only",    "--ticker",
+                                    "AAPL",        "--ticker-cache", "/vol_DA/SEC/Ticker2CIK_CacheFile"};
 
-  try {
-    CollectorApp myApp(tokens);
+    try
+    {
+        CollectorApp myApp(tokens);
 
-    const auto *test_info = UnitTest::GetInstance()->current_test_info();
-    spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                          test_info->test_suite_name(), "\n\n"));
+        const auto *test_info = UnitTest::GetInstance()->current_test_info();
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
 
-    bool startup_OK = myApp.Startup();
-    if (startup_OK) {
-      myApp.Run();
-      myApp.Shutdown();
-    } else {
-      std::cout << "Problems starting program.  No processing done.\n";
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
     }
-  } catch (std::exception &theProblem) {
-    spdlog::error(
-        catenate("Something fundamental went wrong: ", theProblem.what()));
-    throw;        //	so test framework will get it too.
-  } catch (...) { // handle exception: unspecified
-    spdlog::error("Something totally unexpected happened.");
-    throw;
-  }
-  ASSERT_THAT((fs::exists("/vol_DA/SEC/Ticker2CIK_CacheFile") &&
-               !fs::is_empty("/vol_DA/SEC/Ticker2CIK_CacheFile")),
-              Eq(true));
+    catch (std::exception &theProblem)
+    {
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
+        throw; //	so test framework will get it too.
+    }
+    catch (...)
+    { // handle exception: unspecified
+        spdlog::error("Something totally unexpected happened.");
+        throw;
+    }
+    ASSERT_THAT((fs::exists("/vol_DA/SEC/Ticker2CIK_CacheFile") && !fs::is_empty("/vol_DA/SEC/Ticker2CIK_CacheFile")),
+                Eq(true));
 }
 
 // TEST(TickerEndToEndTest, VerifyTickerLookupForFileOfTickers)
@@ -869,11 +912,11 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker) {
 // 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms7"), Eq(4));
 // }
 //
-// class DailyEndToEndTestWithTicker : public Test
-// {
-// 	public:
-// };
-//
+class DailyEndToEndTestWithTicker : public Test
+{
+public:
+};
+
 // TEST(DailyEndToEndTestWithTicker,
 // VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFileWithTickerFilter)
 // {
@@ -920,66 +963,73 @@ TEST(TickerEndToEndTest, VerifyTickerLookupFor1Ticker) {
 // 	ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms8"), Eq(4));
 // }
 //
-TEST(DailyEndToEndTestWithTicker,
-     VerifyDownloadCorrectNumberOfFormFilesForDateRangeWithTickerFilter) {
-  if (fs::exists("/tmp/index9")) {
-    fs::remove_all("/tmp/index9");
-  }
-
-  if (fs::exists("/tmp/forms9")) {
-    fs::remove_all("/tmp/forms9");
-  }
-
-  //	NOTE: the program name 'the_program' in the command line below is
-  // ignored in the 	the test program.
-
-  std::vector<std::string> tokens{"the_program",
-                                  "--index-dir",
-                                  "/tmp/index9",
-                                  "--form-dir",
-                                  "/tmp/forms9",
-                                  "--host",
-                                  "localhost",
-                                  "--port",
-                                  "8443",
-                                  "--end-date",
-                                  "2013-Oct-17",
-                                  "--begin-date",
-                                  "2013-Oct-09",
-                                  "--ticker",
-                                  "AAPL",
-                                  "--ticker-cache",
-                                  "/vol_DA/SEC/Ticker2CIK_CacheFile",
-                                  "--log-level",
-                                  "information",
-                                  "--form",
-                                  "4"};
-
-  try {
-    CollectorApp myApp(tokens);
-
-    const auto *test_info = UnitTest::GetInstance()->current_test_info();
-    spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                          test_info->test_suite_name(), "\n\n"));
-
-    bool startup_OK = myApp.Startup();
-    if (startup_OK) {
-      myApp.Run();
-      myApp.Shutdown();
-    } else {
-      std::cout << "Problems starting program.  No processing done.\n";
+TEST_F(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDateRangeWithTickerFilter)
+{
+    if (fs::exists("/tmp/index9"))
+    {
+        fs::remove_all("/tmp/index9");
     }
-  }
 
-  catch (std::exception &theProblem) {
-    spdlog::error(
-        catenate("Something fundamental went wrong: ", theProblem.what()));
-    throw;        //	so test framework will get it too.
-  } catch (...) { // handle exception: unspecified
-    spdlog::error("Something totally unexpected happened.");
-    throw;
-  }
-  ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms9"), Eq(5));
+    if (fs::exists("/tmp/forms9"))
+    {
+        fs::remove_all("/tmp/forms9");
+    }
+
+    //	NOTE: the program name 'the_program' in the command line below is
+    // ignored in the 	the test program.
+
+    std::vector<std::string> tokens{"the_program",
+                                    "--index-dir",
+                                    "/tmp/index9",
+                                    "--form-dir",
+                                    "/tmp/forms9",
+                                    "--host",
+                                    "localhost",
+                                    "--port",
+                                    "8443",
+                                    "--end-date",
+                                    "2013-Oct-17",
+                                    "--begin-date",
+                                    "2013-Oct-09",
+                                    "--ticker",
+                                    "AAPL",
+                                    "--ticker-cache",
+                                    "/vol_DA/SEC/Ticker2CIK_CacheFile",
+                                    "--log-level",
+                                    "information",
+                                    "--form",
+                                    "4"};
+
+    try
+    {
+        CollectorApp myApp(tokens);
+
+        const auto *test_info = UnitTest::GetInstance()->current_test_info();
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
+
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
+    }
+
+    catch (std::exception &theProblem)
+    {
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
+        throw; //	so test framework will get it too.
+    }
+    catch (...)
+    { // handle exception: unspecified
+        spdlog::error("Something totally unexpected happened.");
+        throw;
+    }
+    ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms9"), Eq(5));
 }
 
 // class DailyEndToEndTestWithMultipleFormTypes : public Test
@@ -1084,55 +1134,67 @@ TEST(DailyEndToEndTestWithTicker,
 // }
 //
 
-TEST(EndToEndTestFinancialNotes, VerifyDownloadAndExtractionOfSpecifiedData) {
-  if (fs::exists("/tmp/fin_stmts_downloads")) {
-    fs::remove_all("/tmp/fin_stmts_downloads");
-  }
+class EndToEndTestFinancialNotes : public Test
+{
+public:
+};
 
-  //	NOTE: the program name 'the_program' in the command line below is
-  // ignored in the 	the test program.
-
-  std::vector<std::string> tokens{"the_program",
-                                  "--host",
-                                  "www.sec.gov",
-                                  "--port",
-                                  "443",
-                                  "--end-date",
-                                  "2024-Feb-17",
-                                  "--begin-date",
-                                  "2023-Aug-09",
-                                  "--log-level",
-                                  "debug",
-                                  "--mode",
-                                  "notes",
-                                  "--notes-directory",
-                                  "/tmp/fin_stmts_downloads"};
-
-  try {
-    CollectorApp myApp(tokens);
-
-    const auto *test_info = UnitTest::GetInstance()->current_test_info();
-    spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ",
-                          test_info->test_suite_name(), "\n\n"));
-
-    bool startup_OK = myApp.Startup();
-    if (startup_OK) {
-      myApp.Run();
-      myApp.Shutdown();
-    } else {
-      std::cout << "Problems starting program.  No processing done.\n";
+TEST_F(EndToEndTestFinancialNotes, VerifyDownloadAndExtractionOfSpecifiedData)
+{
+    if (fs::exists("/tmp/fin_stmts_downloads"))
+    {
+        fs::remove_all("/tmp/fin_stmts_downloads");
     }
-  }
 
-  catch (std::exception &theProblem) {
-    spdlog::error(
-        catenate("Something fundamental went wrong: ", theProblem.what()));
-    throw;        //	so test framework will get it too.
-  } catch (...) { // handle exception: unspecified
-    spdlog::error("Something totally unexpected happened.");
-    throw;
-  }
-  ASSERT_THAT(CountFilesInDirectoryTree("/tmp/fin_stmts_downloads"), Eq(33));
+    //	NOTE: the program name 'the_program' in the command line below is
+    // ignored in the 	the test program.
+
+    std::vector<std::string> tokens{"the_program",
+                                    "--host",
+                                    "www.sec.gov",
+                                    "--port",
+                                    "443",
+                                    "--end-date",
+                                    "2024-Feb-17",
+                                    "--begin-date",
+                                    "2023-Aug-09",
+                                    "--log-level",
+                                    "debug",
+                                    "--mode",
+                                    "notes",
+                                    "--notes-directory",
+                                    "/tmp/fin_stmts_downloads"};
+
+    try
+    {
+        CollectorApp myApp(tokens);
+
+        const auto *test_info = UnitTest::GetInstance()->current_test_info();
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
+
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
+    }
+
+    catch (std::exception &theProblem)
+    {
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
+        throw; //	so test framework will get it too.
+    }
+    catch (...)
+    { // handle exception: unspecified
+        spdlog::error("Something totally unexpected happened.");
+        throw;
+    }
+    ASSERT_THAT(CountFilesInDirectoryTree("/tmp/fin_stmts_downloads"), Eq(33));
 }
 
 /*
@@ -1141,18 +1203,23 @@ TEST(EndToEndTestFinancialNotes, VerifyDownloadAndExtractionOfSpecifiedData) {
  * InitLogging Description:
  * =====================================================================================
  */
-void InitLogging() {
-  //    nothing to do for now.
-  //    logging::core::get()->set_filter
-  //    (
-  //        logging::trivial::severity >= logging::trivial::trace
-  //    );
+void InitLogging()
+{
+    // auto my_default_logger = spdlog::stdout_color_mt("testing_logger");
+    // spdlog::set_default_logger(my_default_logger);
+
 } /* -----  end of function InitLogging  ----- */
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
+    // simpler logging setup than unit test because here
+    // the app class will set up required logging.
 
-  InitLogging();
+    auto my_default_logger = spdlog::stdout_color_mt("testing_logger");
+    spdlog::set_default_logger(my_default_logger);
 
-  InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+    // InitLogging();
+
+    InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
