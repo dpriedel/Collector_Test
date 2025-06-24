@@ -1269,6 +1269,11 @@ int main(int argc, char **argv)
     auto my_default_logger = spdlog::stdout_color_mt("testing_logger");
     spdlog::set_default_logger(my_default_logger);
 
+    if (fs::exists("/tmp/Collector"))
+    {
+        fs::remove_all("/tmp/Collector");
+    }
+
     // InitLogging();
 
     InitGoogleTest(&argc, argv);
