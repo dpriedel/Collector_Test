@@ -143,9 +143,10 @@ TEST_F(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFi
     //	NOTE: the program name 'the_program' in the command line below is
     // ignored in the 	the test program.
 
-    std::vector<std::string> tokens{"the_program", "--index-dir", "/tmp",       "--begin-date", "2013-Oct-14",
-                                    "--form-dir",  "/tmp/forms",  "--host",     "localhost",    "--port",
-                                    "8443",        "--log-level", "information"};
+    std::vector<std::string> tokens{
+        "the_program", "--index-dir", "/tmp",        "--begin-date", "2013-Oct-14",
+        "--form-dir",  "/tmp/forms",  "--host",      "localhost",    "--port",
+        "8443",        "--log-level", "information", "--log-path",   "/tmp/Collector/test01.log"};
 
     try
     {
@@ -194,9 +195,13 @@ TEST_F(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
     //	NOTE: the program name 'the_program' in the command line below is
     // ignored in the 	the test program.
 
-    std::vector<std::string> tokens{"the_program", "--index-dir", "/tmp",       "--begin-date",
-                                    "2013-Oct-14", "--form-dir",  "/tmp/forms", "--host",
-                                    "localhost",   "--port",      "8443",       "--index-only"};
+    std::vector<std::string> tokens{"the_program", "--index-dir",
+                                    "/tmp",        "--begin-date",
+                                    "2013-Oct-14", "--form-dir",
+                                    "/tmp/forms",  "--host",
+                                    "localhost",   "--port",
+                                    "8443",        "--index-only",
+                                    "--log-path",  "/tmp/Collector/test02.log"};
     try
     {
         CollectorApp myApp(tokens);
@@ -244,9 +249,23 @@ TEST_F(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForMultipleIndex
     //	NOTE: the program name 'the_program' in the command line below is
     // ignored in the 	the test program.
 
-    std::vector<std::string> tokens{"the_program", "--index-dir",  "/tmp/index1", "--form-dir", "/tmp/forms1",
-                                    "--host",      "localhost",    "--port",      "8443",       "--max",
-                                    "17",          "--begin-date", "2013-Oct-14", "--end-date", "2013-Oct-17"};
+    std::vector<std::string> tokens{"the_program",
+                                    "--index-dir",
+                                    "/tmp/index1",
+                                    "--form-dir",
+                                    "/tmp/forms1",
+                                    "--host",
+                                    "localhost",
+                                    "--port",
+                                    "8443",
+                                    "--max",
+                                    "17",
+                                    "--begin-date",
+                                    "2013-Oct-14",
+                                    "--end-date",
+                                    "2013-Oct-17",
+                                    "--log-path",
+                                    "/tmp/Collector/test03.log"};
 
     try
     {
@@ -285,11 +304,22 @@ TEST_F(DailyEndToEndTest, VerifyExceptionsThrownWhenDiskIsFull)
     //	NOTE: the program name 'the_program' in the command line below is
     // ignored in the 	the test program.
 
-    std::vector<std::string> tokens{"the_program",  "--index-dir",  "/tmp/ofstream_test/test_2",
-                                    "--index-only", "--host",       "localhost",
-                                    "--port",       "8443",         "--max",
-                                    "17",           "--begin-date", "2013-Oct-14",
-                                    "--end-date",   "2013-Oct-17"};
+    std::vector<std::string> tokens{"the_program",
+                                    "--index-dir",
+                                    "/tmp/ofstream_test/test_2",
+                                    "--index-only",
+                                    "--host",
+                                    "localhost",
+                                    "--port",
+                                    "8443",
+                                    "--max",
+                                    "17",
+                                    "--begin-date",
+                                    "2013-Oct-14",
+                                    "--end-date",
+                                    "2013-Oct-17",
+                                    "--log-path",
+                                    "/tmp/Collector/test04.log"};
 
     try
     {
@@ -338,9 +368,10 @@ TEST_F(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesForMultipleIndexFilesWhe
     //	NOTE: the program name 'the_program' in the command line below is
     // ignored in the 	the test program.
 
-    std::vector<std::string> tokens{"the_program", "--index-dir", "/tmp/index1", "--form-dir",  "/tmp/forms1",
-                                    "--host",      "localhost",   "--port",      "8443",        "--begin-date",
-                                    "2013-Oct-14", "--end-date",  "2013-Oct-17", "--index-only"};
+    std::vector<std::string> tokens{"the_program", "--index-dir",  "/tmp/index1", "--form-dir",
+                                    "/tmp/forms1", "--host",       "localhost",   "--port",
+                                    "8443",        "--begin-date", "2013-Oct-14", "--end-date",
+                                    "2013-Oct-17", "--index-only", "--log-path",  "/tmp/Collector/test05.log"};
 
     try
     {
@@ -505,7 +536,8 @@ TEST_F(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifi
                                     "localhost",   "--port",
                                     "8443",        "--begin-date",
                                     "2013-Oct-14", "--end-date",
-                                    "2013-Oct-17", "--replace-form-files"};
+                                    "2013-Oct-17", "--replace-form-files",
+                                    "--log-path",  "/tmp/Collector/test06.log"};
 
     CollectorApp myApp(tokens);
 
@@ -558,9 +590,13 @@ TEST_F(QuarterlyEndToEndTest, VerifyDownloadsOfCorrectQuaterlyIndexFileForSingle
     //	NOTE: the program name 'the_program' in the command line below is
     // ignored in the 	the test program.
 
-    std::vector<std::string> tokens{"the_program", "--index-dir",  "/tmp/index3", "--host",
-                                    "localhost",   "--port",       "8443",        "--begin-date",
-                                    "2000-Jan-01", "--index-only", "--mode",      "quarterly"};
+    std::vector<std::string> tokens{"the_program", "--index-dir",
+                                    "/tmp/index3", "--host",
+                                    "localhost",   "--port",
+                                    "8443",        "--begin-date",
+                                    "2000-Jan-01", "--index-only",
+                                    "--mode",      "quarterly",
+                                    "--log-path",  "/tmp/Collector/test07.log"};
 
     CollectorApp myApp(tokens);
 
@@ -654,10 +690,13 @@ TEST_F(QuarterlyEndToEndTest, VerifyDownloadsSampleOfQuaterlyFormFilesForDateRan
     //	NOTE: the program name 'the_program' in the command line below is
     // ignored in the 	the test program.
 
-    std::vector<std::string> tokens{"the_program", "--index-dir", "/tmp/index5", "--form-dir",   "/tmp/forms5",
-                                    "--max",       "10",          "--host",      "www.sec.gov",  "--port",
-                                    "443",         "--log-level", "information", "--begin-date", "2009-Sep-01",
-                                    "--end-date",  "2010-Oct-04", "--mode",      "quarterly"};
+    std::vector<std::string> tokens{"the_program", "--index-dir",  "/tmp/index5",
+                                    "--form-dir",  "/tmp/forms5",  "--max",
+                                    "10",          "--host",       "www.sec.gov",
+                                    "--port",      "443",          "--log-level",
+                                    "information", "--begin-date", "2009-Sep-01",
+                                    "--end-date",  "2010-Oct-04",  "--mode",
+                                    "quarterly",   "--log-path",   "/tmp/Collector/test08.log"};
 
     try
     {
@@ -743,9 +782,17 @@ TEST_F(TickerEndToEndTest, VerifyTickerLookupFor1Ticker)
     //	NOTE: the program name 'the_program' in the command line below is
     // ignored in the 	the test program.
 
-    std::vector<std::string> tokens{"the_program", "--log-level",    "debug",
-                                    "--mode",      "ticker-only",    "--ticker",
-                                    "AAPL",        "--ticker-cache", "/vol_DA/SEC/Ticker2CIK_CacheFile"};
+    std::vector<std::string> tokens{"the_program",
+                                    "--log-level",
+                                    "debug",
+                                    "--mode",
+                                    "ticker-only",
+                                    "--ticker",
+                                    "AAPL",
+                                    "--ticker-cache",
+                                    "/vol_DA/SEC/Ticker2CIK_CacheFile",
+                                    "--log-path",
+                                    "/tmp/Collector/test09.log"};
 
     try
     {
@@ -998,7 +1045,9 @@ TEST_F(DailyEndToEndTestWithTicker, VerifyDownloadCorrectNumberOfFormFilesForDat
                                     "--log-level",
                                     "information",
                                     "--form",
-                                    "4"};
+                                    "4",
+                                    "--log-path",
+                                    "/tmp/Collector/test10.log"};
 
     try
     {
@@ -1163,7 +1212,9 @@ TEST_F(EndToEndTestFinancialNotes, VerifyDownloadAndExtractionOfSpecifiedData)
                                     "--mode",
                                     "notes",
                                     "--notes-directory",
-                                    "/tmp/fin_stmts_downloads"};
+                                    "/tmp/fin_stmts_downloads",
+                                    "--log-path",
+                                    "/tmp/Collector/test11.log"};
 
     try
     {
