@@ -44,8 +44,7 @@
 
 #include <ranges>
 
-#include <spdlog/async.h>
-#include <spdlog/async_logger.h>
+#include "spdlog/sinks/basic_file_sink.h"
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
@@ -1650,23 +1649,25 @@ void InitLogging()
 
 int main(int argc, char **argv)
 {
-    spdlog::init_thread_pool(8192, 1);
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 
     // 3. Create an asynchronous logger using the console sink.
-    auto async_logger = std::make_shared<spdlog::async_logger>("UTest_logger", // Name for the console logger
-                                                               spdlog::sinks_init_list{console_sink},
-                                                               spdlog::thread_pool(),
-                                                               spdlog::async_overflow_policy::block);
+    auto test_logger = std::make_shared<spdlog::logger>("UTest_logger", // Name for the console logger
+                                                        console_sink);
 
-    spdlog::set_default_logger(async_logger);
+    auto downloads_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("/tmp/downloads_log.txt", true);
+    auto downloads_logger = std::make_shared<spdlog::logger>("downloads_logger", downloads_sink);
+    downloads_logger->set_pattern("%v");
+    downloads_logger->set_level(spdlog::level::info);
+    spdlog::register_logger(downloads_logger);
+
+    spdlog::set_default_logger(test_logger);
     spdlog::set_level(spdlog::level::info);
 
     // InitLogging();
 
     InitGoogleTest(&argc, argv);
     auto result = RUN_ALL_TESTS();
-    std::this_thread::sleep_for(std::chrono::seconds(2)); // Give time for async processing
-    spdlog::shutdown();                                   // Ensure all messages are flushed
+    spdlog::shutdown(); // Ensure all messages are flushed
     return result;
 }
