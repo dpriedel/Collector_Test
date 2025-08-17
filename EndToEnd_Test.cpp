@@ -37,7 +37,10 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdio>
 #include <filesystem>
+#include <memory>
+#include <print>
 #include <string>
 #include <thread>
 
@@ -119,6 +122,32 @@ std::map<std::string, fs::file_time_type> CollectLastModifiedTimesForFilesInDire
     return results;
 }
 
+// Helper function from Gemini to execute a command and capture its output and exit code.
+std::string ExecAndGetOutput(const char *cmd, int &exit_code)
+{
+    std::string result = "";
+    std::array<char, 128> buffer;
+
+    // Use a unique_ptr for RAII to ensure pclose is called.
+    // The second argument "r" means we are reading the command's stdout.
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+
+    if (!pipe)
+    {
+        throw std::runtime_error("popen() failed!");
+    }
+
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+    {
+        result += buffer.data();
+    }
+
+    // pclose() returns the exit status of the command.
+    exit_code = pclose(pipe.release()); // release ownership before explicit close
+
+    return result;
+}
+
 // NOTE: I'm going to run all these daily index tests against my local FTP
 // server.
 
@@ -182,6 +211,92 @@ TEST_F(DailyEndToEndTest, VerifyDownloadCorrectNumberOfFormFilesForSingleIndexFi
         throw;
     }
     ASSERT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(18));
+}
+
+TEST_F(DailyEndToEndTest, VerifyLogCorrectNumberOfFormFilesForSingleIndexFile)
+{
+    if (fs::exists("/tmp/master.20131011.idx"))
+    {
+        fs::remove("/tmp/master.20131011.idx");
+    }
+
+    if (fs::exists("/tmp/forms"))
+    {
+        fs::remove_all("/tmp/forms");
+    }
+    fs::create_directory("/tmp/forms");
+
+    if (fs::exists("/tmp/new_files_logs"))
+    {
+        fs::remove_all("/tmp/new_files_logs");
+    }
+
+    //	NOTE: the program name 'the_program' in the command line below is
+    // ignored in the 	the test program.
+
+    std::vector<std::string> tokens{"the_program",
+                                    "--index-dir",
+                                    "/tmp",
+                                    "--begin-date",
+                                    "2013-Oct-14",
+                                    "--form-dir",
+                                    "/tmp/forms",
+                                    "--host",
+                                    "localhost",
+                                    "--port",
+                                    "8443",
+                                    "--log-level",
+                                    "information",
+                                    "--log-path",
+                                    "/tmp/Collector/test01.log",
+                                    "--log-new-form-files",
+                                    "--new-files-logs-directory",
+                                    "/tmp/new_files_logs"};
+
+    try
+    {
+        CollectorApp myApp(tokens);
+
+        const auto *test_info = UnitTest::GetInstance()->current_test_info();
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
+
+        bool startup_OK = myApp.Startup();
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
+    }
+
+    // catch any problems trying to setup application
+
+    catch (const std::exception &theProblem)
+    {
+        // poco_fatal(myApp->logger(), theProblem.what());
+
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
+        throw; //	so test framework will get it too.
+    }
+    catch (...)
+    { // handle exception: unspecified
+        spdlog::error("Something totally unexpected happened.");
+        throw;
+    }
+    EXPECT_THAT(CountFilesInDirectoryTree("/tmp/forms"), Eq(18));
+
+    int exit_code = -1;
+    std::string output = ExecAndGetOutput("wc -l /tmp/new_files_logs/*", exit_code);
+
+    ASSERT_TRUE(WIFEXITED(exit_code));
+    EXPECT_EQ(WEXITSTATUS(exit_code), 0);
+
+    // Note: The output from a shell command often includes a trailing newline.
+
+    ASSERT_THAT(output, StartsWith("18 "));
 }
 
 TEST_F(DailyEndToEndTest, VerifyDoesNotDownloadFormFilesWhenIndexOnlySpecified)
