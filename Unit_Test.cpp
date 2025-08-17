@@ -1656,7 +1656,7 @@ int main(int argc, char **argv)
                                                         console_sink);
 
     auto downloads_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("/tmp/downloads_log.txt", true);
-    auto downloads_logger = std::make_shared<spdlog::logger>("downloads_logger", downloads_sink);
+    auto downloads_logger = std::make_shared<spdlog::logger>(DOWNLOADS_LOGGER_NAME, downloads_sink);
     downloads_logger->set_pattern("%v");
     downloads_logger->set_level(spdlog::level::info);
     spdlog::register_logger(downloads_logger);
