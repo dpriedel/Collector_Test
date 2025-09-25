@@ -654,34 +654,67 @@ TEST_F(DailyEndToEndTest, VerifyDownloadsOfExistingFormFilesWhenReplaceIsSpecifi
                                     "2013-Oct-17", "--replace-form-files",
                                     "--log-path",  "/tmp/Collector/test06.log"};
 
-    CollectorApp myApp(tokens);
-
-    const auto *test_info = UnitTest::GetInstance()->current_test_info();
-    spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
-
-    bool startup_OK = myApp.Startup();
-    if (startup_OK)
+    try
     {
-        myApp.Run();
-        myApp.Shutdown();
+        CollectorApp myApp(tokens);
+
+        const auto *test_info = UnitTest::GetInstance()->current_test_info();
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
+
+        bool startup_OK = myApp.Startup();
+
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
     }
-    else
+    catch (std::exception &theProblem)
     {
-        std::cout << "Problems starting program.  No processing done.\n";
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
+        throw; //	so test framework will get it too.
+    }
+    catch (...)
+    { // handle exception: unspecified
+        spdlog::error("Something totally unexpected happened.");
+        throw;
     }
     decltype(auto) x1 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
 
     std::this_thread::sleep_for(std::chrono::seconds{1});
 
-    startup_OK = myApp.Startup();
-    if (startup_OK)
+    try
     {
-        myApp.Run();
-        myApp.Shutdown();
+        CollectorApp myApp(tokens);
+
+        const auto *test_info = UnitTest::GetInstance()->current_test_info();
+        spdlog::info(catenate("\n\nTest: ", test_info->name(), " test case: ", test_info->test_suite_name(), "\n\n"));
+
+        bool startup_OK = myApp.Startup();
+
+        if (startup_OK)
+        {
+            myApp.Run();
+            myApp.Shutdown();
+        }
+        else
+        {
+            std::cout << "Problems starting program.  No processing done.\n";
+        }
     }
-    else
+    catch (std::exception &theProblem)
     {
-        std::cout << "Problems starting program.  No processing done.\n";
+        spdlog::error(catenate("Something fundamental went wrong: ", theProblem.what()));
+        throw; //	so test framework will get it too.
+    }
+    catch (...)
+    { // handle exception: unspecified
+        spdlog::error("Something totally unexpected happened.");
+        throw;
     }
     decltype(auto) x2 = CollectLastModifiedTimesForFilesInDirectoryTree("/tmp/forms2");
 
@@ -1305,6 +1338,12 @@ public:
 
 TEST_F(EndToEndTestFinancialNotes, VerifyDownloadAndExtractionOfSpecifiedData)
 {
+    // NOTE: the point of this test is to verify proper handling of
+    // quarterly to monthly transition.  Since this is a rolling date
+    // at the SEC file repository, the date range generator in the
+    // Notes downloader needs to be updated to keep current AND the
+    // dates used in this test need to be updated too.
+
     if (fs::exists("/tmp/fin_stmts_downloads"))
     {
         fs::remove_all("/tmp/fin_stmts_downloads");
@@ -1319,9 +1358,9 @@ TEST_F(EndToEndTestFinancialNotes, VerifyDownloadAndExtractionOfSpecifiedData)
                                     "--port",
                                     "443",
                                     "--end-date",
-                                    "2024-Feb-17",
+                                    "2024-Aug-17",
                                     "--begin-date",
-                                    "2023-Aug-09",
+                                    "2024-Jan-09",
                                     "--log-level",
                                     "debug",
                                     "--mode",

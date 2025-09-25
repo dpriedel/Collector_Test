@@ -1535,6 +1535,9 @@ TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesQuarterlyOnly)
 
 TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesMonthlyOnly)
 {
+    // NOTE: quarterly-to-monthly cutover is a rolling value. The test dates will
+    // have to be updated when this test fails.
+
     FinancialStatementsAndNotes_gen file_names{std::chrono::year_month_day{2024y / std::chrono::November / 15},
                                                std::chrono::year_month_day{2025y / std::chrono::February / 5}};
     EXPECT_EQ(file_names->first, "2024_11_notes.zip");
@@ -1558,26 +1561,33 @@ TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesMonthlyOnly)
 
 TEST_F(FinancialStatementsAndNotesTest, TestGeneratesFileNamesQuarterlyRolloverToMonthly)
 {
-    FinancialStatementsAndNotes_gen file_names{std::chrono::year_month_day{2023y / std::chrono::August / 3},
-                                               std::chrono::year_month_day{2024y / std::chrono::March / 5}};
-    EXPECT_EQ(file_names->first, "2023q3_notes.zip");
-    EXPECT_EQ(file_names->second, "2023_3");
+    // NOTE: quarterly-to-monthly cutover is a rolling value. The test dates will
+    // have to be updated when this test fails.
 
-    std::vector<std::string> expected_values = {"2023q3_notes.zip", "2023q4_notes.zip", "2024_01_notes.zip",
-                                                "2024_02_notes.zip"};
+    spdlog::set_level(spdlog::level::debug);
+
+    FinancialStatementsAndNotes_gen file_names{std::chrono::year_month_day{2024y / std::chrono::January / 3},
+                                               std::chrono::year_month_day{2024y / std::chrono::September / 5}};
+    EXPECT_EQ(file_names->first, "2024q1_notes.zip");
+    EXPECT_EQ(file_names->second, "2024_1");
+
+    std::vector<std::string> expected_values = {"2024q1_notes.zip", "2024q2_notes.zip", "2024_07_notes.zip",
+                                                "2024_08_notes.zip"};
     std::vector<std::string> actual_values;
-    FinancialStatementsAndNotes fin_notes{std::chrono::year_month_day{2023y / std::chrono::August / 3},
-                                          std::chrono::year_month_day{2024y / std::chrono::March / 5}};
+    FinancialStatementsAndNotes fin_notes{std::chrono::year_month_day{2024y / std::chrono::January / 3},
+                                          std::chrono::year_month_day{2024y / std::chrono::September / 5}};
 
     auto only_file_names = fin_notes | rng::views::keys;
     rng::copy(only_file_names, std::back_inserter(actual_values));
     EXPECT_EQ(actual_values, expected_values);
 
     auto only_directory_names = fin_notes | rng::views::values;
-    expected_values = {"2023_3", "2023_4", "2024_01", "2024_02"};
+    expected_values = {"2024_1", "2024_2", "2024_07", "2024_08"};
     actual_values.clear();
     rng::copy(only_directory_names, std::back_inserter(actual_values));
     ASSERT_EQ(actual_values, expected_values);
+
+    spdlog::set_level(spdlog::level::info);
 }
 
 TEST_F(FinancialStatementsAndNotesTest, TestFinancialStatementsFilesDownloadWithReplace)
